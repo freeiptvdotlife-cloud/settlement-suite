@@ -1,0 +1,46 @@
+---
+interface Option {
+  value: string;
+  label: string;
+}
+interface Props {
+  id: string;
+  label: string;
+  options: Option[];
+  defaultValue: string;
+}
+const { id, label, options, defaultValue } = Astro.props;
+---
+<div class="field">
+  <span class="field-label" id={`${id}-label`}>{label}</span>
+  <div class="segmented" role="group" aria-labelledby={`${id}-label`} data-segmented={id}>
+    {options.map((opt) => (
+      <button
+        type="button"
+        class="segmented__option"
+        data-value={opt.value}
+        aria-pressed={opt.value === defaultValue ? "true" : "false"}
+      >
+        {opt.label}
+      </button>
+    ))}
+  </div>
+  <input type="hidden" id={id} value={defaultValue} />
+</div>
+
+<script>
+  document.querySelectorAll<HTMLDivElement>("[data-segmented]").forEach((group) => {
+    const id = group.getAttribute("data-segmented");
+    if (!id) return;
+    const hidden = document.getElementById(id) as HTMLInputElement | null;
+    if (!hidden) return;
+    group.querySelectorAll<HTMLButtonElement>(".segmented__option").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        group.querySelectorAll(".segmented__option").forEach((b) => b.setAttribute("aria-pressed", "false"));
+        btn.setAttribute("aria-pressed", "true");
+        hidden.value = btn.dataset.value ?? "";
+        hidden.dispatchEvent(new Event("change"));
+      });
+    });
+  });
+</script>

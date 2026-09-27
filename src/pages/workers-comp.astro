@@ -1,0 +1,99 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import AdSlot from "../components/AdSlot.astro";
+import Icon from "../components/Icon.astro";
+import PercentSlider from "../components/PercentSlider.astro";
+import PresetButtons from "../components/PresetButtons.astro";
+---
+<BaseLayout
+  title="Workers' Comp Settlement Estimator — Free Calculator"
+  description="Estimate a workers' compensation permanent partial disability settlement using the scheduled-loss method. Free, instant, no login."
+  active="workers-comp"
+>
+  <section class="hero">
+    <h1><Icon name="document" size={26} /> Workers' Comp Settlement Estimator</h1>
+    <p class="subtitle">Estimate a permanent partial disability settlement range using the scheduled-loss method. Free, instant, no data stored.</p>
+  </section>
+
+  <AdSlot slot_id="top-banner" height="250px" />
+
+  <div class="grid-layout">
+    <form id="calc-form" class="card" aria-label="Workers' comp inputs">
+      <div class="field">
+        <label for="averageWeeklyWage"><Icon name="currency" size={16} /> Average weekly wage before injury ($)</label>
+        <input type="number" id="averageWeeklyWage" min="0" step="1" value="0" required />
+        <PresetButtons
+          targetId="averageWeeklyWage"
+          presets={[
+            { label: "$600", value: 600 },
+            { label: "$900", value: 900 },
+            { label: "$1,200", value: 1200 }
+          ]}
+        />
+      </div>
+
+      <PercentSlider id="impairmentRatingPct" label="Impairment Rating" min={0} max={100} value={0} />
+
+      <div class="field">
+        <label for="bodyPart"><Icon name="medical" size={16} /> Injured body part</label>
+        <select id="bodyPart">
+          <option value="arm">Arm</option>
+          <option value="leg">Leg</option>
+          <option value="hand">Hand</option>
+          <option value="foot">Foot</option>
+          <option value="eye">Eye</option>
+          <option value="finger">Finger</option>
+          <option value="backWholePerson">Back (whole person)</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn-primary">Estimate Settlement</button>
+    </form>
+
+    <div class="card result-card" id="result" aria-live="polite">
+      <h2>Estimated Settlement Range</h2>
+      <div class="metric-grid">
+        <div class="metric-card metric-card--accent">
+          <span class="metric-label"><Icon name="currency" size={14} /> Estimated Range</span>
+          <span class="metric-value metric-value--lg" id="range-output">$0 – $0</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label"><Icon name="briefcase" size={14} /> Weekly Comp Rate</span>
+          <span class="metric-value" id="rate-output">$0</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label"><Icon name="document" size={14} /> Scheduled Weeks</span>
+          <span class="metric-value" id="weeks-output">–</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <AdSlot slot_id="bottom-rectangle" height="250px" />
+
+  <Fragment slot="disclaimer">
+    This tool provides a rough estimate using a simplified scheduled-loss (PPD) calculation. Actual
+    workers' compensation awards depend on state-specific schedules, wage caps, and case-specific
+    factors this tool does not account for.
+  </Fragment>
+</BaseLayout>
+
+<script>
+  import { estimateWorkersComp, type BodyPart } from "../lib/workersComp";
+
+  const fmt = (n: number) =>
+    n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+
+  document.getElementById("calc-form")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const input = {
+      averageWeeklyWage: Number((document.getElementById("averageWeeklyWage") as HTMLInputElement).value) || 0,
+      impairmentRatingPct: Number((document.getElementById("impairmentRatingPct") as HTMLInputElement).value) || 0,
+      bodyPart: (document.getElementById("bodyPart") as HTMLSelectElement).value as BodyPart
+    };
+    const result = estimateWorkersComp(input);
+    document.getElementById("range-output")!.textContent = `${fmt(result.estimateLow)} – ${fmt(result.estimateHigh)}`;
+    document.getElementById("rate-output")!.textContent = fmt(result.compensationRate);
+    document.getElementById("weeks-output")!.textContent = `${result.scheduledWeeks} wks`;
+  });
+</script>

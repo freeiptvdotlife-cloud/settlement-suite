@@ -1,0 +1,42 @@
+---
+interface Props {
+  id: string;
+  label: string;
+  min?: number;
+  max?: number;
+  value?: number;
+  suffix?: string;
+}
+const { id, label, min = 0, max = 100, value = 0, suffix = "%" } = Astro.props;
+const initialPct = ((value - min) / (max - min)) * 100;
+---
+<div class="field">
+  <label for={id}>{label}</label>
+  <div class="percent-slider">
+    <input type="range" id={id} min={min} max={max} value={value} data-percent-slider={id} />
+    <output id={`${id}-output`} for={id} class="percent-slider__value" data-suffix={suffix}>{value}{suffix}</output>
+  </div>
+  <svg class="bar" viewBox="0 0 100 8" preserveAspectRatio="none" role="presentation" aria-hidden="true">
+    <rect x="0" y="0" width="100" height="8" rx="4" class="bar__track"></rect>
+    <rect id={`${id}-fill`} x="0" y="0" width={initialPct} height="8" rx="4" class="bar__fill"></rect>
+  </svg>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLInputElement>("[data-percent-slider]").forEach((input) => {
+    const id = input.getAttribute("data-percent-slider");
+    if (!id) return;
+    const fill = document.getElementById(`${id}-fill`);
+    const output = document.getElementById(`${id}-output`);
+    const suffix = output?.getAttribute("data-suffix") ?? "%";
+    const sync = () => {
+      const min = Number(input.min || 0);
+      const max = Number(input.max || 100);
+      const pct = ((Number(input.value) - min) / (max - min)) * 100;
+      if (fill) fill.setAttribute("width", String(pct));
+      if (output) output.textContent = `${input.value}${suffix}`;
+    };
+    input.addEventListener("input", sync);
+    sync();
+  });
+</script>

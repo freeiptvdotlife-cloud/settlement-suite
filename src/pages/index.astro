@@ -1,0 +1,127 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import AdSlot from "../components/AdSlot.astro";
+import Icon from "../components/Icon.astro";
+import SegmentedControl from "../components/SegmentedControl.astro";
+import PercentSlider from "../components/PercentSlider.astro";
+import PresetButtons from "../components/PresetButtons.astro";
+---
+<BaseLayout
+  title="Personal Injury Settlement Estimator — Free Calculator"
+  description="Estimate your personal injury settlement value range using the multiplier method. Free, instant, no login."
+  active="settlement"
+>
+  <section class="hero">
+    <h1><Icon name="scale" size={26} /> Personal Injury Settlement Estimator</h1>
+    <p class="subtitle">Estimate a settlement range using the multiplier method attorneys commonly use. Free, instant, no data stored.</p>
+  </section>
+
+  <AdSlot slot_id="top-banner" height="250px" />
+
+  <div class="grid-layout">
+    <form id="calc-form" class="card" aria-label="Settlement inputs">
+      <div class="field">
+        <label for="medicalExpenses"><Icon name="medical" size={16} /> Medical expenses to date ($)</label>
+        <input type="number" id="medicalExpenses" min="0" step="1" value="0" required />
+        <PresetButtons
+          targetId="medicalExpenses"
+          presets={[
+            { label: "$2,500", value: 2500 },
+            { label: "$10,000", value: 10000 },
+            { label: "$25,000", value: 25000 },
+            { label: "$50,000", value: 50000 }
+          ]}
+        />
+      </div>
+
+      <div class="field">
+        <label for="futureMedicalExpenses"><Icon name="medical" size={16} /> Estimated future medical expenses ($)</label>
+        <input type="number" id="futureMedicalExpenses" min="0" step="1" value="0" required />
+      </div>
+
+      <div class="field">
+        <label for="lostWages"><Icon name="briefcase" size={16} /> Lost wages to date ($)</label>
+        <input type="number" id="lostWages" min="0" step="1" value="0" required />
+        <PresetButtons
+          targetId="lostWages"
+          presets={[
+            { label: "$1,000", value: 1000 },
+            { label: "$5,000", value: 5000 },
+            { label: "$15,000", value: 15000 }
+          ]}
+        />
+      </div>
+
+      <div class="field">
+        <label for="futureLostWages"><Icon name="briefcase" size={16} /> Estimated future lost wages ($)</label>
+        <input type="number" id="futureLostWages" min="0" step="1" value="0" required />
+      </div>
+
+      <SegmentedControl
+        id="severity"
+        label="Injury Severity"
+        defaultValue="moderate"
+        options={[
+          { value: "minor", label: "Minor" },
+          { value: "moderate", label: "Moderate" },
+          { value: "severe", label: "Severe" },
+          { value: "catastrophic", label: "Catastrophic" }
+        ]}
+      />
+
+      <PercentSlider id="comparativeFaultPct" label="Your Share of Fault" min={0} max={100} value={0} />
+
+      <button type="submit" class="btn-primary">Estimate Settlement Range</button>
+    </form>
+
+    <div class="card result-card" id="result" aria-live="polite">
+      <h2>Estimated Settlement Range</h2>
+      <div class="metric-grid">
+        <div class="metric-card metric-card--accent">
+          <span class="metric-label"><Icon name="currency" size={14} /> Estimated Range</span>
+          <span class="metric-value metric-value--lg" id="range-output">$0 – $0</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label"><Icon name="briefcase" size={14} /> Economic Damages</span>
+          <span class="metric-value" id="economic-output">$0</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label"><Icon name="document" size={14} /> Multiplier Used</span>
+          <span class="metric-value" id="multiplier-output">–</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <AdSlot slot_id="bottom-rectangle" height="250px" />
+
+  <Fragment slot="disclaimer">
+    This tool provides a rough estimate for informational purposes only, using a common industry
+    "multiplier method." It is not a guarantee of any settlement or verdict. Consult a licensed
+    attorney for an actual case evaluation.
+  </Fragment>
+</BaseLayout>
+
+<script>
+  import { estimateSettlement, type InjurySeverity } from "../lib/settlement";
+
+  const fmt = (n: number) =>
+    n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+
+  document.getElementById("calc-form")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const input = {
+      medicalExpenses: Number((document.getElementById("medicalExpenses") as HTMLInputElement).value) || 0,
+      futureMedicalExpenses: Number((document.getElementById("futureMedicalExpenses") as HTMLInputElement).value) || 0,
+      lostWages: Number((document.getElementById("lostWages") as HTMLInputElement).value) || 0,
+      futureLostWages: Number((document.getElementById("futureLostWages") as HTMLInputElement).value) || 0,
+      severity: (document.getElementById("severity") as HTMLInputElement).value as InjurySeverity,
+      comparativeFaultPct: Number((document.getElementById("comparativeFaultPct") as HTMLInputElement).value) || 0
+    };
+    const result = estimateSettlement(input);
+    document.getElementById("range-output")!.textContent = `${fmt(result.estimateLow)} – ${fmt(result.estimateHigh)}`;
+    document.getElementById("economic-output")!.textContent = fmt(result.economicDamages);
+    document.getElementById("multiplier-output")!.textContent =
+      `${result.multiplierRange[0]}x – ${result.multiplierRange[1]}x`;
+  });
+</script>

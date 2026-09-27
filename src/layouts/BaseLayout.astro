@@ -1,0 +1,103 @@
+---
+import Icon from "../components/Icon.astro";
+
+interface Props {
+  title: string;
+  description: string;
+  active: "settlement" | "child-support" | "workers-comp";
+}
+const { title, description, active } = Astro.props;
+
+const navItems = [
+  { href: "/", label: "Injury Settlement", key: "settlement", icon: "scale" },
+  { href: "/child-support", label: "Child Support", key: "child-support", icon: "document" },
+  { href: "/workers-comp", label: "Workers' Comp", key: "workers-comp", icon: "briefcase" }
+] as const;
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <meta name="color-scheme" content="light dark" />
+  <link rel="stylesheet" href="/theme.css" />
+  <script is:inline>
+    (function () {
+      var stored = null;
+      try { stored = localStorage.getItem("theme"); } catch (e) {}
+      var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    })();
+  </script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <div class="brand">
+        <Icon name="scale" size={22} />
+        <span>LegalCalc Suite</span>
+      </div>
+      <div class="header-controls">
+        <nav class="app-nav" aria-label="Calculators">
+          {navItems.map((item) => (
+            <a
+              href={item.href}
+              class={`nav-link ${item.key === active ? "nav-link--active" : ""}`}
+              aria-current={item.key === active ? "page" : undefined}
+            >
+              <Icon name={item.icon} size={14} />
+              {item.label}
+            </a>
+          ))}
+        </nav>
+        <button
+          type="button"
+          id="theme-toggle"
+          class="theme-toggle"
+          aria-label="Toggle dark mode"
+          aria-pressed="false"
+        >
+          <Icon name="sun" size={18} />
+          <Icon name="moon" size={18} />
+        </button>
+      </div>
+    </header>
+
+    <main class="app-main">
+      <slot />
+    </main>
+
+    <footer class="app-footer">
+      <div class="disclaimer-block" role="note">
+        <Icon name="warning" size={20} />
+        <div>
+          <strong>Not legal advice.</strong> <slot name="disclaimer" />
+        </div>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>
+
+<script>
+  const toggle = document.getElementById("theme-toggle");
+  const root = document.documentElement;
+
+  function syncPressedState() {
+    toggle?.setAttribute("aria-pressed", String(root.getAttribute("data-theme") === "dark"));
+  }
+  syncPressedState();
+
+  toggle?.addEventListener("click", () => {
+    const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    root.setAttribute("data-theme", next);
+    try {
+      localStorage.setItem("theme", next);
+    } catch (e) {
+      // localStorage unavailable (private browsing) — theme still applies for this session
+    }
+    syncPressedState();
+  });
+</script>

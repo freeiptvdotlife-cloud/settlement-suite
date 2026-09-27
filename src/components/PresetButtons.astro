@@ -1,0 +1,33 @@
+---
+interface Preset {
+  label: string;
+  value: number;
+}
+interface Props {
+  targetId: string;
+  presets: Preset[];
+}
+const { targetId, presets } = Astro.props;
+---
+<div class="preset-row" role="group" aria-label={`Quick amount presets`}>
+  {presets.map((p) => (
+    <button type="button" class="preset-chip" data-preset-target={targetId} data-preset-value={p.value}>
+      {p.label}
+    </button>
+  ))}
+</div>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>("[data-preset-target]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const targetId = btn.getAttribute("data-preset-target");
+      const value = btn.getAttribute("data-preset-value");
+      if (!targetId || value === null) return;
+      const input = document.getElementById(targetId) as HTMLInputElement | null;
+      if (!input) return;
+      input.value = value;
+      input.dispatchEvent(new Event("input"));
+      input.dispatchEvent(new Event("change"));
+    });
+  });
+</script>

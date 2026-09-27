@@ -1,0 +1,66 @@
+---
+interface Props {
+  name: "scale" | "medical" | "briefcase" | "currency" | "warning" | "document" | "sun" | "moon";
+  size?: number;
+  class?: string;
+}
+const { name, size = 20, class: className = "" } = Astro.props;
+const common = {
+  width: size,
+  height: size,
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "currentColor",
+  "stroke-width": "1.6",
+  "stroke-linecap": "round" as const,
+  "stroke-linejoin": "round" as const,
+  class: `icon ${className}`.trim(),
+  "aria-hidden": "true"
+};
+---
+{name === "scale" && (
+  <svg {...common}>
+    <path d="M12 3v3M12 6l-6 3M12 6l6 3M4 9l2 5a3 3 0 006 0l-2-5M14 9l2 5a3 3 0 006 0l-2-5M9 21h6" />
+  </svg>
+)}
+{name === "medical" && (
+  <svg {...common}>
+    <rect x="3" y="3" width="18" height="18" rx="4" />
+    <path d="M12 8v8M8 12h8" />
+  </svg>
+)}
+{name === "briefcase" && (
+  <svg {...common}>
+    <rect x="3" y="7" width="18" height="12" rx="2" />
+    <path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2M3 12h18" />
+  </svg>
+)}
+{name === "currency" && (
+  <svg {...common}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M15 9.5c0-1.1-1.3-2-3-2s-3 .9-3 2 1.3 1.5 3 2 3 .9 3 2-1.3 2-3 2-3-.9-3-2M12 6v1.5M12 16.5V18" />
+  </svg>
+)}
+{name === "warning" && (
+  <svg {...common}>
+    <path d="M12 3l10 18H2L12 3z" />
+    <path d="M12 10v4M12 17h.01" />
+  </svg>
+)}
+{name === "document" && (
+  <svg {...common}>
+    <path d="M6 2h8l5 5v15H6V2z" />
+    <path d="M14 2v5h5M9 13h6M9 17h6" />
+  </svg>
+)}
+{name === "sun" && (
+  <svg {...common} class={`icon icon-sun ${className}`.trim()}>
+    <circle cx="12" cy="12" r="4.5" />
+    <path d="M12 2v2.5M12 19.5V22M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2 12h2.5M19.5 12H22M4.2 19.8l1.8-1.8M18 6l1.8-1.8" />
+  </svg>
+)}
+{name === "moon" && (
+  <svg {...common} class={`icon icon-moon ${className}`.trim()}>
+    <path d="M20 14.5A8.5 8.5 0 019.5 4 8.5 8.5 0 1020 14.5z" />
+  </svg>
+)}

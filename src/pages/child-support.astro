@@ -1,0 +1,98 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import AdSlot from "../components/AdSlot.astro";
+import Icon from "../components/Icon.astro";
+import PercentSlider from "../components/PercentSlider.astro";
+import PresetButtons from "../components/PresetButtons.astro";
+---
+<BaseLayout
+  title="Child Support Estimator — Free Calculator"
+  description="Estimate monthly child support using a percentage-of-income guideline model. Free, instant, no login."
+  active="child-support"
+>
+  <section class="hero">
+    <h1><Icon name="briefcase" size={26} /> Child Support Estimator</h1>
+    <p class="subtitle">Estimate a monthly child support range using a common percentage-of-income guideline. Free, instant, no data stored.</p>
+  </section>
+
+  <AdSlot slot_id="top-banner" height="250px" />
+
+  <div class="grid-layout">
+    <form id="calc-form" class="card" aria-label="Child support inputs">
+      <div class="field">
+        <label for="payorMonthlyIncome"><Icon name="currency" size={16} /> Paying parent's gross monthly income ($)</label>
+        <input type="number" id="payorMonthlyIncome" min="0" step="1" value="0" required />
+        <PresetButtons
+          targetId="payorMonthlyIncome"
+          presets={[
+            { label: "$3,000", value: 3000 },
+            { label: "$5,000", value: 5000 },
+            { label: "$8,000", value: 8000 }
+          ]}
+        />
+      </div>
+
+      <div class="field">
+        <label for="numberOfChildren"><Icon name="document" size={16} /> Number of children</label>
+        <select id="numberOfChildren">
+          <option value="1">1</option>
+          <option value="2" selected>2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6+</option>
+        </select>
+      </div>
+
+      <PercentSlider id="payorOvernightsPct" label="Paying Parent's Overnights per Year" min={0} max={50} value={0} />
+
+      <button type="submit" class="btn-primary">Estimate Child Support</button>
+    </form>
+
+    <div class="card result-card" id="result" aria-live="polite">
+      <h2>Estimated Monthly Support Range</h2>
+      <div class="metric-grid">
+        <div class="metric-card metric-card--accent">
+          <span class="metric-label"><Icon name="currency" size={14} /> Estimated Range / Month</span>
+          <span class="metric-value metric-value--lg" id="range-output">$0 – $0</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label"><Icon name="document" size={14} /> Guideline Percent</span>
+          <span class="metric-value" id="percent-output">–</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label"><Icon name="briefcase" size={14} /> Base Obligation</span>
+          <span class="metric-value" id="base-output">$0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <AdSlot slot_id="bottom-rectangle" height="250px" />
+
+  <Fragment slot="disclaimer">
+    This tool provides a rough estimate using a simplified percentage-of-income guideline. Actual
+    child support is determined by state-specific guidelines, court discretion, and factors this
+    tool does not account for.
+  </Fragment>
+</BaseLayout>
+
+<script>
+  import { estimateChildSupport, type ChildCount } from "../lib/childSupport";
+
+  const fmt = (n: number) =>
+    n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+
+  document.getElementById("calc-form")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const input = {
+      payorMonthlyIncome: Number((document.getElementById("payorMonthlyIncome") as HTMLInputElement).value) || 0,
+      numberOfChildren: Number((document.getElementById("numberOfChildren") as HTMLSelectElement).value) as ChildCount,
+      payorOvernightsPct: Number((document.getElementById("payorOvernightsPct") as HTMLInputElement).value) || 0
+    };
+    const result = estimateChildSupport(input);
+    document.getElementById("range-output")!.textContent = `${fmt(result.estimateLow)} – ${fmt(result.estimateHigh)}`;
+    document.getElementById("percent-output")!.textContent = `${result.guidelinePercent}%`;
+    document.getElementById("base-output")!.textContent = fmt(result.baseObligation);
+  });
+</script>

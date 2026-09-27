@@ -1,0 +1,10 @@
+---
+interface Props {
+  slot_id: string;
+  height?: string;
+}
+const { slot_id, height = "250px" } = Astro.props;
+---
+<div class="ad-slot" data-ad-slot={slot_id} style={`min-height:${height}; height:${height};`}>
+  <span class="ad-slot__label">Advertisement</span>
+</div>
