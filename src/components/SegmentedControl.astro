@@ -10,10 +10,11 @@ interface Props {
   defaultValue: string;
 }
 const { id, label, options, defaultValue } = Astro.props;
+const columnsClass = options.length === 3 ? "segmented--3" : "";
 ---
 <div class="field">
   <span class="field-label" id={`${id}-label`}>{label}</span>
-  <div class="segmented" role="group" aria-labelledby={`${id}-label`} data-segmented={id}>
+  <div class={`segmented ${columnsClass}`.trim()} role="group" aria-labelledby={`${id}-label`} data-segmented={id}>
     {options.map((opt) => (
       <button
         type="button"

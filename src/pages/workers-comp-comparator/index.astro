@@ -1,0 +1,253 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import Icon from '../../components/Icon.astro';
+import PercentSlider from '../../components/PercentSlider.astro';
+---
+
+<BaseLayout
+  title="Workers' Comp Lump Sum vs. Structured Settlement Calculator"
+  description="Free workers' compensation lump-sum vs. weekly benefits calculator. Enter your average weekly wage, benefit rate, and duration to see the present value of your full benefit stream, then compare any lump-sum offer against it."
+  active="workers-comp-comparator"
+  disclaimerLead="Not legal or financial advice."
+>
+  <section class="hero">
+    <h1><Icon name="shield" size={26} /> Workers' Comp: Lump Sum vs. Weekly Benefits</h1>
+    <p class="subtitle">
+      See what your remaining weekly workers' comp benefits are worth today as
+      a lump sum, then compare any settlement offer against that number — and
+      see how many weeks (or years) of benefits that offer actually represents.
+    </p>
+  </section>
+
+  <AdSlot slot_id="top-leaderboard" height="100px" />
+
+  <div class="grid-layout">
+    <div class="card" id="calculator">
+      <h2>Benefit Inputs</h2>
+      <div class="field">
+        <label for="aww-input"><Icon name="currency" size={16} /> Average weekly wage — AWW ($)</label>
+        <input type="number" id="aww-input" min="0" step="10" value="900" />
+      </div>
+
+      <PercentSlider id="percent-input" label="Compensation rate (% of AWW)" icon="percent" min={0} max={100} value={66.67} step={0.01} suffix="%" />
+      <p class="field-hint" style="margin-top:-0.6rem;">Most states use two-thirds (66.67%) of AWW for temporary or permanent disability benefits — confirm your state's exact rule.</p>
+
+      <div class="field-row field-row--2">
+        <div>
+          <label for="min-cap-input"><Icon name="currency" size={16} /> State weekly minimum ($)</label>
+          <input type="number" id="min-cap-input" min="0" step="10" value="0" />
+        </div>
+        <div>
+          <label for="max-cap-input"><Icon name="currency" size={16} /> State weekly maximum ($)</label>
+          <input type="number" id="max-cap-input" min="0" step="10" value="1300" />
+        </div>
+      </div>
+      <p class="field-hint">Check your state workers' comp board for the current statutory min/max — these are updated yearly and vary widely by state.</p>
+
+      <div class="field">
+        <label for="weeks-input"><Icon name="clock" size={16} /> Weeks of benefit entitlement remaining</label>
+        <input type="number" id="weeks-input" min="0" step="1" value="104" />
+        <p class="field-hint">Confirm this with your adjuster or attorney — it depends on your disability rating, body part, and state's schedule.</p>
+      </div>
+
+      <PercentSlider id="rate-slider" label="Discount rate for today's value" icon="percent" min={0} max={20} value={6} step={0.25} suffix="%" />
+    </div>
+
+    <div class="card result-card" id="results" aria-live="polite">
+      <h2>Benefit Stream Summary</h2>
+      <div class="metric-grid">
+        <div class="metric-card metric-card--accent">
+          <span class="metric-label"><Icon name="currency" size={14} /> Present Value of Full Benefit Stream</span>
+          <span class="metric-value metric-value--lg" id="stat-pv">$0</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label"><Icon name="shield" size={14} /> Weekly Compensation Rate</span>
+          <span class="metric-value" id="stat-weekly-rate">$0</span>
+          <span class="metric-note" id="clamp-note"></span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label"><Icon name="coins" size={14} /> Total Remaining Benefits</span>
+          <span class="metric-value" id="stat-total-undiscounted">$0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <AdSlot slot_id="mid-content" height="250px" />
+
+  <div class="card" id="offer-comparison">
+    <h2>Compare a Settlement Offer</h2>
+    <p class="card-note">
+      Enter a lump-sum offer to see how it stacks up against the present
+      value of your full weekly benefit stream above.
+    </p>
+    <div class="field">
+      <label for="offer-input"><Icon name="currency" size={16} /> Lump-sum offer amount ($)</label>
+      <input type="number" id="offer-input" min="0" step="100" placeholder="e.g. 35000" />
+    </div>
+    <div class="metric-grid">
+      <div class="metric-card metric-card--accent">
+        <span class="metric-label"><Icon name="percent" size={14} /> Compared to the Present Value of Your Benefits</span>
+        <span class="metric-value" id="stat-gap">—</span>
+      </div>
+      <div class="metric-card metric-card--accent">
+        <span class="metric-label"><Icon name="clock" size={14} /> This Offer Represents About</span>
+        <span class="metric-value" id="stat-equivalent-time">—</span>
+      </div>
+    </div>
+  </div>
+
+  <section class="prose">
+    <h2>How this calculator works</h2>
+    <p>
+      Your weekly compensation rate is your average weekly wage multiplied
+      by your state's benefit percentage (typically two-thirds), clamped
+      between your state's statutory weekly minimum and maximum:
+    </p>
+    <p>
+      <code>CompRate = clamp(AWW × %, min, max)</code>
+    </p>
+    <p>
+      The remaining weekly payments are then valued as an ordinary annuity —
+      the same present-value math used across these tools — to get what the
+      full stream is worth today: <code>PV = CompRate × [1 − (1+r)^−n] ÷ r</code>,
+      where <em>r</em> is the weekly discount rate and <em>n</em> is weeks
+      remaining. A lump-sum offer is compared against that PV, and converted
+      back into an equivalent number of weeks using the same formula solved
+      in reverse.
+    </p>
+    <h2>Frequently asked questions</h2>
+    <p>
+      <strong>Why would I take a lump sum for less than the present
+      value of my weekly benefits?</strong> You usually shouldn't, unless
+      you have a specific need for cash now, expect your case to end early
+      anyway, or your state applies a mandated discount for early buyouts.
+      This tool exists to help you see exactly how much less an offer is,
+      in plain dollars and equivalent time.
+    </p>
+    <p>
+      <strong>Where do I find my state's weekly minimum and maximum?</strong>
+      Search "[your state] workers compensation maximum weekly benefit
+      [current year]" or check your state's Department of Labor / workers'
+      comp board website — these figures are published and updated annually.
+    </p>
+  </section>
+
+  <AdSlot slot_id="bottom" height="100px" />
+
+  <Fragment slot="disclaimer">
+    This tool does not know your state's benefit caps or how many weeks
+    you're entitled to. Workers' comp weekly minimums, maximums, and
+    permanent-disability schedules are set by each state, change annually,
+    and depend on your body part and impairment rating. Enter your state's
+    current figures above — confirm them with your claims adjuster, your
+    state workers' comp board, or an attorney.
+  </Fragment>
+</BaseLayout>
+
+<script>
+  import {
+    periodicRateFromAnnual,
+    annuityPresentValue,
+    periodsFromPresentValue,
+    compensationRate,
+    undiscountedBenefitTotal,
+  } from '../../lib/finance-math';
+
+  const currency = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0,
+  });
+
+  const awwInput = document.getElementById('aww-input') as HTMLInputElement;
+  const percentInput = document.getElementById('percent-input') as HTMLInputElement;
+  const minCapInput = document.getElementById('min-cap-input') as HTMLInputElement;
+  const maxCapInput = document.getElementById('max-cap-input') as HTMLInputElement;
+  const weeksInput = document.getElementById('weeks-input') as HTMLInputElement;
+  const rateSlider = document.getElementById('rate-slider') as HTMLInputElement;
+
+  const statWeeklyRate = document.getElementById('stat-weekly-rate') as HTMLDivElement;
+  const clampNote = document.getElementById('clamp-note') as HTMLDivElement;
+  const statTotalUndiscounted = document.getElementById('stat-total-undiscounted') as HTMLDivElement;
+  const statPv = document.getElementById('stat-pv') as HTMLDivElement;
+
+  const offerInput = document.getElementById('offer-input') as HTMLInputElement;
+  const statGap = document.getElementById('stat-gap') as HTMLDivElement;
+  const statEquivalentTime = document.getElementById('stat-equivalent-time') as HTMLDivElement;
+
+  let currentWeeklyRate = 0;
+  let currentPeriodicRate = 0;
+
+  function recalculate() {
+    const aww = parseFloat(awwInput.value) || 0;
+    const percent = parseFloat(percentInput.value) || 0;
+    const minCap = parseFloat(minCapInput.value) || 0;
+    const maxCap = parseFloat(maxCapInput.value) || 0;
+    const weeks = Math.max(0, parseInt(weeksInput.value, 10) || 0);
+    const annualRate = parseFloat(rateSlider.value);
+
+    const comp = compensationRate(aww, percent, minCap, maxCap);
+    currentWeeklyRate = comp.clampedRate;
+    currentPeriodicRate = periodicRateFromAnnual(annualRate, 'weekly');
+
+    statWeeklyRate.textContent = currency.format(comp.clampedRate);
+    if (comp.wasClampedToMin) {
+      clampNote.textContent = `Raised to the state minimum (raw two-thirds rate would have been ${currency.format(comp.rawRate)})`;
+    } else if (comp.wasClampedToMax) {
+      clampNote.textContent = `Capped at the state maximum (uncapped rate would have been ${currency.format(comp.rawRate)})`;
+    } else {
+      clampNote.textContent = '';
+    }
+
+    const totalUndiscounted = undiscountedBenefitTotal(comp.clampedRate, weeks);
+    const pv = annuityPresentValue(comp.clampedRate, currentPeriodicRate, weeks);
+
+    statTotalUndiscounted.textContent = currency.format(totalUndiscounted);
+    statPv.textContent = currency.format(pv);
+
+    updateOfferComparison();
+  }
+
+  function updateOfferComparison() {
+    const offer = parseFloat(offerInput.value);
+    const pv = annuityPresentValue(
+      currentWeeklyRate,
+      currentPeriodicRate,
+      Math.max(0, parseInt(weeksInput.value, 10) || 0)
+    );
+
+    if (isNaN(offer) || offer <= 0 || currentWeeklyRate <= 0) {
+      statGap.textContent = '—';
+      statEquivalentTime.textContent = '—';
+      return;
+    }
+
+    const gap = pv - offer;
+    if (gap > 0) {
+      const pct = pv > 0 ? (gap / pv) * 100 : 0;
+      statGap.textContent = `${currency.format(gap)} less than the present value (${pct.toFixed(1)}% below)`;
+    } else {
+      statGap.textContent = `${currency.format(Math.abs(gap))} more than the present value`;
+    }
+
+    const equivalentWeeks = periodsFromPresentValue(currentWeeklyRate, currentPeriodicRate, offer);
+    if (equivalentWeeks === null) {
+      statEquivalentTime.textContent = 'More than any finite number of weeks at this rate';
+    } else {
+      const years = equivalentWeeks / 52;
+      statEquivalentTime.textContent = `${equivalentWeeks.toFixed(1)} weeks (~${years.toFixed(1)} years) of benefits`;
+    }
+  }
+
+  awwInput.addEventListener('input', recalculate);
+  percentInput.addEventListener('input', recalculate);
+  minCapInput.addEventListener('input', recalculate);
+  maxCapInput.addEventListener('input', recalculate);
+  weeksInput.addEventListener('input', recalculate);
+  rateSlider.addEventListener('input', recalculate);
+  offerInput.addEventListener('input', updateOfferComparison);
+
+  recalculate();
+</script>

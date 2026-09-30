@@ -1,0 +1,198 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import Icon from '../../components/Icon.astro';
+import PercentSlider from '../../components/PercentSlider.astro';
+import SegmentedControl from '../../components/SegmentedControl.astro';
+---
+
+<BaseLayout
+  title="Lawsuit Loan Cost Calculator — See the Real Effective APR"
+  description="Free pre-settlement lawsuit loan cost calculator. Enter your advance amount, monthly rate, and expected case length to see the total payoff and the real annualized APR — the number funding companies don't put on the pitch."
+  active="lawsuit-loan"
+  disclaimerLead="Not a loan offer."
+>
+  <section class="hero">
+    <h1><Icon name="percent" size={26} /> Lawsuit Loan Cost Calculator</h1>
+    <p class="subtitle">
+      Pre-settlement funding companies quote a monthly rate or fee, not an APR —
+      because the annualized cost is almost always far higher than it sounds.
+      Enter your advance amount and terms to see the total payoff and the real
+      effective APR at different case-length scenarios.
+    </p>
+  </section>
+
+  <AdSlot slot_id="top-leaderboard" height="100px" />
+
+  <div class="grid-layout">
+    <div class="card" id="calculator">
+      <h2>Advance Terms</h2>
+      <div class="field">
+        <label for="principal-input"><Icon name="currency" size={16} /> Advance amount ($)</label>
+        <input type="number" id="principal-input" min="0" step="500" value="5000" />
+      </div>
+
+      <PercentSlider id="rate-slider" label="Funder's monthly rate / fee" icon="percent" min={1} max={6} value={3} step={0.25} suffix="%/mo" />
+
+      <SegmentedControl
+        id="compounding-select"
+        label="How the fee accrues"
+        defaultValue="compound"
+        options={[
+          { value: 'compound', label: 'Compounds monthly' },
+          { value: 'simple', label: 'Simple — flat rate' },
+        ]}
+      />
+
+      <PercentSlider id="months-slider" label="Months until case resolves" icon="clock" min={1} max={36} value={12} step={1} suffix=" mo" />
+    </div>
+
+    <div class="card result-card" id="results" aria-live="polite">
+      <h2>Cost Summary</h2>
+      <div class="metric-grid">
+        <div class="metric-card metric-card--accent">
+          <span class="metric-label"><Icon name="percent" size={14} /> Effective Annualized APR</span>
+          <span class="metric-value metric-value--lg" id="stat-apr">—</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label"><Icon name="currency" size={14} /> Total Payoff at Resolution</span>
+          <span class="metric-value" id="stat-payoff">$0</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label"><Icon name="coins" size={14} /> Cost of Capital</span>
+          <span class="metric-value" id="stat-cost">$0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <AdSlot slot_id="mid-content" height="250px" />
+
+  <div class="card" id="scenario-table">
+    <h2>If Your Case Takes Longer Than Expected</h2>
+    <p class="card-note">
+      Case length is the single biggest driver of what a lawsuit loan actually
+      costs — not the advance amount. Here's the same advance and rate played
+      out over common resolution timelines.
+    </p>
+    <div class="table-wrap">
+      <table id="scenario-rows">
+        <thead>
+          <tr>
+            <th>Months to resolve</th>
+            <th>Total payoff</th>
+            <th>Cost of capital</th>
+            <th>Effective APR</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <section class="prose">
+    <h2>How this calculator works</h2>
+    <p>
+      Most pre-settlement funders quote a "monthly rate" or "monthly fee" rather
+      than an APR, and many compound that rate on the growing balance each
+      month rather than charging it flat. This tool applies the same math:
+    </p>
+    <p>
+      <strong>Compounding payoff:</strong> <code>Payoff = Principal × (1 + r)^months</code><br />
+      <strong>Simple payoff:</strong> <code>Payoff = Principal + Principal × r × months</code><br />
+      <strong>Effective APR:</strong> <code>(Payoff ÷ Principal)^(12 ÷ months) − 1</code>
+    </p>
+    <p>
+      The effective APR annualizes whatever rate and term you enter so you can
+      compare a lawsuit advance against a credit card, personal loan, or line
+      of credit on the same basis — even though litigation funding itself
+      isn't structured or regulated as a traditional loan in most states.
+    </p>
+    <h2>Frequently asked questions</h2>
+    <p>
+      <strong>Why is the effective APR so much higher than the monthly rate?</strong>
+      Because a monthly rate compounds. A rate that sounds small — 3% a month —
+      compounds to roughly 42% a year, and even higher if your case runs long
+      and the balance keeps compounding on itself.
+    </p>
+    <p>
+      <strong>Do I have to pay this back if I lose my case?</strong> In most
+      states, pre-settlement funding is non-recourse — you typically owe
+      nothing if you lose. Confirm this in writing with your specific funder,
+      since terms and state rules vary.
+    </p>
+  </section>
+
+  <AdSlot slot_id="bottom" height="100px" />
+
+  <Fragment slot="disclaimer">
+    Pre-settlement funding is not a loan in most states and terms vary widely
+    by company and jurisdiction. Always get the exact payoff schedule in
+    writing before signing any funding agreement.
+  </Fragment>
+</BaseLayout>
+
+<script>
+  import {
+    loanPayoff,
+    loanScenarios,
+    effectiveAnnualApr,
+    type CompoundingType,
+  } from '../../lib/finance-math';
+
+  const currency = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0,
+  });
+
+  const principalInput = document.getElementById('principal-input') as HTMLInputElement;
+  const rateSlider = document.getElementById('rate-slider') as HTMLInputElement;
+  const compoundingSelect = document.getElementById('compounding-select') as HTMLInputElement;
+  const monthsSlider = document.getElementById('months-slider') as HTMLInputElement;
+
+  const statPayoff = document.getElementById('stat-payoff') as HTMLDivElement;
+  const statCost = document.getElementById('stat-cost') as HTMLDivElement;
+  const statApr = document.getElementById('stat-apr') as HTMLDivElement;
+  const scenarioBody = document.querySelector('#scenario-rows tbody') as HTMLTableSectionElement;
+
+  function formatApr(apr: number | null): string {
+    return apr === null ? '—' : `${apr.toFixed(1)}%`;
+  }
+
+  function recalculate() {
+    const principal = parseFloat(principalInput.value) || 0;
+    const rate = parseFloat(rateSlider.value);
+    const compounding = compoundingSelect.value as CompoundingType;
+    const months = parseInt(monthsSlider.value, 10);
+
+    const payoff = loanPayoff(principal, rate, months, compounding);
+    const cost = payoff - principal;
+    const apr = effectiveAnnualApr(principal, payoff, months);
+
+    statPayoff.textContent = currency.format(payoff);
+    statCost.textContent = currency.format(cost);
+    statApr.textContent = formatApr(apr);
+
+    const scenarios = loanScenarios(principal, rate, compounding);
+    scenarioBody.innerHTML = scenarios
+      .map(
+        (row) => `
+          <tr${row.months === months ? ' class="row--highlight"' : ''}>
+            <td>${row.months} mo</td>
+            <td>${currency.format(row.payoff)}</td>
+            <td>${currency.format(row.costOfCapital)}</td>
+            <td>${formatApr(row.effectiveApr)}</td>
+          </tr>
+        `
+      )
+      .join('');
+  }
+
+  principalInput.addEventListener('input', recalculate);
+  rateSlider.addEventListener('input', recalculate);
+  compoundingSelect.addEventListener('change', recalculate);
+  monthsSlider.addEventListener('input', recalculate);
+
+  recalculate();
+</script>

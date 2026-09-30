@@ -5,6 +5,14 @@ interface Props {
 }
 const { slot_id, height = "250px" } = Astro.props;
 ---
+
+<!--
+  Zero-CLS ad container: fixed min-height + height reserved at parse time,
+  never resized after mount, never adjacent to interactive form controls.
+  Swap the placeholder for the real <ins class="adsbygoogle"> unit once the
+  AdSense property is approved — the reserved box model keeps CLS at 0.00
+  either way.
+-->
 <div class="ad-slot" data-ad-slot={slot_id} style={`min-height:${height}; height:${height};`}>
   <span class="ad-slot__label">Advertisement</span>
 </div>

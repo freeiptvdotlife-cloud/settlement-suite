@@ -1,0 +1,307 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import Icon from '../../components/Icon.astro';
+import PercentSlider from '../../components/PercentSlider.astro';
+import SegmentedControl from '../../components/SegmentedControl.astro';
+---
+
+<BaseLayout
+  title="Annuity Present & Future Value Calculator — Solve for PV, FV, or Rate"
+  description="Free annuity present value and future value calculator. Enter a level payment, frequency, and term to get PV and FV instantly, or enter a target value to back-solve the discount rate a buyer or issuer is actually using."
+  active="annuity-solver"
+  disclaimerLead="Not financial advice."
+>
+  <section class="hero">
+    <h1><Icon name="clock" size={26} /> Annuity Present &amp; Future Value Solver</h1>
+    <p class="subtitle">
+      Enter a level, recurring payment — a pension, structured payout, or
+      scheduled benefit — to see its present value in today's dollars and its
+      future value if left to accumulate. Or flip it around: enter a target
+      value and solve for the discount rate implied.
+    </p>
+  </section>
+
+  <AdSlot slot_id="top-leaderboard" height="100px" />
+
+  <div class="grid-layout">
+    <div class="card" id="calculator">
+      <h2>Payment Stream</h2>
+      <div class="field">
+        <label for="pmt-input"><Icon name="currency" size={16} /> Payment amount per period ($)</label>
+        <input type="number" id="pmt-input" min="0" step="25" value="500" />
+      </div>
+
+      <SegmentedControl
+        id="frequency-select"
+        label="Payment frequency"
+        defaultValue="monthly"
+        options={[
+          { value: 'monthly', label: 'Monthly' },
+          { value: 'quarterly', label: 'Quarterly' },
+          { value: 'annual', label: 'Annual' },
+        ]}
+      />
+
+      <div class="field">
+        <label for="periods-input"><Icon name="clock" size={16} /> Number of payments (periods)</label>
+        <input type="number" id="periods-input" min="1" max="600" step="1" value="120" />
+      </div>
+
+      <PercentSlider id="rate-slider" label="Nominal annual discount rate" icon="percent" min={0} max={20} value={6} step={0.25} suffix="%" />
+      <p class="field-hint" id="periodic-rate-note" style="margin-top:-0.6rem;"></p>
+    </div>
+
+    <div class="card result-card" id="results" aria-live="polite">
+      <h2>Value Summary</h2>
+      <div class="metric-grid">
+        <div class="metric-card metric-card--accent">
+          <span class="metric-label"><Icon name="currency" size={14} /> Present Value (Today)</span>
+          <span class="metric-value metric-value--lg" id="stat-pv">$0</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label"><Icon name="clock" size={14} /> Future Value (at Final Payment)</span>
+          <span class="metric-value" id="stat-fv">$0</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label"><Icon name="coins" size={14} /> Total Nominal Payments</span>
+          <span class="metric-value" id="stat-nominal">$0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="implied-rate-tool">
+    <h2>Solve for the Implied Discount Rate</h2>
+    <p class="card-note">
+      Have a lump-sum offer or a target accumulation goal instead of a
+      rate? Enter it here — using the same payment and period count above —
+      and we'll back-calculate the rate implied.
+    </p>
+
+    <SegmentedControl
+      id="target-type-select"
+      label="Solve using"
+      defaultValue="pv"
+      options={[
+        { value: 'pv', label: 'A present value (lump sum today)' },
+        { value: 'fv', label: 'A future value (goal at the end)' },
+      ]}
+    />
+
+    <div class="field">
+      <label for="target-input"><Icon name="currency" size={16} /> <span id="target-label-text">Target present value ($)</span></label>
+      <input type="number" id="target-input" min="0" step="100" placeholder="e.g. 42000" />
+    </div>
+    <div class="metric-grid">
+      <div class="metric-card">
+        <span class="metric-label"><Icon name="percent" size={14} /> Implied Periodic Rate</span>
+        <span class="metric-value" id="stat-implied-periodic">—</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label"><Icon name="percent" size={14} /> Implied Nominal Annual Rate</span>
+        <span class="metric-value" id="stat-implied-annual">—</span>
+      </div>
+    </div>
+  </div>
+
+  <AdSlot slot_id="mid-content" height="250px" />
+
+  <div class="card" id="schedule-section">
+    <h2>Payment-by-Payment Breakdown</h2>
+    <p class="card-note">
+      How much each individual payment is worth today, and how much it
+      contributes to the final future value.
+    </p>
+    <div class="table-wrap">
+      <table id="schedule-rows">
+        <thead>
+          <tr>
+            <th>Period</th>
+            <th>Payment</th>
+            <th>PV of this payment</th>
+            <th>Cumulative PV</th>
+            <th>Cumulative FV</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <section class="prose">
+    <h2>How this calculator works</h2>
+    <p>
+      This tool treats your payment stream as an ordinary annuity — level
+      payments made at the end of each period — the standard structure for
+      pensions, structured settlements, and scheduled benefit payouts.
+    </p>
+    <p>
+      <strong>Present value:</strong> <code>PV = PMT × [1 − (1 + r)^−n] ÷ r</code><br />
+      <strong>Future value:</strong> <code>FV = PMT × [(1 + r)^n − 1] ÷ r</code><br />
+      where <em>r</em> is the periodic rate (nominal annual rate ÷ payments
+      per year) and <em>n</em> is the number of periods.
+    </p>
+    <h2>Frequently asked questions</h2>
+    <p>
+      <strong>What's the difference between present value and future
+      value?</strong> Present value tells you what the whole payment stream
+      is worth if you had it all today, in a lump sum. Future value tells
+      you what it would grow to if every payment were reinvested at the
+      same rate until the final payment date.
+    </p>
+    <p>
+      <strong>Why does the implied rate change if I use PV vs. FV?</strong>
+      They're solving for the same underlying rate from two different
+      vantage points — a target today (PV) vs. a target at the end (FV) —
+      so double-check which number you were actually quoted before
+      comparing offers.
+    </p>
+  </section>
+
+  <AdSlot slot_id="bottom" height="100px" />
+
+  <Fragment slot="disclaimer">
+    Real-world annuity contracts may include fees, riders, or payment timing
+    that shift results. Confirm exact figures with the issuing company or a
+    licensed financial professional.
+  </Fragment>
+</BaseLayout>
+
+<script>
+  import {
+    periodsPerYear,
+    periodicRateFromAnnual,
+    annualRateFromPeriodic,
+    annuityPresentValue,
+    annuityFutureValue,
+    annuitySchedule,
+    impliedRateFromPresentValue,
+    impliedRateFromFutureValue,
+    type AnnuityFrequency,
+    type AnnuityScheduleRow,
+  } from '../../lib/finance-math';
+
+  const currency = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0,
+  });
+  const currencyPrecise = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 2,
+  });
+
+  const pmtInput = document.getElementById('pmt-input') as HTMLInputElement;
+  const frequencySelect = document.getElementById('frequency-select') as HTMLInputElement;
+  const periodsInput = document.getElementById('periods-input') as HTMLInputElement;
+  const rateSlider = document.getElementById('rate-slider') as HTMLInputElement;
+  const periodicRateNote = document.getElementById('periodic-rate-note') as HTMLParagraphElement;
+
+  const statPv = document.getElementById('stat-pv') as HTMLDivElement;
+  const statFv = document.getElementById('stat-fv') as HTMLDivElement;
+  const statNominal = document.getElementById('stat-nominal') as HTMLDivElement;
+
+  const targetTypeSelect = document.getElementById('target-type-select') as HTMLInputElement;
+  const targetLabel = document.getElementById('target-label-text') as HTMLSpanElement;
+  const targetInput = document.getElementById('target-input') as HTMLInputElement;
+  const statImpliedPeriodic = document.getElementById('stat-implied-periodic') as HTMLDivElement;
+  const statImpliedAnnual = document.getElementById('stat-implied-annual') as HTMLDivElement;
+
+  const scheduleBody = document.querySelector('#schedule-rows tbody') as HTMLTableSectionElement;
+
+  function currentFrequency(): AnnuityFrequency {
+    return frequencySelect.value as AnnuityFrequency;
+  }
+
+  function frequencyLabel(freq: AnnuityFrequency): string {
+    return freq === 'monthly' ? 'month' : freq === 'quarterly' ? 'quarter' : 'year';
+  }
+
+  function renderSchedule(rows: AnnuityScheduleRow[]) {
+    const MAX_VISIBLE = 24;
+    let display: (AnnuityScheduleRow | 'ellipsis')[] = rows;
+    if (rows.length > MAX_VISIBLE) {
+      display = [...rows.slice(0, 12), 'ellipsis', ...rows.slice(-12)];
+    }
+
+    scheduleBody.innerHTML = display
+      .map((row) => {
+        if (row === 'ellipsis') {
+          return `<tr class="row--ellipsis"><td colspan="5">⋯ ${rows.length - 24} more periods ⋯</td></tr>`;
+        }
+        return `
+          <tr>
+            <td>${row.period}</td>
+            <td>${currency.format(row.payment)}</td>
+            <td>${currencyPrecise.format(row.presentValueContribution)}</td>
+            <td>${currency.format(row.cumulativePresentValue)}</td>
+            <td>${currency.format(row.cumulativeFutureValue)}</td>
+          </tr>
+        `;
+      })
+      .join('');
+  }
+
+  function recalculate() {
+    const pmt = parseFloat(pmtInput.value) || 0;
+    const frequency = currentFrequency();
+    const periods = Math.max(1, Math.min(600, parseInt(periodsInput.value, 10) || 1));
+    const annualRate = parseFloat(rateSlider.value);
+    const periodicRate = periodicRateFromAnnual(annualRate, frequency);
+
+    periodicRateNote.textContent = `= ${periodicRate.toFixed(3)}% per ${frequencyLabel(frequency)} (${periodsPerYear(frequency)} payments/year)`;
+
+    const pv = annuityPresentValue(pmt, periodicRate, periods);
+    const fv = annuityFutureValue(pmt, periodicRate, periods);
+    const nominal = pmt * periods;
+
+    statPv.textContent = currency.format(pv);
+    statFv.textContent = currency.format(fv);
+    statNominal.textContent = currency.format(nominal);
+
+    renderSchedule(annuitySchedule(pmt, periodicRate, periods));
+    updateImpliedRate();
+  }
+
+  function updateImpliedRate() {
+    const pmt = parseFloat(pmtInput.value) || 0;
+    const frequency = currentFrequency();
+    const periods = Math.max(1, Math.min(600, parseInt(periodsInput.value, 10) || 1));
+    const target = parseFloat(targetInput.value);
+    const mode = targetTypeSelect.value;
+
+    targetLabel.textContent =
+      mode === 'pv' ? 'Target present value ($)' : 'Target future value ($)';
+
+    if (pmt <= 0 || periods <= 0 || isNaN(target) || target <= 0) {
+      statImpliedPeriodic.textContent = '—';
+      statImpliedAnnual.textContent = '—';
+      return;
+    }
+
+    const impliedPeriodic =
+      mode === 'pv'
+        ? impliedRateFromPresentValue(pmt, periods, target)
+        : impliedRateFromFutureValue(pmt, periods, target);
+
+    if (impliedPeriodic === null) {
+      statImpliedPeriodic.textContent = 'Not calculable';
+      statImpliedAnnual.textContent = 'Not calculable';
+      return;
+    }
+
+    statImpliedPeriodic.textContent = `${impliedPeriodic.toFixed(3)}% / ${frequencyLabel(frequency)}`;
+    statImpliedAnnual.textContent = `${annualRateFromPeriodic(impliedPeriodic, frequency).toFixed(2)}%`;
+  }
+
+  pmtInput.addEventListener('input', recalculate);
+  frequencySelect.addEventListener('change', recalculate);
+  periodsInput.addEventListener('input', recalculate);
+  rateSlider.addEventListener('input', recalculate);
+  targetTypeSelect.addEventListener('change', updateImpliedRate);
+  targetInput.addEventListener('input', updateImpliedRate);
+
+  recalculate();
+</script>

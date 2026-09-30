@@ -1,19 +1,26 @@
 ---
+import Icon from "./Icon.astro";
+
 interface Props {
   id: string;
   label: string;
   min?: number;
   max?: number;
   value?: number;
+  step?: number;
   suffix?: string;
+  icon?: "coins" | "percent" | "clock" | "shield" | "currency" | "calendar" | "warning" | "scale" | "medical" | "briefcase" | "document";
 }
-const { id, label, min = 0, max = 100, value = 0, suffix = "%" } = Astro.props;
+const { id, label, min = 0, max = 100, value = 0, step = 1, suffix = "%", icon } = Astro.props;
 const initialPct = ((value - min) / (max - min)) * 100;
 ---
 <div class="field">
-  <label for={id}>{label}</label>
+  <label for={id}>
+    {icon && <Icon name={icon} size={16} />}
+    {label}
+  </label>
   <div class="percent-slider">
-    <input type="range" id={id} min={min} max={max} value={value} data-percent-slider={id} />
+    <input type="range" id={id} min={min} max={max} value={value} step={step} data-percent-slider={id} />
     <output id={`${id}-output`} for={id} class="percent-slider__value" data-suffix={suffix}>{value}{suffix}</output>
   </div>
   <svg class="bar" viewBox="0 0 100 8" preserveAspectRatio="none" role="presentation" aria-hidden="true">

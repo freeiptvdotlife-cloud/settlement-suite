@@ -1,6 +1,6 @@
 ---
 interface Props {
-  name: "scale" | "medical" | "briefcase" | "currency" | "warning" | "document" | "sun" | "moon";
+  name: "scale" | "medical" | "briefcase" | "document" | "sun" | "moon" | "coins" | "percent" | "clock" | "shield" | "currency" | "calendar" | "warning";
   size?: number;
   class?: string;
 }
@@ -15,7 +15,7 @@ const common = {
   "stroke-linecap": "round" as const,
   "stroke-linejoin": "round" as const,
   class: `icon ${className}`.trim(),
-  "aria-hidden": "true"
+  "aria-hidden": true
 };
 ---
 {name === "scale" && (
@@ -35,18 +35,6 @@ const common = {
     <path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2M3 12h18" />
   </svg>
 )}
-{name === "currency" && (
-  <svg {...common}>
-    <circle cx="12" cy="12" r="9" />
-    <path d="M15 9.5c0-1.1-1.3-2-3-2s-3 .9-3 2 1.3 1.5 3 2 3 .9 3 2-1.3 2-3 2-3-.9-3-2M12 6v1.5M12 16.5V18" />
-  </svg>
-)}
-{name === "warning" && (
-  <svg {...common}>
-    <path d="M12 3l10 18H2L12 3z" />
-    <path d="M12 10v4M12 17h.01" />
-  </svg>
-)}
 {name === "document" && (
   <svg {...common}>
     <path d="M6 2h8l5 5v15H6V2z" />
@@ -62,5 +50,48 @@ const common = {
 {name === "moon" && (
   <svg {...common} class={`icon icon-moon ${className}`.trim()}>
     <path d="M20 14.5A8.5 8.5 0 019.5 4 8.5 8.5 0 1020 14.5z" />
+  </svg>
+)}
+{name === "coins" && (
+  <svg {...common}>
+    <path d="M4 8c0-1.5 3.5-3 8-3s8 1.5 8 3-3.5 3-8 3-8-1.5-8-3z" />
+    <path d="M4 8v4c0 1.5 3.5 3 8 3s8-1.5 8-3V8" />
+    <path d="M4 12v4c0 1.5 3.5 3 8 3s8-1.5 8-3v-4" />
+  </svg>
+)}
+{name === "percent" && (
+  <svg {...common}>
+    <circle cx="7" cy="7" r="2.25" />
+    <circle cx="17" cy="17" r="2.25" />
+    <path d="M17 7L7 17" />
+  </svg>
+)}
+{name === "clock" && (
+  <svg {...common}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 7v5l3 3" />
+  </svg>
+)}
+{name === "shield" && (
+  <svg {...common}>
+    <path d="M12 3l7 3v6c0 5-3.5 8-7 9-3.5-1-7-4-7-9V6l7-3z" />
+  </svg>
+)}
+{name === "currency" && (
+  <svg {...common}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M15 9.5c0-1.1-1.3-2-3-2s-3 .9-3 2 1.3 1.5 3 2 3 .9 3 2-1.3 2-3 2-3-.9-3-2M12 6v1.5M12 16.5V18" />
+  </svg>
+)}
+{name === "calendar" && (
+  <svg {...common}>
+    <rect x="3" y="4" width="18" height="17" rx="2" />
+    <path d="M8 2v4M16 2v4M3 9h18" />
+  </svg>
+)}
+{name === "warning" && (
+  <svg {...common}>
+    <path d="M12 3l10 18H2L12 3z" />
+    <path d="M12 10v4M12 17h.01" />
   </svg>
 )}

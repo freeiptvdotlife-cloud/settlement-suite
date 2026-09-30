@@ -1,0 +1,293 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import Icon from '../../components/Icon.astro';
+import PercentSlider from '../../components/PercentSlider.astro';
+---
+
+<BaseLayout
+  title="Structured Settlement Calculator — Instant Lump-Sum Payout Estimate"
+  description="Free, instant structured settlement present-value calculator. Enter your future payments and see the discounted lump-sum value, net offer after fees, and what a competing offer's implied discount rate really is — no signup, no phone number."
+  active="structured-settlement"
+  disclaimerLead="Not a purchase offer."
+>
+  <section class="hero">
+    <h1><Icon name="coins" size={26} /> Structured Settlement Payout Calculator</h1>
+    <p class="subtitle">
+      Enter your remaining structured settlement or annuity payments to see their
+      present-day lump-sum value, an estimated net offer after buyer fees, and the
+      real cost of cashing out early — instantly, with no signup and no phone call.
+    </p>
+  </section>
+
+  <AdSlot slot_id="top-leaderboard" height="100px" />
+
+  <div class="grid-layout">
+    <div class="card" id="calculator">
+      <h2>Your Payment Stream</h2>
+      <div class="field">
+        <label for="as-of-date"><Icon name="calendar" size={16} /> Valuation date (as of)</label>
+        <input type="date" id="as-of-date" />
+      </div>
+
+      <span class="field-label">Your remaining payments</span>
+      <div id="payment-rows"></div>
+      <button type="button" id="add-payment" class="btn-secondary">+ Add another payment</button>
+
+      <div style="margin-top:1.25rem;">
+        <PercentSlider id="rate-slider" label="Buyer's discount rate" icon="percent" min={6} max={20} value={10} step={0.25} suffix="%" />
+      </div>
+
+      <PercentSlider id="fee-input" label="Origination / processing fee" icon="currency" min={0} max={25} value={8} step={0.5} suffix="%" />
+    </div>
+
+    <div class="card result-card" id="results" aria-live="polite">
+      <h2>Payout Summary</h2>
+      <div class="metric-grid">
+        <div class="metric-card metric-card--accent">
+          <span class="metric-label"><Icon name="currency" size={14} /> Estimated Net Offer</span>
+          <span class="metric-value metric-value--lg" id="stat-net">$0</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label"><Icon name="clock" size={14} /> Present Value</span>
+          <span class="metric-value" id="stat-pv">$0</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label"><Icon name="coins" size={14} /> Total Nominal Value</span>
+          <span class="metric-value" id="stat-nominal">$0</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label"><Icon name="percent" size={14} /> Forfeited by Cashing Out</span>
+          <span class="metric-value" id="stat-forfeited">$0 (0%)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="implied-rate-tool">
+    <h2>Already Have a Competing Offer?</h2>
+    <p class="card-note">
+      Enter the dollar amount a buyer has offered you for the same payment stream
+      above, and we'll back-calculate the annual discount rate they're actually
+      using — the number most offers don't state directly.
+    </p>
+    <div class="field">
+      <label for="offer-input"><Icon name="currency" size={16} /> Competing offer amount ($)</label>
+      <input type="number" id="offer-input" min="0" step="100" placeholder="e.g. 42000" />
+    </div>
+    <div class="metric-grid">
+      <div class="metric-card metric-card--accent">
+        <span class="metric-label"><Icon name="percent" size={14} /> Implied Annual Discount Rate</span>
+        <span class="metric-value metric-value--lg" id="stat-implied-rate">—</span>
+      </div>
+    </div>
+  </div>
+
+  <AdSlot slot_id="mid-content" height="250px" />
+
+  <section class="prose">
+    <h2>How this calculator works</h2>
+    <p>
+      Structured settlement and annuity buyers pay less than the sum of your
+      future payments because money received later is worth less today. This
+      tool applies the same present-value math buyers use internally: each
+      future payment is discounted back to today's dollars at a monthly-compounded
+      rate, then a one-time origination fee is subtracted to estimate the net
+      cash you'd actually receive.
+    </p>
+    <p>
+      <strong>Present value formula:</strong> <code>PV = Σ [ payment / (1 + r/12)^n ]</code>,
+      where <em>r</em> is the nominal annual discount rate and <em>n</em> is the
+      number of months until that payment is due.
+    </p>
+    <h2>Frequently asked questions</h2>
+    <p>
+      <strong>Is this the exact amount I'll be offered?</strong> No. Real offers
+      depend on the buyer's underwriting, your state's structured settlement
+      protection act requirements, and mandatory court approval. This tool gives
+      you a reference range so you can evaluate whether an offer is reasonable.
+    </p>
+    <p>
+      <strong>Why do discount rates vary so much between buyers?</strong> Discount
+      rates reflect the buyer's cost of capital, risk assessment, and profit
+      margin — they are not regulated to a single number, which is why comparing
+      multiple offers matters.
+    </p>
+  </section>
+
+  <AdSlot slot_id="bottom" height="100px" />
+
+  <Fragment slot="disclaimer">
+    This is an educational estimate, not a purchase offer or financial advice.
+    Actual buyer quotes vary by company, state regulations, and court-approval
+    requirements. Always compare multiple licensed buyers before selling any
+    portion of a structured settlement.
+  </Fragment>
+</BaseLayout>
+
+<script>
+  import {
+    presentValue,
+    totalNominal,
+    netOffer,
+    forfeitedAmount,
+    impliedAnnualRate,
+    type Payment,
+  } from '../../lib/finance-math';
+
+  const currency = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0,
+  });
+
+  const asOfInput = document.getElementById('as-of-date') as HTMLInputElement;
+  const rowsContainer = document.getElementById('payment-rows') as HTMLDivElement;
+  const addBtn = document.getElementById('add-payment') as HTMLButtonElement;
+  const rateSlider = document.getElementById('rate-slider') as HTMLInputElement;
+  const feeInput = document.getElementById('fee-input') as HTMLInputElement;
+  const offerInput = document.getElementById('offer-input') as HTMLInputElement;
+
+  const statNominal = document.getElementById('stat-nominal') as HTMLDivElement;
+  const statPv = document.getElementById('stat-pv') as HTMLDivElement;
+  const statNet = document.getElementById('stat-net') as HTMLDivElement;
+  const statForfeited = document.getElementById('stat-forfeited') as HTMLDivElement;
+  const statImpliedRate = document.getElementById('stat-implied-rate') as HTMLDivElement;
+
+  const todayIso = new Date().toISOString().slice(0, 10);
+  asOfInput.value = todayIso;
+
+  function defaultFutureDate(monthsOut: number): string {
+    const d = new Date();
+    d.setMonth(d.getMonth() + monthsOut);
+    return d.toISOString().slice(0, 10);
+  }
+
+  let rowId = 0;
+
+  function addRow(amount = 1000, date = defaultFutureDate(12)) {
+    rowId += 1;
+    const id = rowId;
+    const row = document.createElement('div');
+    row.className = 'payment-row';
+    row.dataset.rowId = String(id);
+    row.innerHTML = `
+      <div>
+        <label for="amount-${id}">Amount ($)</label>
+        <input type="number" id="amount-${id}" class="payment-amount" min="0" step="50" value="${amount}" />
+      </div>
+      <div>
+        <label for="date-${id}">Payment date</label>
+        <input type="date" id="date-${id}" class="payment-date" value="${date}" />
+      </div>
+      <button type="button" class="btn-icon remove-row" aria-label="Remove payment">✕</button>
+    `;
+    rowsContainer.appendChild(row);
+
+    row.querySelector('.payment-amount')!.addEventListener('input', recalculate);
+    row.querySelector('.payment-date')!.addEventListener('input', recalculate);
+    row.querySelector('.remove-row')!.addEventListener('click', () => {
+      row.remove();
+      recalculate();
+    });
+  }
+
+  function collectPayments(): Payment[] {
+    const payments: Payment[] = [];
+    rowsContainer.querySelectorAll('.payment-row').forEach((row) => {
+      const amountEl = row.querySelector('.payment-amount') as HTMLInputElement;
+      const dateEl = row.querySelector('.payment-date') as HTMLInputElement;
+      const amount = parseFloat(amountEl.value);
+      const date = dateEl.value ? new Date(`${dateEl.value}T00:00:00`) : null;
+      if (!isNaN(amount) && amount > 0 && date) {
+        payments.push({ amount, date });
+      }
+    });
+    return payments;
+  }
+
+  function asOfDate(): Date {
+    return asOfInput.value
+      ? new Date(`${asOfInput.value}T00:00:00`)
+      : new Date();
+  }
+
+  function recalculate() {
+    const payments = collectPayments();
+    const rate = parseFloat(rateSlider.value);
+    const fee = parseFloat(feeInput.value) || 0;
+    const asOf = asOfDate();
+
+    const nominal = totalNominal(payments);
+    const pv = presentValue(payments, asOf, rate);
+    const net = netOffer(pv, fee);
+    const forfeited = forfeitedAmount(payments, net);
+    const forfeitedPct = nominal > 0 ? (forfeited / nominal) * 100 : 0;
+
+    statNominal.textContent = currency.format(nominal);
+    statPv.textContent = currency.format(pv);
+    statNet.textContent = currency.format(net);
+    statForfeited.textContent = `${currency.format(forfeited)} (${forfeitedPct.toFixed(1)}%)`;
+
+    updateImpliedRate();
+  }
+
+  function updateImpliedRate() {
+    const payments = collectPayments();
+    const asOf = asOfDate();
+    const offer = parseFloat(offerInput.value);
+
+    if (payments.length === 0 || isNaN(offer) || offer <= 0) {
+      statImpliedRate.textContent = '—';
+      return;
+    }
+
+    const implied = impliedAnnualRate(payments, asOf, offer);
+    statImpliedRate.textContent =
+      implied === null
+        ? 'Not calculable (offer exceeds nominal total or is too low)'
+        : `${implied.toFixed(2)}% nominal annual`;
+  }
+
+  addBtn.addEventListener('click', () => {
+    addRow();
+    recalculate();
+  });
+  rateSlider.addEventListener('input', recalculate);
+  feeInput.addEventListener('input', recalculate);
+  asOfInput.addEventListener('input', recalculate);
+  offerInput.addEventListener('input', updateImpliedRate);
+
+  // Seed with two representative rows so results are non-empty on first paint.
+  addRow(5000, defaultFutureDate(12));
+  addRow(5000, defaultFutureDate(24));
+  recalculate();
+</script>
+
+<style is:global>
+  .payment-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 0.6rem;
+    align-items: end;
+    margin-bottom: 0.6rem;
+  }
+  .payment-row label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 0.4rem;
+  }
+  @media (max-width: 480px) {
+    .payment-row {
+      grid-template-columns: 1fr 1fr;
+    }
+    .payment-row .remove-row {
+      grid-column: 1 / -1;
+      justify-self: start;
+    }
+  }
+</style>

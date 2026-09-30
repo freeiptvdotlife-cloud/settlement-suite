@@ -1,17 +1,23 @@
 ---
 import Icon from "../components/Icon.astro";
 
-interface Props {
+export interface Props {
   title: string;
   description: string;
-  active: "settlement" | "child-support" | "workers-comp";
+  active: "settlement" | "child-support" | "workers-comp" | "structured-settlement" | "annuity-solver" | "lawsuit-loan" | "workers-comp-comparator";
+  /** Bold lead-in for the footer disclaimer. Defaults to "Not legal advice." */
+  disclaimerLead?: string;
 }
-const { title, description, active } = Astro.props;
+const { title, description, active, disclaimerLead = "Not legal advice." } = Astro.props;
 
 const navItems = [
   { href: "/", label: "Injury Settlement", key: "settlement", icon: "scale" },
   { href: "/child-support", label: "Child Support", key: "child-support", icon: "document" },
-  { href: "/workers-comp", label: "Workers' Comp", key: "workers-comp", icon: "briefcase" }
+  { href: "/workers-comp", label: "Workers' Comp", key: "workers-comp", icon: "briefcase" },
+  { href: "/structured-settlement/", label: "Structured Settlement", key: "structured-settlement", icon: "coins" },
+  { href: "/annuity-value-solver/", label: "Annuity Solver", key: "annuity-solver", icon: "clock" },
+  { href: "/lawsuit-loan-cost-estimator/", label: "Lawsuit Loan", key: "lawsuit-loan", icon: "shield" },
+  { href: "/workers-comp-comparator/", label: "Comp Comparator", key: "workers-comp-comparator", icon: "percent" },
 ] as const;
 ---
 <!doctype html>
@@ -23,6 +29,11 @@ const navItems = [
   <meta name="description" content={description} />
   <meta name="color-scheme" content="light dark" />
   <link rel="stylesheet" href="/theme.css" />
+  <link
+    rel="icon"
+    type="image/svg+xml"
+    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚖️</text></svg>"
+  />
   <script is:inline>
     (function () {
       var stored = null;
@@ -37,7 +48,7 @@ const navItems = [
     <header class="app-header">
       <div class="brand">
         <Icon name="scale" size={22} />
-        <span>LegalCalc Suite</span>
+        <span>Settlement Numbers</span>
       </div>
       <div class="header-controls">
         <nav class="app-nav" aria-label="Calculators">
@@ -73,7 +84,7 @@ const navItems = [
       <div class="disclaimer-block" role="note">
         <Icon name="warning" size={20} />
         <div>
-          <strong>Not legal advice.</strong> <slot name="disclaimer" />
+          <strong>{disclaimerLead}</strong> <slot name="disclaimer" />
         </div>
       </div>
     </footer>
