@@ -4,6 +4,7 @@ import AdSlot from '../../../components/AdSlot.astro';
 import Icon from '../../../components/Icon.astro';
 import PresetButtons from '../../../components/PresetButtons.astro';
 import { estimateSsdiBackPay } from '../../../lib/ssdiBackPay';
+import ExportBar from '../../../components/ExportBar.astro';
 
 // Representative defaults: onset Oct 2024, filed Nov 2024, approved Oct 2026
 const defaults = {
@@ -93,6 +94,8 @@ const fmtDate = (d: Date) => d.toLocaleDateString("en-US", { month: "short", yea
       </p>
     </div>
   </div>
+
+  <ExportBar />
 
   <AdSlot slot_id="mid-content" height="250px" />
 

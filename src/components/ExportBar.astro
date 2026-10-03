@@ -1,0 +1,16 @@
+---
+interface Props {
+  hasCsv?: boolean;
+}
+const { hasCsv = false } = Astro.props;
+---
+<div class="export-bar" role="group" aria-label="Export options">
+  <button type="button" class="btn-export" onclick="window.print()">
+    ↓ Save as PDF
+  </button>
+  {hasCsv && (
+    <button type="button" class="btn-export btn-export--csv" id="csv-download-btn">
+      ↓ Download CSV
+    </button>
+  )}
+</div>

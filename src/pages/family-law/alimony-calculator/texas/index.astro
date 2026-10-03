@@ -4,6 +4,7 @@ import AdSlot from '../../../../components/AdSlot.astro';
 import Icon from '../../../../components/Icon.astro';
 import PresetButtons from '../../../../components/PresetButtons.astro';
 import { estimateTexasAlimony } from '../../../../lib/alimony';
+import ExportBar from '../../../../components/ExportBar.astro';
 
 const defaults = { payorGrossMonthly: 8_000, yearsMarried: 14 };
 const initial = estimateTexasAlimony(defaults);
@@ -66,6 +67,8 @@ const fmt = (n: number) => n.toLocaleString("en-US", { style: "currency", curren
       <p class="card-note" style="margin-top:0.25rem;">Source: {initial.sourceStatute} (as of {initial.asOf}).</p>
     </div>
   </div>
+
+  <ExportBar />
 
   <AdSlot slot_id="mid-content" height="250px" />
 

@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import AdSlot from '../../../components/AdSlot.astro';
+import ExportBar from '../../../components/ExportBar.astro';
 import Icon from '../../../components/Icon.astro';
 import PercentSlider from '../../../components/PercentSlider.astro';
 import SegmentedControl from '../../../components/SegmentedControl.astro';
@@ -103,6 +104,8 @@ import SegmentedControl from '../../../components/SegmentedControl.astro';
       </div>
     </div>
   </div>
+
+  <ExportBar hasCsv />
 
   <AdSlot slot_id="after-calculator" height="250px" />
   <AdSlot slot_id="mid-content" height="250px" />
@@ -304,4 +307,20 @@ import SegmentedControl from '../../../components/SegmentedControl.astro';
   targetInput.addEventListener('input', updateImpliedRate);
 
   recalculate();
+
+  // CSV export
+  import { downloadCsv, csvFilename } from '../../../lib/csvExport';
+  document.getElementById('csv-download-btn')?.addEventListener('click', () => {
+    const pmt = parseFloat(pmtInput.value) || 0;
+    const frequency = currentFrequency();
+    const periods = Math.max(1, Math.min(600, parseInt(periodsInput.value, 10) || 1));
+    const annualRate = parseFloat(rateSlider.value);
+    const periodicRate = periodicRateFromAnnual(annualRate, frequency);
+    const rows = annuitySchedule(pmt, periodicRate, periods);
+    downloadCsv(
+      ['Period', 'Payment', 'PV of Payment', 'Cumulative PV', 'Cumulative FV'],
+      rows.map((r) => [r.period, r.payment.toFixed(2), r.presentValueContribution.toFixed(2), r.cumulativePresentValue.toFixed(2), r.cumulativeFutureValue.toFixed(2)]),
+      csvFilename('recovery', 'annuity-solver')
+    );
+  });
 </script>

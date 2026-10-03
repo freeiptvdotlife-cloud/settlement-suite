@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import AdSlot from '../../../components/AdSlot.astro';
+import ExportBar from '../../../components/ExportBar.astro';
 import Icon from '../../../components/Icon.astro';
 import PercentSlider from '../../../components/PercentSlider.astro';
 ---
@@ -81,6 +82,8 @@ import PercentSlider from '../../../components/PercentSlider.astro';
       </div>
     </div>
   </div>
+
+  <ExportBar hasCsv />
 
   <AdSlot slot_id="after-calculator" height="250px" />
   <AdSlot slot_id="mid-content" height="250px" />
@@ -262,6 +265,23 @@ import PercentSlider from '../../../components/PercentSlider.astro';
   addRow(5000, defaultFutureDate(12));
   addRow(5000, defaultFutureDate(24));
   recalculate();
+
+  // CSV export — exports the payment stream the user entered
+  import { downloadCsv, csvFilename } from '../../../lib/csvExport';
+  document.getElementById('csv-download-btn')?.addEventListener('click', () => {
+    const payments = collectPayments();
+    const asOf = asOfDate();
+    const rate = parseFloat(rateSlider.value);
+    downloadCsv(
+      ['Payment Date', 'Amount ($)', 'Present Value ($)', 'Months from Today'],
+      payments.map((p) => {
+        const monthsOut = Math.max(0, (p.date.getTime() - asOf.getTime()) / (1000 * 60 * 60 * 24 * 30.44));
+        const pv = p.amount / Math.pow(1 + rate / 100 / 12, monthsOut);
+        return [p.date.toISOString().slice(0, 10), p.amount.toFixed(2), pv.toFixed(2), monthsOut.toFixed(1)];
+      }),
+      csvFilename('recovery', 'structured-settlement')
+    );
+  });
 </script>
 
 <style is:global>

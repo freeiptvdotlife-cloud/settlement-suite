@@ -81,6 +81,9 @@ const navItems = [
 </head>
 <body>
   <div class="app-shell">
+    <div class="print-header" aria-hidden="true">
+      <strong>Recovery Numbers</strong> · recoverynumbers.com &nbsp;|&nbsp; <span id="print-date"></span>
+    </div>
     <header class="app-header">
       <a class="brand" href="/">
         <Icon name="scale" size={22} />
@@ -135,6 +138,9 @@ const navItems = [
 </html>
 
 <script>
+  const pd = document.getElementById("print-date");
+  if (pd) pd.textContent = "Generated: " + new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+
   const toggle = document.getElementById("theme-toggle");
   const root = document.documentElement;
 

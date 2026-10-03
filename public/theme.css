@@ -548,3 +548,80 @@ input[type="range"]:focus-visible::-moz-range-thumb {
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
 }
+
+/* ── Export bar ──────────────────────────────────────────────────────────── */
+.export-bar {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  min-height: 44px; /* reserved to prevent CLS */
+  align-items: center;
+  margin: 1rem 0;
+}
+.btn-export {
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.45rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.btn-export:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── Print header (screen: hidden; print: shown) ─────────────────────────── */
+.print-header { display: none; }
+
+/* ── Print stylesheet ────────────────────────────────────────────────────── */
+@media print {
+  /* Show print header */
+  .print-header {
+    display: block;
+    font-size: 0.8rem;
+    color: #555;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 0.4rem;
+    margin-bottom: 0.75rem;
+  }
+
+  /* Hide chrome */
+  .header-controls,  /* nav links + theme toggle */
+  .export-bar,
+  .ad-slot,
+  .btn-primary,
+  .btn-secondary,
+  .footer-links,
+  .state-card-link .state-card:hover,
+  #theme-toggle { display: none !important; }
+
+  /* Reset layout */
+  .app-shell { display: block; }
+  .app-header { border-bottom: 1px solid #ccc; padding: 0.4rem 0; margin-bottom: 0.75rem; }
+  .app-header .brand { font-size: 1rem; }
+  .app-main { padding: 0; }
+  .grid-layout { display: block; }
+  .grid-layout > * { margin-bottom: 0.75rem; }
+
+  /* Remove card shadows */
+  .card {
+    box-shadow: none !important;
+    border: 1px solid #ccc;
+    break-inside: avoid;
+  }
+  .metric-grid { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
+
+  /* Ensure table is readable */
+  .table-wrap { overflow: visible; }
+  table { font-size: 0.8rem; }
+  td, th { padding: 0.3rem 0.5rem; }
+
+  /* Disclaimer block */
+  .disclaimer-block { border: 1px solid #ccc; font-size: 0.8rem; }
+
+  /* Page breaks */
+  .prose { break-before: avoid; }
+  h2 { break-after: avoid; }
+}

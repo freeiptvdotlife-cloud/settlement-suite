@@ -5,6 +5,7 @@ import Icon from "../../../components/Icon.astro";
 import PercentSlider from "../../../components/PercentSlider.astro";
 import PresetButtons from "../../../components/PresetButtons.astro";
 import { estimateChildSupport } from "../../../lib/childSupport";
+import ExportBar from '../../../components/ExportBar.astro';
 
 const defaults = { payorMonthlyIncome: 5_000, numberOfChildren: 2 as const, payorOvernightsPct: 0 };
 const initial = estimateChildSupport(defaults);
@@ -71,6 +72,8 @@ const fmt = (n: number) => n.toLocaleString("en-US", { style: "currency", curren
       </div>
     </div>
   </div>
+
+  <ExportBar />
 
   <AdSlot slot_id="mid-content" height="250px" />
   <AdSlot slot_id="bottom-rectangle" height="250px" />

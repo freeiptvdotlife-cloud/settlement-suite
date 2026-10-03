@@ -3,6 +3,7 @@ import BaseLayout from "../../../layouts/BaseLayout.astro";
 import AdSlot from "../../../components/AdSlot.astro";
 import Disclaimer from "../../../components/Disclaimer.astro";
 import Icon from "../../../components/Icon.astro";
+import ExportBar from '../../../components/ExportBar.astro';
 ---
 
 <BaseLayout
@@ -70,6 +71,8 @@ import Icon from "../../../components/Icon.astro";
       </div>
     </div>
   </div>
+
+  <ExportBar />
 
   <AdSlot label="Advertisement" minHeight={250} />
 

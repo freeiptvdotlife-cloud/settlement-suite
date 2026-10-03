@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import AdSlot from '../../../components/AdSlot.astro';
+import ExportBar from '../../../components/ExportBar.astro';
 import Icon from '../../../components/Icon.astro';
 import PercentSlider from '../../../components/PercentSlider.astro';
 import SegmentedControl from '../../../components/SegmentedControl.astro';
@@ -64,6 +65,8 @@ import SegmentedControl from '../../../components/SegmentedControl.astro';
       </div>
     </div>
   </div>
+
+  <ExportBar hasCsv />
 
   <AdSlot slot_id="after-calculator" height="250px" />
   <AdSlot slot_id="mid-content" height="250px" />
@@ -195,4 +198,18 @@ import SegmentedControl from '../../../components/SegmentedControl.astro';
   monthsSlider.addEventListener('input', recalculate);
 
   recalculate();
+
+  // CSV export
+  import { downloadCsv, csvFilename } from '../../../lib/csvExport';
+  document.getElementById('csv-download-btn')?.addEventListener('click', () => {
+    const principal = parseFloat(principalInput.value) || 0;
+    const rate = parseFloat(rateSlider.value);
+    const compounding = compoundingSelect.value as CompoundingType;
+    const scenarios = loanScenarios(principal, rate, compounding);
+    downloadCsv(
+      ['Months to Resolve', 'Total Payoff', 'Cost of Capital', 'Effective APR (%)'],
+      scenarios.map((r) => [r.months, r.payoff.toFixed(2), r.costOfCapital.toFixed(2), r.effectiveApr !== null ? r.effectiveApr.toFixed(1) : 'N/A']),
+      csvFilename('recovery', 'lawsuit-loan-cost')
+    );
+  });
 </script>

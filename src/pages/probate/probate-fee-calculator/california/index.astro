@@ -4,6 +4,7 @@ import AdSlot from '../../../../components/AdSlot.astro';
 import Icon from '../../../../components/Icon.astro';
 import PresetButtons from '../../../../components/PresetButtons.astro';
 import { estimateCaliforniaProbateFees } from '../../../../lib/probateFees';
+import ExportBar from '../../../../components/ExportBar.astro';
 
 const defaults = { estateValue: 750_000 };
 const initial = estimateCaliforniaProbateFees(defaults.estateValue);
@@ -65,6 +66,8 @@ const fmt = (n: number) => n.toLocaleString("en-US", { style: "currency", curren
       <p class="card-note" style="margin-top:0.25rem;">Source: {initial.sourceStatute} ({initial.asOf}).</p>
     </div>
   </div>
+
+  <ExportBar />
 
   <AdSlot slot_id="mid-content" height="250px" />
 

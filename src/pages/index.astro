@@ -6,6 +6,7 @@ import SegmentedControl from "../components/SegmentedControl.astro";
 import PercentSlider from "../components/PercentSlider.astro";
 import PresetButtons from "../components/PresetButtons.astro";
 import { estimateSettlement } from "../lib/settlement";
+import ExportBar from "../components/ExportBar.astro";
 
 // Default worked-example values — pre-rendered so results appear before JS loads
 const defaults = {
@@ -103,6 +104,8 @@ const fmt = (n: number) => n.toLocaleString("en-US", { style: "currency", curren
       </div>
     </div>
   </div>
+
+  <ExportBar />
 
   <AdSlot slot_id="mid-content" height="250px" />
   <AdSlot slot_id="bottom-rectangle" height="250px" />
