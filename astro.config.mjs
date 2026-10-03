@@ -2,6 +2,6 @@ import { defineConfig } from "astro/config";
 
 export default defineConfig({
   output: "static",
-  site: "https://settlementnumbers.com",
+  site: "https://recoverynumbers.com",
   compressHTML: true,
 });
