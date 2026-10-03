@@ -1,0 +1,174 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import AdSlot from '../../../components/AdSlot.astro';
+import Icon from '../../../components/Icon.astro';
+import PresetButtons from '../../../components/PresetButtons.astro';
+import { estimateSsdiBackPay } from '../../../lib/ssdiBackPay';
+
+// Representative defaults: onset Oct 2024, filed Nov 2024, approved Oct 2026
+const defaults = {
+  monthlyBenefit: 1_800,
+  onsetDate: new Date("2024-10-01"),
+  applicationDate: new Date("2024-11-01"),
+  approvalDate: new Date("2026-10-01"),
+};
+const initial = estimateSsdiBackPay(defaults);
+const fmt = (n: number) => n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+const fmtDate = (d: Date) => d.toLocaleDateString("en-US", { month: "short", year: "numeric" });
+---
+<BaseLayout
+  title="SSDI Back Pay Calculator — Free Estimate"
+  description="Estimate your SSDI back pay amount, attorney fee, and net payout. Accounts for the 5-month waiting period and 12-month retroactivity cap. Free, instant, no login."
+  active="ssdi-backpay"
+  disclaimerLead="Not legal or financial advice."
+>
+  <section class="hero">
+    <h1><Icon name="shield" size={26} /> SSDI Back Pay Calculator</h1>
+    <p class="subtitle">
+      Estimate your Social Security Disability back pay, how it's reduced by the
+      5-month waiting period and 12-month retroactivity cap, and what an attorney
+      contingency fee would cost. Free, instant, no data stored.
+    </p>
+  </section>
+
+  <div class="grid-layout">
+    <form id="calc-form" class="card" aria-label="SSDI back pay inputs">
+      <div class="field">
+        <label for="monthlyBenefit"><Icon name="currency" size={16} /> Estimated monthly benefit (PIA) ($)</label>
+        <input type="number" id="monthlyBenefit" min="0" step="1" value={defaults.monthlyBenefit} required />
+        <PresetButtons
+          targetId="monthlyBenefit"
+          presets={[
+            { label: "$1,200", value: 1200 },
+            { label: "$1,800", value: 1800 },
+            { label: "$2,500", value: 2500 },
+          ]}
+        />
+        <span class="field-hint">Use your Social Security Statement or SSA.gov estimate.</span>
+      </div>
+
+      <div class="field">
+        <label for="onsetDate"><Icon name="calendar" size={16} /> Established onset date (EOD)</label>
+        <input type="date" id="onsetDate" value="2024-10-01" required />
+        <span class="field-hint">The date SSA determines your disability began.</span>
+      </div>
+
+      <div class="field">
+        <label for="applicationDate"><Icon name="calendar" size={16} /> SSDI application date</label>
+        <input type="date" id="applicationDate" value="2024-11-01" required />
+        <span class="field-hint">Back pay cannot go back more than 12 months before this date.</span>
+      </div>
+
+      <div class="field">
+        <label for="approvalDate"><Icon name="calendar" size={16} /> Approval (award) date</label>
+        <input type="date" id="approvalDate" value="2026-10-01" required />
+      </div>
+
+      <button type="submit" class="btn-primary">Calculate Back Pay</button>
+    </form>
+
+    <div class="card result-card" id="result" aria-live="polite">
+      <h2>Estimated Back Pay</h2>
+      <div class="metric-grid">
+        <div class="metric-card metric-card--accent">
+          <span class="metric-label"><Icon name="currency" size={14} /> Net Back Pay (after attorney)</span>
+          <span class="metric-value metric-value--lg" id="net-output">{fmt(initial.netBackPay)}</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label"><Icon name="currency" size={14} /> Gross Back Pay</span>
+          <span class="metric-value" id="gross-output">{fmt(initial.grossBackPay)}</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label"><Icon name="briefcase" size={14} /> Attorney Fee (25%, cap $7,200)</span>
+          <span class="metric-value" id="attorney-output">{fmt(initial.attorneyFee)}</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label"><Icon name="clock" size={14} /> Back Pay Months</span>
+          <span class="metric-value" id="months-output">{initial.backPayMonths} mo</span>
+        </div>
+      </div>
+      <p class="card-note" id="eligible-note">
+        Benefits begin: <strong id="eligible-start-output">{fmtDate(initial.eligibleStartDate)}</strong>
+        (onset + 5-month wait or 12-month retro cap, whichever is later)
+      </p>
+    </div>
+  </div>
+
+  <AdSlot slot_id="mid-content" height="250px" />
+
+  <section class="prose">
+    <h2>How SSDI back pay is calculated</h2>
+    <p>
+      SSDI pays a lump-sum covering the period from when you <em>should</em> have started
+      receiving benefits to when SSA actually approved your claim. Two rules reduce the amount:
+    </p>
+    <ul>
+      <li><strong>5-month waiting period:</strong> No benefits are paid for the first five full months after your established onset date (EOD).</li>
+      <li><strong>12-month retroactivity cap:</strong> Back pay cannot extend more than 12 months before your application date, no matter how early your onset date was.</li>
+    </ul>
+    <p>
+      Your eligible back-pay period starts at whichever date is <em>later</em>: (onset + 5 months) or (application date − 12 months).
+    </p>
+    <h2>Attorney contingency fees</h2>
+    <p>
+      If you used a disability attorney, SSA typically withholds 25% of your past-due benefits
+      as their fee, subject to a cap (currently $7,200). The cap means attorneys receive the
+      same maximum regardless of how large the back-pay award is once it exceeds $28,800.
+    </p>
+    <h2>Frequently asked questions</h2>
+    <p>
+      <strong>What is the PIA?</strong> Your Primary Insurance Amount — the monthly benefit
+      SSA calculates from your lifetime earnings record. Find it on your Social Security
+      Statement at ssa.gov/myaccount.
+    </p>
+    <p>
+      <strong>Does back pay include SSI?</strong> This calculator covers SSDI only. SSI back pay
+      uses different rules (no waiting period, but benefits are offset differently). If you were
+      approved for both, your attorney or SSA notice will break down each program separately.
+    </p>
+    <p>
+      <strong>When is back pay paid?</strong> SSA typically pays back pay as a single lump sum
+      within 60 days of approval, though large awards are sometimes split across installments.
+    </p>
+  </section>
+
+  <AdSlot slot_id="bottom-rectangle" height="250px" />
+
+  <Fragment slot="disclaimer">
+    This tool provides a rough estimate based on publicly documented SSA rules. Actual back pay
+    depends on your specific onset date determination, earnings record, any offset programs
+    (workers' comp, short-term disability), and attorney fee agreements. Review your award
+    letter carefully and consult a disability attorney with questions.
+  </Fragment>
+</BaseLayout>
+
+<script>
+  import { estimateSsdiBackPay } from '../../../lib/ssdiBackPay';
+
+  const fmt = (n: number) =>
+    n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+  const fmtDate = (d: Date) => d.toLocaleDateString("en-US", { month: "short", year: "numeric" });
+
+  document.getElementById("calc-form")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const monthlyBenefit = Number((document.getElementById("monthlyBenefit") as HTMLInputElement).value) || 0;
+    const onsetVal = (document.getElementById("onsetDate") as HTMLInputElement).value;
+    const appVal = (document.getElementById("applicationDate") as HTMLInputElement).value;
+    const approvalVal = (document.getElementById("approvalDate") as HTMLInputElement).value;
+
+    if (!onsetVal || !appVal || !approvalVal) return;
+
+    const result = estimateSsdiBackPay({
+      monthlyBenefit,
+      onsetDate: new Date(`${onsetVal}T00:00:00`),
+      applicationDate: new Date(`${appVal}T00:00:00`),
+      approvalDate: new Date(`${approvalVal}T00:00:00`),
+    });
+
+    document.getElementById("net-output")!.textContent = fmt(result.netBackPay);
+    document.getElementById("gross-output")!.textContent = fmt(result.grossBackPay);
+    document.getElementById("attorney-output")!.textContent = fmt(result.attorneyFee);
+    document.getElementById("months-output")!.textContent = `${result.backPayMonths} mo`;
+    document.getElementById("eligible-start-output")!.textContent = fmtDate(result.eligibleStartDate);
+  });
+</script>

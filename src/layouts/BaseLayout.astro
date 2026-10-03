@@ -4,7 +4,7 @@ import Icon from "../components/Icon.astro";
 export interface Props {
   title: string;
   description: string;
-  active?: "settlement" | "child-support" | "workers-comp" | "structured-settlement" | "annuity-solver" | "lawsuit-loan" | "means-test" | "debt-compare" | "dti" | "sol" | "guides";
+  active?: "settlement" | "child-support" | "workers-comp" | "structured-settlement" | "annuity-solver" | "lawsuit-loan" | "ssdi-backpay" | "means-test" | "debt-compare" | "dti" | "sol" | "guides";
   /** Bold lead-in for the footer disclaimer. Defaults to "Not legal advice." */
   disclaimerLead?: string;
 }
@@ -42,6 +42,7 @@ const navItems = [
   { href: "/settlement/structured-settlement/", label: "Structured Settlement", key: "structured-settlement", icon: "coins" },
   { href: "/settlement/annuity-value-solver/", label: "Annuity Solver", key: "annuity-solver", icon: "clock" },
   { href: "/settlement/lawsuit-loan-cost-estimator/", label: "Lawsuit Loan", key: "lawsuit-loan", icon: "shield" },
+  { href: "/settlement/ssdi-back-pay-calculator/", label: "SSDI Back Pay", key: "ssdi-backpay", icon: "shield" },
   { href: "/debt/means-test/", label: "Means Test", key: "means-test", icon: "shield" },
   { href: "/debt/compare/", label: "Compare Paths", key: "debt-compare", icon: "exchange" },
   { href: "/debt/dti/", label: "DTI & Recovery", key: "dti", icon: "chart" },
