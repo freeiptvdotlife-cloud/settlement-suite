@@ -1,0 +1,166 @@
+---
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import AdSlot from '../../../../components/AdSlot.astro';
+import Icon from '../../../../components/Icon.astro';
+import PresetButtons from '../../../../components/PresetButtons.astro';
+import { estimateTexasChildSupport } from '../../../../lib/childSupport';
+import ExportBar from '../../../../components/ExportBar.astro';
+
+const defaults = { payorGrossMonthly: 6_000, numberOfChildren: 2 as const };
+const initial = estimateTexasChildSupport(defaults);
+const fmt = (n: number) => n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+const fmtPct = (n: number) => `${n}%`;
+---
+<BaseLayout
+  title="Texas Child Support Calculator — Guideline Estimator (§154.125)"
+  description="Estimate Texas child support using the percentage-of-net-resources formula under Tex. Fam. Code §154.125. Free, instant, no login."
+  active="child-support"
+  disclaimerLead="Not legal advice."
+>
+  <section class="hero">
+    <h1><Icon name="document" size={26} /> Texas Child Support Calculator</h1>
+    <p class="subtitle">
+      Estimate the guideline amount under Tex. Fam. Code §154.125.
+      Based on the payor's net monthly resources — free, instant, no data stored.
+    </p>
+  </section>
+
+  <div class="grid-layout">
+    <form id="calc-form" class="card" aria-label="Texas child support inputs">
+      <div class="field">
+        <label for="payorGrossMonthly"><Icon name="currency" size={16} /> Paying parent's gross monthly income ($)</label>
+        <input type="number" id="payorGrossMonthly" min="0" step="1" value={defaults.payorGrossMonthly} required />
+        <PresetButtons targetId="payorGrossMonthly" presets={[
+          { label: "$4,000", value: 4000 },
+          { label: "$6,000", value: 6000 },
+          { label: "$10,000", value: 10000 },
+        ]} />
+        <span class="field-hint">The calculator estimates net monthly resources at 75% of gross — the actual deduction depends on taxes and insurance premiums.</span>
+      </div>
+
+      <div class="field">
+        <label for="numberOfChildren"><Icon name="document" size={16} /> Number of children</label>
+        <select id="numberOfChildren">
+          <option value="1">1</option>
+          <option value="2" selected>2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5 or more</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn-primary">Estimate Guideline Amount</button>
+    </form>
+
+    <div class="card result-card" id="result" aria-live="polite">
+      <h2>Guideline Estimate</h2>
+      <div class="metric-grid">
+        <div class="metric-card metric-card--accent">
+          <span class="metric-label"><Icon name="currency" size={14} /> Monthly Obligation</span>
+          <span class="metric-value metric-value--lg" id="obligation-output">{fmt(initial.monthlyObligation)}</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label"><Icon name="chart" size={14} /> Guideline Percentage</span>
+          <span class="metric-value" id="pct-output">{fmtPct(initial.guidelinePercent)}</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label"><Icon name="currency" size={14} /> Est. Net Resources</span>
+          <span class="metric-value" id="net-output">{fmt(initial.estimatedNetResources)}</span>
+        </div>
+      </div>
+      {initial.cappedAtMax && (
+        <p class="card-note" id="cap-note">Net resources exceed the statutory cap of {fmt(initial.netResourcesCap)}/mo — obligation is calculated on the cap.</p>
+      )}
+      {!initial.cappedAtMax && (
+        <p class="card-note" id="cap-note" hidden></p>
+      )}
+      <p class="card-note">Source: Tex. Fam. Code §154.125; net resources cap per current Attorney General schedule.</p>
+    </div>
+  </div>
+
+  <ExportBar />
+
+  <AdSlot slot_id="mid-content" height="250px" />
+
+  <section class="prose">
+    <h2>How Texas calculates child support</h2>
+    <p>
+      Texas uses a <strong>percentage-of-net-resources</strong> model. The payor's monthly net resources
+      are multiplied by a percentage that depends on the number of children covered:
+    </p>
+    <table>
+      <thead><tr><th>Children</th><th>Guideline percentage</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>20%</td></tr>
+        <tr><td>2</td><td>25%</td></tr>
+        <tr><td>3</td><td>30%</td></tr>
+        <tr><td>4</td><td>35%</td></tr>
+        <tr><td>5 or more</td><td>40%</td></tr>
+      </tbody>
+    </table>
+    <h2>What are "net monthly resources"?</h2>
+    <p>
+      Net resources are gross income minus: Social Security taxes, federal income taxes (for a single person with one exemption), state income taxes, union dues, and health insurance premiums for the child. The statute caps the net resources amount used in the formula — obligations on income above the cap require a separate finding of need.
+    </p>
+    <p>
+      This calculator uses 75% of gross as an approximation. A Texas family law attorney or the OAG Child Support Division can work out the exact net resources from your actual tax and insurance figures.
+    </p>
+    <h2>Does Texas child support vary with parenting time?</h2>
+    <p>
+      The statutory percentage assumes a standard possession order (SPO). If the payor has the children more than 50% of the time ("expanded SPO" or "50/50"), a court may deviate from the guideline amount. The percentages above are the statutory guideline; a court can order more or less for good cause.
+    </p>
+    <h2>Frequently asked questions</h2>
+    <p>
+      <strong>Is this for one household or multiple?</strong> The percentages above are for one household of children. If the payor supports children in multiple households, the guideline uses a different table that reduces each household's percentage proportionally.
+    </p>
+    <p>
+      <strong>How long does child support last in Texas?</strong> Until the child turns 18 or graduates from high school (whichever is later), or until the child is otherwise emancipated.
+    </p>
+    <p>
+      <strong>Can I modify a Texas child support order?</strong> Yes — if it has been three years since the last order and the new guideline amount differs by 20% or $100/month, or if there is a material and substantial change in circumstances.
+    </p>
+  </section>
+
+  <AdSlot slot_id="bottom-rectangle" height="250px" />
+
+  <Fragment slot="disclaimer">
+    This calculator provides an estimate based on the guideline percentage under Tex. Fam. Code §154.125.
+    The actual amount depends on accurately determined net resources, the number of households, and possible
+    deviations ordered by the court. Texas law and the net-resources cap are subject to change.
+    Consult a licensed Texas family law attorney or the Office of the Attorney General Child Support Division.
+  </Fragment>
+</BaseLayout>
+
+<script>
+  import { estimateTexasChildSupport, type ChildCount } from '../../../../lib/childSupport';
+
+  const fmt = (n: number) =>
+    n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+
+  document.getElementById("calc-form")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const gross = Number((document.getElementById("payorGrossMonthly") as HTMLInputElement).value) || 0;
+    const children = Number((document.getElementById("numberOfChildren") as HTMLSelectElement).value) as ChildCount;
+    const r = estimateTexasChildSupport({ payorGrossMonthly: gross, numberOfChildren: children });
+
+    (document.getElementById("obligation-output") as HTMLElement).textContent = fmt(r.monthlyObligation);
+    (document.getElementById("pct-output") as HTMLElement).textContent = `${r.guidelinePercent}%`;
+    (document.getElementById("net-output") as HTMLElement).textContent = fmt(r.estimatedNetResources);
+    const capNote = document.getElementById("cap-note") as HTMLElement;
+    if (r.cappedAtMax) {
+      capNote.textContent = `Net resources exceed the statutory cap of ${fmt(r.netResourcesCap)}/mo — obligation is calculated on the cap.`;
+      capNote.hidden = false;
+    } else {
+      capNote.hidden = true;
+    }
+  });
+</script>
+
+<style is:global>
+  .result-card table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  .result-card th, .result-card td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+  .result-card thead th { background: var(--surface-alt); color: var(--text-muted); font-size: 0.82rem; }
+  .prose table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  .prose th, .prose td { text-align: left; padding: 6px 12px; border-bottom: 1px solid var(--border); }
+  .prose thead th { background: var(--surface-alt); color: var(--text-muted); font-size: 0.85rem; }
+</style>

@@ -1,0 +1,157 @@
+---
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import AdSlot from '../../../../components/AdSlot.astro';
+import Icon from '../../../../components/Icon.astro';
+import PresetButtons from '../../../../components/PresetButtons.astro';
+import PercentSlider from '../../../../components/PercentSlider.astro';
+import { estimateChildSupport } from '../../../../lib/childSupport';
+import ExportBar from '../../../../components/ExportBar.astro';
+
+const defaults = { payorMonthlyIncome: 5_000, numberOfChildren: 2 as const, payorOvernightsPct: 0 };
+const initial = estimateChildSupport(defaults);
+const fmt = (n: number) => n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+---
+<BaseLayout
+  title="Wisconsin Child Support Calculator — Percentage Standard Estimator"
+  description="Estimate Wisconsin child support using the percentage standard under DCF 150. Free, instant, no login."
+  active="child-support"
+  disclaimerLead="Not legal advice."
+>
+  <section class="hero">
+    <h1><Icon name="document" size={26} /> Wisconsin Child Support Calculator</h1>
+    <p class="subtitle">
+      Estimate the guideline amount under Wisconsin's percentage standard (DCF 150).
+      Based on the payor's gross income — free, instant, no data stored.
+    </p>
+  </section>
+
+  <div class="grid-layout">
+    <form id="calc-form" class="card" aria-label="Wisconsin child support inputs">
+      <div class="field">
+        <label for="payorMonthlyIncome"><Icon name="currency" size={16} /> Paying parent's gross monthly income ($)</label>
+        <input type="number" id="payorMonthlyIncome" min="0" step="1" value={defaults.payorMonthlyIncome} required />
+        <PresetButtons targetId="payorMonthlyIncome" presets={[
+          { label: "$3,000", value: 3000 },
+          { label: "$5,000", value: 5000 },
+          { label: "$8,000", value: 8000 },
+        ]} />
+        <span class="field-hint">Gross income before any deductions. For self-employment, use net business income plus depreciation add-backs.</span>
+      </div>
+
+      <div class="field">
+        <label for="numberOfChildren"><Icon name="document" size={16} /> Number of children</label>
+        <select id="numberOfChildren">
+          <option value="1">1</option>
+          <option value="2" selected>2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6+</option>
+        </select>
+      </div>
+
+      <PercentSlider id="payorOvernightsPct" label="Paying Parent's Overnights per Year (as % of 365)" min={0} max={50} value={0} />
+
+      <button type="submit" class="btn-primary">Estimate Guideline Amount</button>
+    </form>
+
+    <div class="card result-card" id="result" aria-live="polite">
+      <h2>Guideline Estimate</h2>
+      <div class="metric-grid">
+        <div class="metric-card metric-card--accent">
+          <span class="metric-label"><Icon name="currency" size={14} /> Estimated Monthly Range</span>
+          <span class="metric-value metric-value--lg" id="range-output">{fmt(initial.estimateLow)} – {fmt(initial.estimateHigh)}</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label"><Icon name="chart" size={14} /> Guideline Percentage</span>
+          <span class="metric-value" id="pct-output">{initial.guidelinePercent}%</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label"><Icon name="currency" size={14} /> Base Obligation</span>
+          <span class="metric-value" id="base-output">{fmt(initial.baseObligation)}</span>
+        </div>
+      </div>
+      <p class="card-note">Source: Wis. Admin. Code DCF 150 (percentage standard). Parenting-time adjustment is an approximation.</p>
+    </div>
+  </div>
+
+  <ExportBar />
+
+  <AdSlot slot_id="mid-content" height="250px" />
+
+  <section class="prose">
+    <h2>How Wisconsin's percentage standard works</h2>
+    <p>
+      Wisconsin uses a <strong>percentage of gross income</strong> model (the "percentage standard" under DCF 150).
+      The guideline amount is the paying parent's gross monthly income multiplied by:
+    </p>
+    <table>
+      <thead><tr><th>Children</th><th>Percentage</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>17%</td></tr>
+        <tr><td>2</td><td>25%</td></tr>
+        <tr><td>3</td><td>29%</td></tr>
+        <tr><td>4</td><td>31%</td></tr>
+        <tr><td>5</td><td>34%</td></tr>
+        <tr><td>6 or more</td><td>34%+</td></tr>
+      </tbody>
+    </table>
+    <h2>Parenting-time adjustment</h2>
+    <p>
+      When the paying parent has the children overnight more than a third of the time (more than about 121 nights per year), courts may reduce the base amount. The slider above models a simplified adjustment — the actual calculation under DCF 150 uses a formula comparing the nights each parent has custody.
+    </p>
+    <h2>What counts as income?</h2>
+    <p>
+      Wisconsin uses gross income, which includes wages, salaries, bonuses, commissions, and self-employment income (net profit plus certain add-backs like depreciation). Overtime, second jobs, and investment income are generally included. Imputed income may be used if a parent is voluntarily underemployed.
+    </p>
+    <h2>Frequently asked questions</h2>
+    <p>
+      <strong>Can a court deviate from the percentage standard?</strong> Yes. A court may deviate if the standard is unfair, considering factors like the child's extraordinary needs, shared-placement arrangements, and the parents' earning capacity.
+    </p>
+    <p>
+      <strong>How long does child support last in Wisconsin?</strong> Until the child turns 18, or 19 if still enrolled in high school.
+    </p>
+    <p>
+      <strong>Does Wisconsin use the income shares model?</strong> No. Wisconsin retained its percentage standard when most states moved to income shares. Both parents' incomes are not combined for the basic calculation; only the paying parent's income drives the guideline amount.
+    </p>
+  </section>
+
+  <AdSlot slot_id="bottom-rectangle" height="250px" />
+
+  <Fragment slot="disclaimer">
+    This calculator provides an estimate based on Wisconsin's percentage standard under DCF 150.
+    Actual orders depend on accurately determined gross income, the parenting-time arrangement,
+    deviations ordered by the court, and other case-specific factors.
+    Wisconsin law is subject to change. Consult a licensed Wisconsin family law attorney.
+  </Fragment>
+</BaseLayout>
+
+<script>
+  import { estimateChildSupport, type ChildCount } from '../../../../lib/childSupport';
+
+  const fmt = (n: number) =>
+    n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+
+  const sliderInput = document.getElementById("payorOvernightsPct") as HTMLInputElement | null;
+
+  function run() {
+    const income = Number((document.getElementById("payorMonthlyIncome") as HTMLInputElement).value) || 0;
+    const children = Number((document.getElementById("numberOfChildren") as HTMLSelectElement).value) as ChildCount;
+    const overnights = sliderInput ? Number(sliderInput.value) : 0;
+    const r = estimateChildSupport({ payorMonthlyIncome: income, numberOfChildren: children, payorOvernightsPct: overnights });
+
+    (document.getElementById("range-output") as HTMLElement).textContent =
+      r.estimateLow === r.estimateHigh ? fmt(r.estimateLow) : `${fmt(r.estimateLow)} – ${fmt(r.estimateHigh)}`;
+    (document.getElementById("pct-output") as HTMLElement).textContent = `${r.guidelinePercent}%`;
+    (document.getElementById("base-output") as HTMLElement).textContent = fmt(r.baseObligation);
+  }
+
+  document.getElementById("calc-form")?.addEventListener("submit", (e) => { e.preventDefault(); run(); });
+  sliderInput?.addEventListener("input", run);
+</script>
+
+<style is:global>
+  .prose table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  .prose th, .prose td { text-align: left; padding: 6px 12px; border-bottom: 1px solid var(--border); }
+  .prose thead th { background: var(--surface-alt); color: var(--text-muted); font-size: 0.85rem; }
+</style>

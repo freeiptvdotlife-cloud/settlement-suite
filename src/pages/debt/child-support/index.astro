@@ -76,6 +76,20 @@ const fmt = (n: number) => n.toLocaleString("en-US", { style: "currency", curren
   <ExportBar />
 
   <AdSlot slot_id="mid-content" height="250px" />
+
+  <section class="prose" style="max-width:680px;margin:2rem auto 0;">
+    <h2>State-specific calculators</h2>
+    <p>
+      This estimator uses a generic percentage-of-income model. For the exact statutory formula
+      that applies in your state, choose from the calculators below:
+    </p>
+    <ul>
+      <li><a href="/debt/child-support/texas/">Texas child support calculator</a> — percentage of net monthly resources (Fam. Code §154.125)</li>
+      <li><a href="/debt/child-support/new-york/">New York child support calculator</a> — CSSA combined income formula (Fam. Ct. Act §413)</li>
+      <li><a href="/debt/child-support/wisconsin/">Wisconsin child support calculator</a> — percentage of gross income (DCF 150)</li>
+    </ul>
+  </section>
+
   <AdSlot slot_id="bottom-rectangle" height="250px" />
 
   <Fragment slot="disclaimer">

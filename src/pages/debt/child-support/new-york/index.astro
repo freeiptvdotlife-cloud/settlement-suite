@@ -1,0 +1,177 @@
+---
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import AdSlot from '../../../../components/AdSlot.astro';
+import Icon from '../../../../components/Icon.astro';
+import PresetButtons from '../../../../components/PresetButtons.astro';
+import { estimateNewYorkChildSupport } from '../../../../lib/childSupport';
+import ExportBar from '../../../../components/ExportBar.astro';
+
+const defaults = { payorGrossMonthly: 7_000, payeeGrossMonthly: 2_500, numberOfChildren: 2 as const };
+const initial = estimateNewYorkChildSupport(defaults);
+const fmt = (n: number) => n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+const fmtK = (n: number) => `$${(n / 1000).toFixed(0)}k`;
+---
+<BaseLayout
+  title="New York Child Support Calculator — CSSA Estimator (§413)"
+  description="Estimate New York child support using the Child Support Standards Act formula under Family Court Act §413. Free, instant, no login."
+  active="child-support"
+  disclaimerLead="Not legal advice."
+>
+  <section class="hero">
+    <h1><Icon name="document" size={26} /> New York Child Support Calculator</h1>
+    <p class="subtitle">
+      Estimate the CSSA guideline amount under Family Court Act §413.
+      Covers combined parental income up to the {fmtK(initial.incomeCap)} OTDA cap — free, instant, no data stored.
+    </p>
+  </section>
+
+  <div class="grid-layout">
+    <form id="calc-form" class="card" aria-label="New York child support inputs">
+      <div class="field">
+        <label for="payorGrossMonthly"><Icon name="currency" size={16} /> Paying parent's gross monthly income ($)</label>
+        <input type="number" id="payorGrossMonthly" min="0" step="1" value={defaults.payorGrossMonthly} required />
+        <PresetButtons targetId="payorGrossMonthly" presets={[
+          { label: "$5,000", value: 5000 },
+          { label: "$7,000", value: 7000 },
+          { label: "$12,000", value: 12000 },
+        ]} />
+      </div>
+
+      <div class="field">
+        <label for="payeeGrossMonthly"><Icon name="currency" size={16} /> Receiving parent's gross monthly income ($)</label>
+        <input type="number" id="payeeGrossMonthly" min="0" step="1" value={defaults.payeeGrossMonthly} required />
+        <PresetButtons targetId="payeeGrossMonthly" presets={[
+          { label: "$0", value: 0 },
+          { label: "$2,500", value: 2500 },
+          { label: "$5,000", value: 5000 },
+        ]} />
+        <span class="field-hint">Use gross income from all sources. Enter 0 if not employed.</span>
+      </div>
+
+      <div class="field">
+        <label for="numberOfChildren"><Icon name="document" size={16} /> Number of children</label>
+        <select id="numberOfChildren">
+          <option value="1">1</option>
+          <option value="2" selected>2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5 or more</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn-primary">Estimate CSSA Amount</button>
+    </form>
+
+    <div class="card result-card" id="result" aria-live="polite">
+      <h2>CSSA Guideline Estimate</h2>
+      <div class="metric-grid">
+        <div class="metric-card metric-card--accent">
+          <span class="metric-label"><Icon name="currency" size={14} /> Payor's Monthly Obligation</span>
+          <span class="metric-value metric-value--lg" id="obligation-output">{fmt(initial.payorMonthlyObligation)}</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label"><Icon name="chart" size={14} /> Combined Income Applied</span>
+          <span class="metric-value" id="combined-output">{fmt(initial.combinedAnnualIncome / 12)}<span style="font-size:0.7rem;color:var(--text-muted)">/mo</span></span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label"><Icon name="chart" size={14} /> Payor's Income Share</span>
+          <span class="metric-value" id="share-output">{initial.payorSharePct}%</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label"><Icon name="currency" size={14} /> Basic Monthly Obligation</span>
+          <span class="metric-value" id="basic-output">{fmt(initial.basicMonthlyObligation)}</span>
+        </div>
+      </div>
+      <p class="card-note" id="cap-note" hidden></p>
+      <p class="card-note">Source: N.Y. Fam. Ct. Act §413; CSSA percentage; OTDA 2025 income cap.</p>
+    </div>
+  </div>
+
+  <ExportBar />
+
+  <AdSlot slot_id="mid-content" height="250px" />
+
+  <section class="prose">
+    <h2>How New York's CSSA formula works</h2>
+    <p>
+      New York uses the <strong>Child Support Standards Act (CSSA)</strong> formula:
+    </p>
+    <ol>
+      <li>Add both parents' gross incomes to get <strong>combined parental income</strong>.</li>
+      <li>Multiply by the CSSA percentage for the number of children (17% for 1, up to 35% for 5+).</li>
+      <li>Divide by 12 to get the monthly <strong>basic support obligation</strong>.</li>
+      <li>Each parent pays their <strong>pro-rata share</strong>: their income divided by the combined total.</li>
+    </ol>
+    <p>
+      The formula applies to combined income up to the <strong>OTDA cap</strong> (currently ${(initial.incomeCap / 1000).toFixed(0)},000/year, adjusted periodically). Income above the cap may result in additional support at the court's discretion.
+    </p>
+    <h2>CSSA percentages</h2>
+    <table>
+      <thead><tr><th>Children</th><th>CSSA percentage</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>17%</td></tr>
+        <tr><td>2</td><td>25%</td></tr>
+        <tr><td>3</td><td>29%</td></tr>
+        <tr><td>4</td><td>31%</td></tr>
+        <tr><td>5 or more</td><td>35%</td></tr>
+      </tbody>
+    </table>
+    <h2>What income counts under CSSA?</h2>
+    <p>
+      CSSA income starts with gross income from all sources (wages, self-employment, rental income, unemployment benefits, and others). Adjustments are then made for items like FICA taxes paid, certain alimony, and income from a second household. This calculator uses gross income directly and is a simplified estimate; the exact CSSA calculation accounts for deductions.
+    </p>
+    <h2>Frequently asked questions</h2>
+    <p>
+      <strong>What happens above the income cap?</strong> Courts must still consider the parties' incomes above the cap, but the CSSA percentage does not automatically apply. The court uses factors including the children's needs, lifestyle, and both parents' finances.
+    </p>
+    <p>
+      <strong>Can the court deviate from CSSA?</strong> Yes — if applying the formula is "unjust or inappropriate," the court must state findings in writing explaining the deviation.
+    </p>
+    <p>
+      <strong>Does the custodial parent also owe money?</strong> Yes. Each parent owes their share of the total obligation, but the custodial parent's share is presumed to be spent directly on the children. Only the non-custodial parent typically makes a cash payment.
+    </p>
+  </section>
+
+  <AdSlot slot_id="bottom-rectangle" height="250px" />
+
+  <Fragment slot="disclaimer">
+    This calculator provides an estimate based on the CSSA formula under N.Y. Fam. Ct. Act §413 and the 2025 OTDA income cap.
+    It uses gross income and does not account for all allowable deductions or adjustments under the statute.
+    Actual orders depend on case-specific facts and judicial discretion. New York law and the income cap are subject to change.
+    Consult a licensed New York family law attorney.
+  </Fragment>
+</BaseLayout>
+
+<script>
+  import { estimateNewYorkChildSupport, type ChildCount } from '../../../../lib/childSupport';
+
+  const fmt = (n: number) =>
+    n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+
+  document.getElementById("calc-form")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const payor = Number((document.getElementById("payorGrossMonthly") as HTMLInputElement).value) || 0;
+    const payee = Number((document.getElementById("payeeGrossMonthly") as HTMLInputElement).value) || 0;
+    const children = Number((document.getElementById("numberOfChildren") as HTMLSelectElement).value) as ChildCount;
+    const r = estimateNewYorkChildSupport({ payorGrossMonthly: payor, payeeGrossMonthly: payee, numberOfChildren: children });
+
+    (document.getElementById("obligation-output") as HTMLElement).textContent = fmt(r.payorMonthlyObligation);
+    (document.getElementById("combined-output") as HTMLElement).innerHTML =
+      `${fmt(r.combinedAnnualIncome / 12)}<span style="font-size:0.7rem;color:var(--text-muted)">/mo</span>`;
+    (document.getElementById("share-output") as HTMLElement).textContent = `${r.payorSharePct}%`;
+    (document.getElementById("basic-output") as HTMLElement).textContent = fmt(r.basicMonthlyObligation);
+    const capNote = document.getElementById("cap-note") as HTMLElement;
+    if (r.cappedCombinedIncome) {
+      capNote.textContent = `Combined income exceeds the ${fmt(r.incomeCap)} OTDA cap — formula applied to cap only.`;
+      capNote.hidden = false;
+    } else {
+      capNote.hidden = true;
+    }
+  });
+</script>
+
+<style is:global>
+  .prose table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  .prose th, .prose td { text-align: left; padding: 6px 12px; border-bottom: 1px solid var(--border); }
+  .prose thead th { background: var(--surface-alt); color: var(--text-muted); font-size: 0.85rem; }
+</style>
