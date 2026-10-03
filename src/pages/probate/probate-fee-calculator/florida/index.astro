@@ -1,0 +1,150 @@
+---
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import AdSlot from '../../../../components/AdSlot.astro';
+import Icon from '../../../../components/Icon.astro';
+import PresetButtons from '../../../../components/PresetButtons.astro';
+import { estimateFloridaProbateFees } from '../../../../lib/probateFees';
+
+const defaults = { estateValue: 500_000 };
+const initial = estimateFloridaProbateFees(defaults.estateValue);
+const fmt = (n: number) => n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+---
+<BaseLayout
+  title="Florida Probate Fee Calculator — Attorney & Personal Representative Fees"
+  description="Estimate Florida probate attorney and personal representative fees using the statutory schedule in Fla. Stat. §733.617 and §733.6171. Free, instant, no login."
+  active="probate-hub"
+  disclaimerLead="Not legal advice."
+>
+  <section class="hero">
+    <h1><Icon name="document" size={26} /> Florida Probate Fee Calculator</h1>
+    <p class="subtitle">
+      Estimate presumed-reasonable attorney and personal representative fees using
+      Florida's statutory schedule (§733.617 / §733.6171). Enter the probate estate value.
+      Free, instant, no data stored.
+    </p>
+  </section>
+
+  <div class="grid-layout">
+    <form id="calc-form" class="card" aria-label="Florida probate fee inputs">
+      <div class="field">
+        <label for="estateValue"><Icon name="currency" size={16} /> Probate estate inventory value ($)</label>
+        <input type="number" id="estateValue" min="0" step="1000" value={defaults.estateValue} required />
+        <PresetButtons targetId="estateValue" presets={[
+          { label: "$250k", value: 250_000 },
+          { label: "$500k", value: 500_000 },
+          { label: "$1.5M", value: 1_500_000 },
+          { label: "$3M",   value: 3_000_000 },
+        ]} />
+        <span class="field-hint">
+          Use the inventory value of probate assets — real estate, bank accounts,
+          investments, etc. Exclude joint-tenancy property, retirement accounts with
+          named beneficiaries, and trust assets.
+        </span>
+      </div>
+
+      <button type="submit" class="btn-primary">Calculate Fees</button>
+    </form>
+
+    <div class="card result-card" id="result" aria-live="polite">
+      <h2>Estimated Probate Fees</h2>
+      <div class="metric-grid">
+        <div class="metric-card metric-card--accent">
+          <span class="metric-label"><Icon name="currency" size={14} /> Total Statutory Fees</span>
+          <span class="metric-value metric-value--lg" id="total-output">{fmt(initial.totalStatutoryFees)}</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label"><Icon name="briefcase" size={14} /> Attorney Fee</span>
+          <span class="metric-value" id="attorney-output">{fmt(initial.attorneyFee)}</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label"><Icon name="document" size={14} /> Personal Representative Fee</span>
+          <span class="metric-value" id="executor-output">{fmt(initial.executorFee)}</span>
+        </div>
+      </div>
+      <p class="card-note" id="note-output">{initial.note}</p>
+      <p class="card-note" style="margin-top:0.25rem;">Source: {initial.sourceStatute} ({initial.asOf}).</p>
+    </div>
+  </div>
+
+  <AdSlot slot_id="mid-content" height="250px" />
+
+  <section class="prose">
+    <h2>The Florida statutory fee schedule</h2>
+    <p>
+      Florida Statutes <strong>§733.617</strong> (personal representative) and
+      <strong>§733.6171</strong> (attorney) provide identical "presumed reasonable"
+      sliding-scale fee schedules:
+    </p>
+    <table class="fee-table">
+      <thead><tr><th>Estate Value</th><th>Rate on That Portion</th></tr></thead>
+      <tbody>
+        <tr><td>First $1,000,000</td><td>3%</td></tr>
+        <tr><td>Next $4,000,000 (to $5M)</td><td>2.5%</td></tr>
+        <tr><td>Next $5,000,000 (to $10M)</td><td>2%</td></tr>
+        <tr><td>Above $10,000,000</td><td>1.5%</td></tr>
+      </tbody>
+    </table>
+    <p>
+      Both the attorney <em>and</em> the personal representative each receive the full
+      schedule amount. For a $500,000 estate: 3% × $500k = <strong>$15,000 each,
+      $30,000 total</strong>.
+    </p>
+    <h2>Extraordinary services</h2>
+    <p>
+      Florida's schedules cover "ordinary" probate administration. If the estate requires
+      litigation, resolving contested claims, selling business interests, or other
+      extraordinary services, the attorney may petition for additional compensation beyond
+      the statutory schedule (§733.6171(4)).
+    </p>
+    <h2>Formal vs. summary administration</h2>
+    <p>
+      The statutory fee schedule applies to <strong>formal administration</strong> (for
+      estates over $75,000, or when required regardless of size). Estates valued at
+      $75,000 or less may qualify for <strong>summary administration</strong> — a simpler
+      and cheaper process that does not follow the same fee structure.
+    </p>
+    <h2>Frequently asked questions</h2>
+    <p>
+      <strong>Can I use the same attorney as both estate attorney and personal representative?</strong>
+      Florida law prohibits a person from serving as both personal representative and
+      attorney for the estate simultaneously. Each role is separate and each fee is separate.
+    </p>
+    <p>
+      <strong>Is the personal representative required to take the fee?</strong>
+      No. A family member acting as personal representative can waive the fee. The
+      fee is taxable income if taken.
+    </p>
+  </section>
+
+  <AdSlot slot_id="bottom-rectangle" height="250px" />
+
+  <Fragment slot="disclaimer">
+    This estimate applies the presumed-reasonable schedule in Fla. Stat. §733.617 and §733.6171.
+    These are not mandatory amounts — courts may set different fees based on case complexity.
+    Extraordinary services, summary administration, and fee waivers may significantly change
+    actual costs. Consult a licensed Florida probate attorney.
+  </Fragment>
+</BaseLayout>
+
+<style is:global>
+  .fee-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+  .fee-table th, .fee-table td { padding: 0.5rem 0.75rem; border: 1px solid var(--border); text-align: left; }
+  .fee-table thead { background: var(--surface-alt); }
+</style>
+
+<script>
+  import { estimateFloridaProbateFees } from '../../../../lib/probateFees';
+
+  const fmt = (n: number) =>
+    n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+
+  document.getElementById("calc-form")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const estateValue = Number((document.getElementById("estateValue") as HTMLInputElement).value) || 0;
+    const result = estimateFloridaProbateFees(estateValue);
+    document.getElementById("total-output")!.textContent = fmt(result.totalStatutoryFees);
+    document.getElementById("attorney-output")!.textContent = fmt(result.attorneyFee);
+    document.getElementById("executor-output")!.textContent = fmt(result.executorFee);
+    document.getElementById("note-output")!.textContent = result.note;
+  });
+</script>

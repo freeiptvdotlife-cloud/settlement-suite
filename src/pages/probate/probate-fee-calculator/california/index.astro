@@ -1,0 +1,158 @@
+---
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import AdSlot from '../../../../components/AdSlot.astro';
+import Icon from '../../../../components/Icon.astro';
+import PresetButtons from '../../../../components/PresetButtons.astro';
+import { estimateCaliforniaProbateFees } from '../../../../lib/probateFees';
+
+const defaults = { estateValue: 750_000 };
+const initial = estimateCaliforniaProbateFees(defaults.estateValue);
+const fmt = (n: number) => n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+---
+<BaseLayout
+  title="California Probate Fee Calculator — Attorney & Executor Fees"
+  description="Estimate California probate attorney and executor fees using the statutory schedule in Prob. Code §10800 and §10810. Free, instant, no login."
+  active="probate-hub"
+  disclaimerLead="Not legal advice."
+>
+  <section class="hero">
+    <h1><Icon name="document" size={26} /> California Probate Fee Calculator</h1>
+    <p class="subtitle">
+      Estimate statutory attorney and executor fees using the California Probate Code
+      schedule (§10800 / §10810). Enter the gross probate estate value.
+      Free, instant, no data stored.
+    </p>
+  </section>
+
+  <div class="grid-layout">
+    <form id="calc-form" class="card" aria-label="California probate fee inputs">
+      <div class="field">
+        <label for="estateValue"><Icon name="currency" size={16} /> Gross probate estate value ($)</label>
+        <input type="number" id="estateValue" min="0" step="1000" value={defaults.estateValue} required />
+        <PresetButtons targetId="estateValue" presets={[
+          { label: "$300k", value: 300_000 },
+          { label: "$750k", value: 750_000 },
+          { label: "$1.5M", value: 1_500_000 },
+          { label: "$3M",   value: 3_000_000 },
+        ]} />
+        <span class="field-hint">
+          Use the full appraised value of probate assets — real estate at full value (not equity),
+          bank accounts, investments, etc. Exclude joint-tenancy property, retirement accounts,
+          life insurance with a named beneficiary, and living-trust assets.
+        </span>
+      </div>
+
+      <button type="submit" class="btn-primary">Calculate Fees</button>
+    </form>
+
+    <div class="card result-card" id="result" aria-live="polite">
+      <h2>Estimated Probate Fees</h2>
+      <div class="metric-grid">
+        <div class="metric-card metric-card--accent">
+          <span class="metric-label"><Icon name="currency" size={14} /> Total Statutory Fees</span>
+          <span class="metric-value metric-value--lg" id="total-output">{fmt(initial.totalStatutoryFees)}</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label"><Icon name="briefcase" size={14} /> Attorney Fee</span>
+          <span class="metric-value" id="attorney-output">{fmt(initial.attorneyFee)}</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label"><Icon name="document" size={14} /> Executor / Administrator Fee</span>
+          <span class="metric-value" id="executor-output">{fmt(initial.executorFee)}</span>
+        </div>
+      </div>
+      <p class="card-note" id="note-output">{initial.note}</p>
+      <p class="card-note" style="margin-top:0.25rem;">Source: {initial.sourceStatute} ({initial.asOf}).</p>
+    </div>
+  </div>
+
+  <AdSlot slot_id="mid-content" height="250px" />
+
+  <section class="prose">
+    <h2>The California statutory fee schedule</h2>
+    <p>
+      California Probate Code <strong>§10800</strong> (executor/administrator) and
+      <strong>§10810</strong> (attorney) set identical sliding-scale fees:
+    </p>
+    <table class="fee-table">
+      <thead><tr><th>Estate Value</th><th>Rate on That Portion</th></tr></thead>
+      <tbody>
+        <tr><td>First $100,000</td><td>4%</td></tr>
+        <tr><td>Next $100,000 (to $200k)</td><td>3%</td></tr>
+        <tr><td>Next $800,000 (to $1M)</td><td>2%</td></tr>
+        <tr><td>Next $9,000,000 (to $10M)</td><td>1%</td></tr>
+        <tr><td>Next $15,000,000 (to $25M)</td><td>0.5%</td></tr>
+        <tr><td>Above $25,000,000</td><td>Court-determined "reasonable" fee</td></tr>
+      </tbody>
+    </table>
+    <p>
+      Both the attorney <em>and</em> the executor each receive the full schedule amount,
+      so the combined statutory fees equal 2× the schedule. For a $750,000 estate:
+      4% × $100k + 3% × $100k + 2% × $550k = <strong>$18,000 each, $36,000 total</strong>.
+    </p>
+    <h2>The mortgage trap</h2>
+    <p>
+      A common surprise in California probate: the fee is calculated on the
+      <strong>full appraised value</strong> of real property, not the equity.
+      A $900,000 house with a $600,000 mortgage contributes $900,000 to the fee base —
+      the same as if the home were owned free and clear.
+    </p>
+    <h2>Extraordinary fees</h2>
+    <p>
+      If the estate involves contested litigation, tax issues, or unusually complex
+      administration, the attorney can petition for additional "extraordinary fees"
+      on top of the statutory amount (Prob. Code §10811). The executor may also petition
+      for extraordinary compensation (§10801).
+    </p>
+    <h2>Avoiding probate in California</h2>
+    <p>
+      California's $184,500 (2024) small-estate threshold allows a simplified affidavit
+      procedure for estates below that value. Assets above that threshold held in a
+      revocable living trust pass to beneficiaries without probate — and without the
+      statutory fee.
+    </p>
+    <h2>Frequently asked questions</h2>
+    <p>
+      <strong>Can I negotiate a lower attorney fee?</strong> Yes. The statutory schedule
+      is the <em>maximum</em> presumed-reasonable fee, not a floor. Many attorneys offer
+      a reduced flat fee for simple, uncontested estates.
+    </p>
+    <p>
+      <strong>Must the executor take their fee?</strong> No. A family member acting as
+      executor commonly waives the fee, especially when they are also a beneficiary,
+      to avoid income tax on the compensation.
+    </p>
+  </section>
+
+  <AdSlot slot_id="bottom-rectangle" height="250px" />
+
+  <Fragment slot="disclaimer">
+    This estimate applies the statutory schedule in Cal. Prob. Code §10800 and §10810.
+    Extraordinary fee petitions, court modifications, and local customs may increase total fees.
+    The small-estate threshold and fee schedule are subject to legislative adjustment. Consult
+    a licensed California probate attorney.
+  </Fragment>
+</BaseLayout>
+
+<style is:global>
+  .fee-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+  .fee-table th, .fee-table td { padding: 0.5rem 0.75rem; border: 1px solid var(--border); text-align: left; }
+  .fee-table thead { background: var(--surface-alt); }
+</style>
+
+<script>
+  import { estimateCaliforniaProbateFees } from '../../../../lib/probateFees';
+
+  const fmt = (n: number) =>
+    n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+
+  document.getElementById("calc-form")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const estateValue = Number((document.getElementById("estateValue") as HTMLInputElement).value) || 0;
+    const result = estimateCaliforniaProbateFees(estateValue);
+    document.getElementById("total-output")!.textContent = fmt(result.totalStatutoryFees);
+    document.getElementById("attorney-output")!.textContent = fmt(result.attorneyFee);
+    document.getElementById("executor-output")!.textContent = fmt(result.executorFee);
+    document.getElementById("note-output")!.textContent = result.note;
+  });
+</script>

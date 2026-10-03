@@ -1,0 +1,121 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Icon from '../../../components/Icon.astro';
+
+const states = [
+  {
+    slug: "california",
+    name: "California",
+    schedule: "4% of first $100k, 3% of next $100k, 2% of next $800k, then 1% / 0.5%",
+    statute: "Prob. Code §10800, §10810",
+    note: "Statutory schedule; both attorney and executor each receive the same fee.",
+  },
+  {
+    slug: "florida",
+    name: "Florida",
+    schedule: "3% of first $1M, 2.5% of next $4M, 2% of next $5M, 1.5% above $10M",
+    statute: "Fla. Stat. §733.617, §733.6171",
+    note: "Presumed-reasonable schedule for attorney and personal representative.",
+  },
+  {
+    slug: "missouri",
+    name: "Missouri",
+    schedule: "5% of first $5k, 4% of next $20k, 3% of next $75k, 2.75% / 2.5% / 2%",
+    statute: "Mo. Rev. Stat. §473.153",
+    note: "Statutory schedule for personal representative; attorney fees set by court.",
+  },
+];
+---
+<BaseLayout
+  title="Probate Fee Calculator by State — Free Estimator"
+  description="Free probate fee calculators for states with statutory attorney and executor fee schedules. Covers California, Florida, and Missouri. Instant, no login."
+  active="probate-hub"
+>
+  <section class="hero">
+    <h1><Icon name="document" size={26} /> Probate Fee Calculator by State</h1>
+    <p class="subtitle">
+      Estimate attorney and executor fees for probate estates in states that set
+      fees by statute. Only states with a codified fee schedule are included —
+      most states leave fees to court discretion.
+    </p>
+  </section>
+
+  <div class="card" style="max-width:720px;margin:0 auto;">
+    <h2>Select your state</h2>
+    <p style="margin-bottom:1.5rem;color:var(--text-muted);font-size:0.93rem;">
+      Each calculator applies that state's statutory fee schedule to your estate value.
+    </p>
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      {states.map((s) => (
+        <a href={`/probate/probate-fee-calculator/${s.slug}/`} class="state-card-link">
+          <div class="state-card">
+            <div class="state-card-header">
+              <strong>{s.name}</strong>
+              <code class="statute-tag">{s.statute}</code>
+            </div>
+            <p class="state-card-formula">{s.schedule}</p>
+            <span class="state-card-note">{s.note}</span>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+
+  <section class="prose" style="max-width:680px;margin:2rem auto 0;">
+    <h2>Why most states are not listed</h2>
+    <p>
+      In most U.S. states, probate attorney and executor fees are set by the court as
+      "reasonable compensation" — there is no fee schedule written into statute.
+      A calculator cannot produce a meaningful number without a defined formula.
+    </p>
+    <p>
+      California, Florida, and Missouri each publish a specific sliding-scale fee schedule
+      in statute, which makes exact estimates possible.
+    </p>
+    <h2>What drives probate fees?</h2>
+    <p>
+      In all three states, fees are calculated on the <strong>gross value of the probate
+      estate</strong> — the full appraised value of assets passing through the court process.
+      Assets that pass outside probate (joint tenancy property, retirement accounts,
+      life insurance with a named beneficiary, living-trust assets) are not included in
+      the fee base, even though they may be part of the total estate.
+    </p>
+    <p>
+      In California, even a mortgaged property is counted at its full appraised value —
+      the mortgage is not deducted. A $600,000 home with a $400,000 mortgage still
+      contributes $600,000 to the statutory fee base.
+    </p>
+    <h2>Can fees be waived or reduced?</h2>
+    <p>
+      Yes. Executors can waive their fees (often done within a family), and attorneys
+      frequently negotiate flat fees for simple estates. The statutory schedule represents
+      the maximum presumed-reasonable amount, not a mandatory charge.
+    </p>
+  </section>
+
+  <Fragment slot="disclaimer">
+    These calculators estimate fees based on published statutory schedules. Actual fees may
+    differ due to extraordinary services, court orders, fee waivers, or changes in law.
+    Consult a licensed probate attorney in your state.
+  </Fragment>
+</BaseLayout>
+
+<style is:global>
+  .state-card-link { text-decoration: none; color: inherit; display: block; }
+  .state-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    background: var(--surface);
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .state-card:hover { border-color: var(--accent); box-shadow: 0 2px 8px var(--shadow); }
+  .state-card-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.35rem; flex-wrap: wrap; }
+  .state-card-header strong { font-size: 1.05rem; }
+  .statute-tag {
+    font-size: 0.72rem; background: var(--surface-alt); border: 1px solid var(--border);
+    border-radius: 4px; padding: 0.1rem 0.4rem; color: var(--text-muted);
+  }
+  .state-card-formula { font-size: 0.88rem; color: var(--text); margin: 0 0 0.25rem; }
+  .state-card-note { font-size: 0.78rem; color: var(--text-muted); }
+</style>

@@ -1,0 +1,148 @@
+---
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import AdSlot from '../../../../components/AdSlot.astro';
+import Icon from '../../../../components/Icon.astro';
+import PresetButtons from '../../../../components/PresetButtons.astro';
+import { estimateMissouriProbateFees } from '../../../../lib/probateFees';
+
+const defaults = { estateValue: 200_000 };
+const initial = estimateMissouriProbateFees(defaults.estateValue);
+const fmt = (n: number) => n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+---
+<BaseLayout
+  title="Missouri Probate Fee Calculator — Personal Representative Fees"
+  description="Estimate Missouri probate personal representative fees using the statutory schedule in Mo. Rev. Stat. §473.153. Free, instant, no login."
+  active="probate-hub"
+  disclaimerLead="Not legal advice."
+>
+  <section class="hero">
+    <h1><Icon name="document" size={26} /> Missouri Probate Fee Calculator</h1>
+    <p class="subtitle">
+      Estimate Missouri personal representative (executor) fees using the statutory
+      schedule in Mo. Rev. Stat. §473.153. Attorney fee estimate is indicative only —
+      Missouri sets attorney fees by court order. Free, instant, no data stored.
+    </p>
+  </section>
+
+  <div class="grid-layout">
+    <form id="calc-form" class="card" aria-label="Missouri probate fee inputs">
+      <div class="field">
+        <label for="estateValue"><Icon name="currency" size={16} /> Gross probate estate value ($)</label>
+        <input type="number" id="estateValue" min="0" step="1000" value={defaults.estateValue} required />
+        <PresetButtons targetId="estateValue" presets={[
+          { label: "$100k", value: 100_000 },
+          { label: "$200k", value: 200_000 },
+          { label: "$500k", value: 500_000 },
+          { label: "$1M",   value: 1_000_000 },
+        ]} />
+        <span class="field-hint">
+          Gross estate value before subtracting debts. Includes real estate at full value,
+          bank accounts, and personal property going through probate.
+        </span>
+      </div>
+
+      <button type="submit" class="btn-primary">Calculate Fees</button>
+    </form>
+
+    <div class="card result-card" id="result" aria-live="polite">
+      <h2>Estimated Probate Fees</h2>
+      <div class="metric-grid">
+        <div class="metric-card metric-card--accent">
+          <span class="metric-label"><Icon name="currency" size={14} /> Total Estimated Fees</span>
+          <span class="metric-value metric-value--lg" id="total-output">{fmt(initial.totalStatutoryFees)}</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label"><Icon name="document" size={14} /> Personal Representative Fee (statutory)</span>
+          <span class="metric-value" id="executor-output">{fmt(initial.executorFee)}</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label"><Icon name="briefcase" size={14} /> Attorney Fee (estimate only)</span>
+          <span class="metric-value" id="attorney-output">{fmt(initial.attorneyFee)}</span>
+        </div>
+      </div>
+      <p class="card-note" id="note-output">{initial.note}</p>
+      <p class="card-note" style="margin-top:0.25rem;">Source: {initial.sourceStatute} ({initial.asOf}).</p>
+    </div>
+  </div>
+
+  <AdSlot slot_id="mid-content" height="250px" />
+
+  <section class="prose">
+    <h2>Missouri's statutory personal representative fee schedule</h2>
+    <p>
+      Missouri Revised Statutes <strong>§473.153</strong> sets the statutory compensation
+      for the personal representative (executor) on a sliding scale:
+    </p>
+    <table class="fee-table">
+      <thead><tr><th>Estate Value</th><th>Rate on That Portion</th></tr></thead>
+      <tbody>
+        <tr><td>First $5,000</td><td>5%</td></tr>
+        <tr><td>Next $20,000 (to $25k)</td><td>4%</td></tr>
+        <tr><td>Next $75,000 (to $100k)</td><td>3%</td></tr>
+        <tr><td>Next $300,000 (to $400k)</td><td>2.75%</td></tr>
+        <tr><td>Next $600,000 (to $1M)</td><td>2.5%</td></tr>
+        <tr><td>Above $1,000,000</td><td>2%</td></tr>
+      </tbody>
+    </table>
+    <p>
+      For example, on a $200,000 estate: 5% × $5k + 4% × $20k + 3% × $75k + 2.75% × $100k
+      = $250 + $800 + $2,250 + $2,750 = <strong>$6,050</strong>.
+    </p>
+    <h2>Attorney fees in Missouri probate</h2>
+    <p>
+      Missouri does not set probate attorney fees by a fixed statutory schedule.
+      Instead, §473.153(5) and related case law require that attorney fees be
+      "just and reasonable" as determined by the probate court.
+    </p>
+    <p>
+      In practice, courts frequently allow attorney fees in a similar range to the
+      personal representative compensation — which is why the estimate above uses
+      the same calculation — but the actual amount is set case-by-case. The attorney
+      fee shown here is an indicative estimate only.
+    </p>
+    <h2>Frequently asked questions</h2>
+    <p>
+      <strong>Does Missouri have a small-estate procedure?</strong> Yes. Estates
+      valued at $40,000 or less (2023 threshold, subject to change) may be administered
+      under a simplified "small estate" affidavit procedure, avoiding formal probate
+      and its fees entirely.
+    </p>
+    <p>
+      <strong>Can the personal representative waive their fee?</strong> Yes, and a
+      family member acting as PR commonly does so. The fee is treated as ordinary
+      income if taken.
+    </p>
+  </section>
+
+  <AdSlot slot_id="bottom-rectangle" height="250px" />
+
+  <Fragment slot="disclaimer">
+    The personal representative fee uses the statutory schedule in Mo. Rev. Stat. §473.153.
+    The attorney fee is an estimate only — Missouri courts set attorney fees based on case
+    complexity. This tool does not account for extraordinary services or fee waivers. Consult
+    a licensed Missouri probate attorney.
+  </Fragment>
+</BaseLayout>
+
+<style is:global>
+  .fee-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+  .fee-table th, .fee-table td { padding: 0.5rem 0.75rem; border: 1px solid var(--border); text-align: left; }
+  .fee-table thead { background: var(--surface-alt); }
+</style>
+
+<script>
+  import { estimateMissouriProbateFees } from '../../../../lib/probateFees';
+
+  const fmt = (n: number) =>
+    n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+
+  document.getElementById("calc-form")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const estateValue = Number((document.getElementById("estateValue") as HTMLInputElement).value) || 0;
+    const result = estimateMissouriProbateFees(estateValue);
+    document.getElementById("total-output")!.textContent = fmt(result.totalStatutoryFees);
+    document.getElementById("attorney-output")!.textContent = fmt(result.attorneyFee);
+    document.getElementById("executor-output")!.textContent = fmt(result.executorFee);
+    document.getElementById("note-output")!.textContent = result.note;
+  });
+</script>
