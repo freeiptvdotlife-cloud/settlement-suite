@@ -1,6 +1,6 @@
 ---
 interface Props {
-  name: "scale" | "medical" | "briefcase" | "document" | "sun" | "moon" | "coins" | "percent" | "clock" | "shield" | "currency" | "calendar" | "warning";
+  name: "scale" | "medical" | "briefcase" | "document" | "sun" | "moon" | "coins" | "percent" | "clock" | "shield" | "currency" | "calendar" | "warning" | "exchange" | "chart";
   size?: number;
   class?: string;
 }
@@ -93,5 +93,15 @@ const common = {
   <svg {...common}>
     <path d="M12 3l10 18H2L12 3z" />
     <path d="M12 10v4M12 17h.01" />
+  </svg>
+)}
+{name === "exchange" && (
+  <svg {...common}>
+    <path d="M4 8h13M13 4l4 4-4 4M20 16H7M11 12l-4 4 4 4" />
+  </svg>
+)}
+{name === "chart" && (
+  <svg {...common}>
+    <path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />
   </svg>
 )}

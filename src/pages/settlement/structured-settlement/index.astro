@@ -1,8 +1,8 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import AdSlot from '../../components/AdSlot.astro';
-import Icon from '../../components/Icon.astro';
-import PercentSlider from '../../components/PercentSlider.astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import AdSlot from '../../../components/AdSlot.astro';
+import Icon from '../../../components/Icon.astro';
+import PercentSlider from '../../../components/PercentSlider.astro';
 ---
 
 <BaseLayout
@@ -133,7 +133,7 @@ import PercentSlider from '../../components/PercentSlider.astro';
     forfeitedAmount,
     impliedAnnualRate,
     type Payment,
-  } from '../../lib/finance-math';
+  } from '../../../lib/finance-math';
 
   const currency = new Intl.NumberFormat('en-US', {
     style: 'currency',

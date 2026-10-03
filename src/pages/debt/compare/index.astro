@@ -1,0 +1,144 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import AdSlot from "../../../components/AdSlot.astro";
+import Disclaimer from "../../../components/Disclaimer.astro";
+import Icon from "../../../components/Icon.astro";
+---
+
+<BaseLayout
+  active="debt-compare"
+  title="Debt Settlement vs. Consolidation vs. Bankruptcy — Compare"
+  description="Compare total cost and time-to-debt-free across debt settlement, consolidation, Chapter 7, and Chapter 13."
+>
+  <div class="hero">
+    <h1><Icon name="exchange" />Debt Settlement vs. Consolidation vs. Bankruptcy</h1>
+    <p class="subtitle">Enter your numbers to compare four paths side by side. Nothing here is saved or sent anywhere.</p>
+  </div>
+  <p class="guide-link"><a href="/debt/guides/debt-settlement-vs-bankruptcy/">How this comparison works →</a></p>
+
+  <div class="grid-layout">
+    <form id="compare-form" class="card">
+      <div class="field">
+        <label class="field-label" for="cmp-debt">Total unsecured debt</label>
+        <input id="cmp-debt" type="number" name="totalUnsecuredDebt" min="0" step="1" required />
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="cmp-payment">Monthly payment you can afford</label>
+        <input id="cmp-payment" type="number" name="monthlyPaymentAvailable" min="1" step="1" required />
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="cmp-apr">Consolidation loan APR you'd likely qualify for</label>
+        <div class="percent-slider">
+          <input
+            id="cmp-apr"
+            type="range"
+            name="consolidationLoanApr"
+            min="0"
+            max="40"
+            step="0.5"
+            value="12"
+          />
+          <span class="percent-slider__value" id="cmp-apr-value">12.0%</span>
+        </div>
+        <svg class="bar" viewBox="0 0 100 8" preserveAspectRatio="none" aria-hidden="true">
+          <rect class="bar__track" x="0" y="0" width="100" height="8" rx="4" />
+          <rect class="bar__fill" id="cmp-apr-bar" x="0" y="0" width="30" height="8" rx="4" />
+        </svg>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="cmp-ch13">
+          Projected Chapter 13 monthly plan payment (optional — leave blank to skip)
+        </label>
+        <input id="cmp-ch13" type="number" name="chapter13PlanPayment" min="0" step="1" />
+      </div>
+
+      <button type="submit" class="btn-primary">Compare paths</button>
+    </form>
+
+    <div class="card result-card">
+      <h2>Result</h2>
+      <div id="compare-result" role="status" aria-live="polite">
+        <div class="metric-grid">
+          <div class="metric-card metric-card--accent">
+            <span class="metric-label">Status</span>
+            <span class="metric-value metric-value--lg">Enter your details</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <AdSlot label="Advertisement" minHeight={250} />
+
+  <Disclaimer />
+
+  <script>
+    import { compareDebtPaths, type PathResult } from "../../../lib/debt/index";
+
+    const form = document.querySelector<HTMLFormElement>("#compare-form")!;
+    const resultEl = document.querySelector<HTMLDivElement>("#compare-result")!;
+    const aprInput = document.querySelector<HTMLInputElement>("#cmp-apr")!;
+    const aprValue = document.querySelector<HTMLSpanElement>("#cmp-apr-value")!;
+    const aprBar = document.querySelector<SVGRectElement>("#cmp-apr-bar")!;
+
+    const PATH_LABELS: Record<PathResult["path"], string> = {
+      settlement: "Debt settlement",
+      consolidation: "Debt consolidation loan",
+      chapter7: "Chapter 7 bankruptcy",
+      chapter13: "Chapter 13 bankruptcy",
+    };
+
+    function updateAprDisplay() {
+      const pct = Number(aprInput.value);
+      aprValue.textContent = `${pct.toFixed(1)}%`;
+      const fraction = pct / Number(aprInput.max);
+      aprBar.setAttribute("width", String(Math.max(fraction * 100, 0)));
+    }
+    aprInput.addEventListener("input", updateAprDisplay);
+    updateAprDisplay();
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const data = new FormData(form);
+      const chapter13Raw = data.get("chapter13PlanPayment");
+
+      const results = compareDebtPaths({
+        totalUnsecuredDebt: Number(data.get("totalUnsecuredDebt")),
+        monthlyPaymentAvailable: Number(data.get("monthlyPaymentAvailable")),
+        consolidationLoanApr: Number(data.get("consolidationLoanApr")) / 100,
+        chapter13PlanPayment:
+          chapter13Raw && String(chapter13Raw).length > 0
+            ? Number(chapter13Raw)
+            : undefined,
+      });
+
+      resultEl.innerHTML = renderResults(results);
+    });
+
+    function renderResults(results: PathResult[]): string {
+      const finiteCosts = results.map((r) => r.totalCost).filter(Number.isFinite);
+      const cheapest = finiteCosts.length > 0 ? Math.min(...finiteCosts) : undefined;
+      const cards = results
+        .map((r) => {
+          if (!Number.isFinite(r.totalCost)) {
+            return `<div class="metric-card">
+              <span class="metric-label">${PATH_LABELS[r.path]}</span>
+              <span class="metric-value">Not payable at this rate</span>
+              <span class="metric-label">This payment doesn't cover the loan's monthly interest, so it would never pay off — increase the payment or look for a lower APR.</span>
+            </div>`;
+          }
+          const isCheapest = r.totalCost === cheapest;
+          return `<div class="metric-card${isCheapest ? " metric-card--accent" : ""}">
+            <span class="metric-label">${PATH_LABELS[r.path]}</span>
+            <span class="metric-value${isCheapest ? " metric-value--lg" : ""}">$${r.totalCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+            <span class="metric-label">${r.monthsToDebtFree} months · ${r.creditImpact} credit impact</span>
+          </div>`;
+        })
+        .join("");
+      return `<div class="metric-grid">${cards}</div>`;
+    }
+  </script>
+</BaseLayout>

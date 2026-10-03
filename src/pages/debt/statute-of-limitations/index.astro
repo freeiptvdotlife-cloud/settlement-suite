@@ -1,0 +1,155 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import AdSlot from "../../../components/AdSlot.astro";
+import Disclaimer from "../../../components/Disclaimer.astro";
+import Icon from "../../../components/Icon.astro";
+import { US_STATES } from "../../../lib/states";
+---
+
+<BaseLayout
+  active="sol"
+  title="Statute of Limitations & Zombie Debt Checker — Calculator"
+  description="Find out whether an old debt is time-barred in your state, and whether a recent payment could have revived it."
+>
+  <div class="hero">
+    <h1><Icon name="clock" />Statute of Limitations &amp; Zombie Debt Checker</h1>
+    <p class="subtitle">Enter the debt details below. Nothing here is saved or sent anywhere.</p>
+  </div>
+  <p class="guide-link"><a href="/debt/guides/statute-of-limitations-on-debt/">How time-barred debt works →</a></p>
+
+  <div class="grid-layout">
+    <form id="sol-form" class="card">
+      <div class="field">
+        <label class="field-label" for="sol-state"><Icon name="shield" size={16} />State</label>
+        <select id="sol-state" name="state" required>
+          <option value="">Select a state</option>
+          {US_STATES.map((s) => <option value={s.code}>{s.name}</option>)}
+        </select>
+      </div>
+
+      <div class="field">
+        <span class="field-label">Debt type</span>
+        <div class="segmented" role="group" aria-label="Debt type">
+          <button type="button" class="segmented__option" data-value="creditCard" aria-pressed="true">Credit card</button>
+          <button type="button" class="segmented__option" data-value="medical" aria-pressed="false">Medical</button>
+          <button type="button" class="segmented__option" data-value="autoDeficiency" aria-pressed="false">Auto deficiency</button>
+          <button type="button" class="segmented__option" data-value="judgment" aria-pressed="false">Court judgment</button>
+        </div>
+        <input type="hidden" name="debtType" id="sol-debtType" value="creditCard" />
+      </div>
+      <p class="field-hint">
+        Medical and auto-loan-deficiency debt are estimated using each state's
+        "written contract" statute of limitations, since that's the most common
+        classification — but it can vary by state and by the paperwork involved.
+      </p>
+
+      <div class="field">
+        <label class="field-label" for="sol-date">Date of last payment or activity</label>
+        <input id="sol-date" type="date" name="lastActivityDate" required />
+      </div>
+
+      <div class="field">
+        <span class="field-label">Did you make a payment (even a small one) after that date?</span>
+        <div class="segmented" role="group" aria-label="Payment made after last activity">
+          <button type="button" class="segmented__option" data-value="no" aria-pressed="true">No</button>
+          <button type="button" class="segmented__option" data-value="yes" aria-pressed="false">Yes</button>
+        </div>
+        <input type="hidden" name="paymentMadeAfterLastActivity" id="sol-payment" value="no" />
+      </div>
+
+      <button type="submit" class="btn-primary">Check status</button>
+    </form>
+
+    <div class="card result-card">
+      <h2>Result</h2>
+      <div id="sol-result" role="status" aria-live="polite">
+        <div class="metric-grid">
+          <div class="metric-card metric-card--accent">
+            <span class="metric-label">Status</span>
+            <span class="metric-value metric-value--lg">Enter your details</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <AdSlot label="Advertisement" minHeight={250} />
+
+  <Disclaimer />
+
+  <script>
+    import {
+      checkStatuteOfLimitations,
+      type SolResult,
+      type DebtType,
+    } from "../../../lib/debt/index";
+
+    const form = document.querySelector<HTMLFormElement>("#sol-form")!;
+    const resultEl = document.querySelector<HTMLDivElement>("#sol-result")!;
+    const debtTypeInput = document.querySelector<HTMLInputElement>("#sol-debtType")!;
+    const paymentInput = document.querySelector<HTMLInputElement>("#sol-payment")!;
+
+    function wireSegmented(groupSelector: string, hiddenInput: HTMLInputElement) {
+      const buttons = document.querySelectorAll<HTMLButtonElement>(
+        `${groupSelector} .segmented__option`
+      );
+      buttons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          buttons.forEach((b) => b.setAttribute("aria-pressed", "false"));
+          btn.setAttribute("aria-pressed", "true");
+          hiddenInput.value = btn.dataset.value ?? "";
+        });
+      });
+    }
+    wireSegmented('[aria-label="Debt type"]', debtTypeInput);
+    wireSegmented('[aria-label="Payment made after last activity"]', paymentInput);
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const data = new FormData(form);
+
+      const result = checkStatuteOfLimitations({
+        state: String(data.get("state")),
+        debtType: String(data.get("debtType")) as DebtType,
+        lastActivityDate: new Date(String(data.get("lastActivityDate"))),
+        paymentMadeAfterLastActivity: data.get("paymentMadeAfterLastActivity") === "yes",
+      });
+
+      resultEl.innerHTML = renderResult(result);
+    });
+
+    function metricCard(label: string, value: string, accent = false): string {
+      return `<div class="metric-card${accent ? " metric-card--accent" : ""}">
+        <span class="metric-label">${label}</span>
+        <span class="metric-value${accent ? " metric-value--lg" : ""}">${value}</span>
+      </div>`;
+    }
+
+    function renderResult(result: SolResult): string {
+      if ("error" in result) {
+        return `<div class="metric-grid">${metricCard("Status", "State/debt type not supported yet", true)}</div>`;
+      }
+
+      const cards = [
+        metricCard(
+          "Status",
+          result.isTimeBarred ? "Appears time-barred" : "Not yet time-barred",
+          true
+        ),
+        metricCard("Statute of limitations", `${result.solYears} years`),
+        metricCard("Expiration date", result.expirationDate.toLocaleDateString()),
+      ];
+
+      if (result.revivalRiskWarning) {
+        cards.push(
+          metricCard(
+            "Revival risk",
+            "A payment after last activity may have reset this clock — treat the expiration date as unreliable"
+          )
+        );
+      }
+
+      return `<div class="metric-grid">${cards.join("")}</div>`;
+    }
+  </script>
+</BaseLayout>

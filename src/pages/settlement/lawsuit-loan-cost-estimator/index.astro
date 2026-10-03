@@ -1,9 +1,9 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import AdSlot from '../../components/AdSlot.astro';
-import Icon from '../../components/Icon.astro';
-import PercentSlider from '../../components/PercentSlider.astro';
-import SegmentedControl from '../../components/SegmentedControl.astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import AdSlot from '../../../components/AdSlot.astro';
+import Icon from '../../../components/Icon.astro';
+import PercentSlider from '../../../components/PercentSlider.astro';
+import SegmentedControl from '../../../components/SegmentedControl.astro';
 ---
 
 <BaseLayout
@@ -138,7 +138,7 @@ import SegmentedControl from '../../components/SegmentedControl.astro';
     loanScenarios,
     effectiveAnnualApr,
     type CompoundingType,
-  } from '../../lib/finance-math';
+  } from '../../../lib/finance-math';
 
   const currency = new Intl.NumberFormat('en-US', {
     style: 'currency',

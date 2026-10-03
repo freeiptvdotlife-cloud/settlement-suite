@@ -1,0 +1,212 @@
+---
+import ArticleLayout from "../../../../layouts/ArticleLayout.astro";
+import type { Source } from "../../../../lib/sources";
+
+const sources: Source[] = [
+  {
+    title: "U.S. Department of Justice, U.S. Trustee Program — Means Testing",
+    url: "https://www.justice.gov/ust/means-testing",
+    accessed: "2026-09-27",
+  },
+  {
+    title: "U.S. Courts, Chapter 7 Bankruptcy Basics",
+    url: "https://www.uscourts.gov/court-programs/bankruptcy/bankruptcy-basics/chapter-7-bankruptcy-basics",
+    accessed: "2026-09-27",
+  },
+];
+---
+
+<ArticleLayout
+  title="How to Calculate the Chapter 7 Means Test"
+  description="Step-by-step walkthrough of the Chapter 7 bankruptcy means test: the state median income comparison, the IRS expense standards, and a full worked example."
+  lastUpdated="2026-09-25"
+  reviewed="2026-09-27"
+  sources={sources}
+  toolHref="/means-test/"
+  toolLabel="Means Test Calculator"
+>
+  <p>
+    The "means test" is the calculation that decides whether you're allowed
+    to file Chapter 7 bankruptcy — the kind that discharges most unsecured
+    debt in a few months — or whether the court pushes you toward Chapter
+    13, a 3-to-5-year repayment plan instead. It's not a judgment call by a
+    judge; it's a formula, defined by Congress in the 2005 bankruptcy law
+    (BAPCPA) and filled in every year with fresh government data. That means
+    it's mechanical enough to calculate yourself before you ever talk to an
+    attorney — which is what our <a href="/debt/means-test/">means test
+    calculator</a> does.
+  </p>
+
+  <h2>The two-part structure</h2>
+  <p>
+    The means test runs in two parts, and most filers never reach Part 2 —
+    they pass or fail on Part 1 alone.
+  </p>
+
+  <h3>Part 1: Are you even a "higher income" filer?</h3>
+  <p>
+    Part 1 compares your <strong>current monthly income</strong> — averaged
+    over the six full calendar months before you file, not your income
+    today — annualized, against the median income for a household your size
+    in your state. This median isn't a national number; it's published
+    per-state by the U.S. Trustee Program using Census Bureau data, and it's
+    updated roughly twice a year. A single filer in Mississippi and a single
+    filer in Massachusetts are being measured against very different lines.
+  </p>
+  <p>
+    If your annualized income is <strong>at or below</strong> the median for
+    your state and household size, you pass the means test outright. No
+    expense deductions, no Part 2 — you're presumed eligible for Chapter 7.
+    Most consumer bankruptcy filers land here.
+  </p>
+
+  <h3>Part 2: The expense-standard math</h3>
+  <p>
+    If your income is above the median, the test doesn't disqualify you —
+    it just makes you prove you don't have enough left over each month to
+    meaningfully repay creditors. That's where the IRS's own Collection
+    Financial Standards come in: the same allowance tables the IRS uses to
+    decide what a delinquent taxpayer can afford to pay. The means test
+    borrows them wholesale.
+  </p>
+  <p>Part 2 subtracts, from your current monthly income:</p>
+  <ul>
+    <li>
+      The <strong>IRS National Standard</strong> for your household size —
+      a flat allowance for food, housekeeping supplies, clothing, personal
+      care, and miscellaneous expenses. You don't itemize receipts; you get
+      the standard amount regardless of what you actually spend.
+    </li>
+    <li>
+      The <strong>IRS out-of-pocket health care allowance</strong> — a
+      fixed per-person monthly amount, higher for household members 65 and
+      older.
+    </li>
+    <li>
+      The <strong>IRS Local Standard for housing and utilities</strong> in
+      your county — this one varies enormously. A one-person household's
+      housing allowance in Manhattan is roughly double the same household's
+      allowance in most of Texas, because it's built from actual local
+      housing cost data.
+    </li>
+    <li>
+      The <strong>IRS Local Standard for transportation</strong> —
+      ownership costs (capped loan/lease payment) plus operating costs,
+      which vary by Census region.
+    </li>
+    <li>
+      Your actual <strong>secured debt payments</strong> — mortgage, car
+      loan — since those aren't part of what bankruptcy is discharging.
+    </li>
+  </ul>
+  <p>
+    What's left is your <strong>disposable monthly income</strong>. Multiply
+    it by 60 (five years) and compare that number against two fixed dollar
+    thresholds set by the bankruptcy code:
+  </p>
+  <ul>
+    <li>Below the lower threshold → you pass. No presumption of abuse.</li>
+    <li>
+      Above the upper threshold → you fail. The court presumes you can
+      afford a Chapter 13 plan instead (rebuttable, but it's an uphill
+      argument).
+    </li>
+    <li>
+      In between → it depends on your unsecured debt: you pass only if your
+      5-year disposable income is less than 25% of your total non-priority
+      unsecured debt.
+    </li>
+  </ul>
+
+  <h2>Worked example</h2>
+  <p>
+    A single filer (household size 1) in Harris County, Texas, earning
+    $10,000/month gross, averaged over the trailing 6 months, with $500/month
+    in secured debt payments:
+  </p>
+  <table class="worked-example">
+    <tbody>
+      <tr><td>Gross monthly income</td><td>$10,000</td></tr>
+      <tr><td>− IRS National Standard (household of 1)</td><td>−$867</td></tr>
+      <tr><td>− Out-of-pocket health care (1 person, under 65)</td><td>−$90</td></tr>
+      <tr><td>− Local housing &amp; utilities standard (Harris County)</td><td>−$2,153</td></tr>
+      <tr><td>− Local transportation operating cost (South region)</td><td>−$291</td></tr>
+      <tr><td>− Secured debt payments</td><td>−$500</td></tr>
+      <tr class="worked-example__total"><td>Disposable monthly income</td><td>$6,099</td></tr>
+    </tbody>
+  </table>
+  <p>
+    Annualized income here is $120,000 — well above the Texas one-person
+    median, so this filer fails Part 1 and moves to Part 2. At $6,099/month,
+    five-year disposable income is $365,940, far above the upper threshold —
+    a clear Chapter 7 fail. Run your own numbers in the
+    <a href="/debt/means-test/">means test calculator</a> — it does this exact
+    arithmetic.
+  </p>
+
+  <h2>Mistakes that change the result</h2>
+  <ul>
+    <li>
+      <strong>Using take-home pay instead of gross income.</strong> The
+      means test uses gross income before taxes and deductions — a common
+      and costly mix-up.
+    </li>
+    <li>
+      <strong>Using this month's income instead of the trailing 6-month
+      average.</strong> If you were recently laid off or just started a
+      higher-paying job, "current monthly income" for means-test purposes
+      still looks backward over six full months, not forward.
+    </li>
+    <li>
+      <strong>Taking the national housing standard instead of the local
+      one.</strong> The local standard for your specific county is often
+      dramatically different from the flat national figure — always use
+      county-level data.
+    </li>
+    <li>
+      <strong>Forgetting secured debt payments are a separate deduction</strong>
+      from the housing standard — you get both, not one or the other, in
+      most circuits.
+    </li>
+    <li>
+      <strong>Assuming failing Part 1 means you can't file Chapter 7.</strong>
+      It only means you have to run Part 2 — plenty of higher earners with
+      real secured debt and dependents still pass on the expense side.
+    </li>
+  </ul>
+
+  <h2>If you fail</h2>
+  <p>
+    Failing the means test doesn't end your bankruptcy options — it
+    typically means Chapter 13 instead of Chapter 7: a repayment plan, sized
+    to your disposable income, that runs 3 to 5 years and discharges
+    whatever's left afterward. Our
+    <a href="/compare/">debt settlement vs. bankruptcy comparator</a> lines
+    up the real cost and timeline of that path against settlement and
+    consolidation, so you can see the actual numbers side by side instead of
+    just the pass/fail flag.
+  </p>
+
+  <p class="disclaimer-note">
+    This guide explains the mechanics of a federal formula; it is not legal
+    advice, and the standards it describes change over time. See our
+    <a href="/debt/means-test/">calculator's disclaimer</a> for the current data
+    sources and their limitations.
+  </p>
+</ArticleLayout>
+
+<style>
+  .worked-example {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.95rem;
+  }
+  .worked-example td {
+    padding: 0.5rem 0.25rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .worked-example td:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+  .worked-example__total td { font-weight: 700; border-top: 2px solid #111827; }
+  .disclaimer-note { font-size: 0.85rem; color: var(--text-muted); }
+</style>

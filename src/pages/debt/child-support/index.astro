@@ -1,9 +1,9 @@
 ---
-import BaseLayout from "../layouts/BaseLayout.astro";
-import AdSlot from "../components/AdSlot.astro";
-import Icon from "../components/Icon.astro";
-import PercentSlider from "../components/PercentSlider.astro";
-import PresetButtons from "../components/PresetButtons.astro";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import AdSlot from "../../../components/AdSlot.astro";
+import Icon from "../../../components/Icon.astro";
+import PercentSlider from "../../../components/PercentSlider.astro";
+import PresetButtons from "../../../components/PresetButtons.astro";
 ---
 <BaseLayout
   title="Child Support Estimator — Free Calculator"
@@ -78,7 +78,7 @@ import PresetButtons from "../components/PresetButtons.astro";
 </BaseLayout>
 
 <script>
-  import { estimateChildSupport, type ChildCount } from "../lib/childSupport";
+  import { estimateChildSupport, type ChildCount } from "../../../lib/childSupport";
 
   const fmt = (n: number) =>
     n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });

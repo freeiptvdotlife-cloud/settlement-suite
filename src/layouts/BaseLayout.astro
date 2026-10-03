@@ -4,20 +4,24 @@ import Icon from "../components/Icon.astro";
 export interface Props {
   title: string;
   description: string;
-  active: "settlement" | "child-support" | "workers-comp" | "structured-settlement" | "annuity-solver" | "lawsuit-loan" | "workers-comp-comparator";
+  active?: "settlement" | "child-support" | "workers-comp" | "structured-settlement" | "annuity-solver" | "lawsuit-loan" | "means-test" | "debt-compare" | "dti" | "sol" | "guides";
   /** Bold lead-in for the footer disclaimer. Defaults to "Not legal advice." */
   disclaimerLead?: string;
 }
 const { title, description, active, disclaimerLead = "Not legal advice." } = Astro.props;
 
 const navItems = [
-  { href: "/", label: "Injury Settlement", key: "settlement", icon: "scale" },
-  { href: "/child-support", label: "Child Support", key: "child-support", icon: "document" },
-  { href: "/workers-comp", label: "Workers' Comp", key: "workers-comp", icon: "briefcase" },
-  { href: "/structured-settlement/", label: "Structured Settlement", key: "structured-settlement", icon: "coins" },
-  { href: "/annuity-value-solver/", label: "Annuity Solver", key: "annuity-solver", icon: "clock" },
-  { href: "/lawsuit-loan-cost-estimator/", label: "Lawsuit Loan", key: "lawsuit-loan", icon: "shield" },
-  { href: "/workers-comp-comparator/", label: "Comp Comparator", key: "workers-comp-comparator", icon: "percent" },
+  { href: "/", label: "Settlement", key: "settlement", icon: "scale" },
+  { href: "/workers-comp/", label: "Workers' Comp", key: "workers-comp", icon: "briefcase" },
+  { href: "/settlement/structured-settlement/", label: "Structured Settlement", key: "structured-settlement", icon: "coins" },
+  { href: "/settlement/annuity-value-solver/", label: "Annuity Solver", key: "annuity-solver", icon: "clock" },
+  { href: "/settlement/lawsuit-loan-cost-estimator/", label: "Lawsuit Loan", key: "lawsuit-loan", icon: "shield" },
+  { href: "/debt/means-test/", label: "Means Test", key: "means-test", icon: "shield" },
+  { href: "/debt/compare/", label: "Compare Paths", key: "debt-compare", icon: "exchange" },
+  { href: "/debt/dti/", label: "DTI & Recovery", key: "dti", icon: "chart" },
+  { href: "/debt/statute-of-limitations/", label: "SOL Checker", key: "sol", icon: "clock" },
+  { href: "/debt/child-support/", label: "Child Support", key: "child-support", icon: "document" },
+  { href: "/debt/guides/", label: "Guides", key: "guides", icon: "document" },
 ] as const;
 ---
 <!doctype html>

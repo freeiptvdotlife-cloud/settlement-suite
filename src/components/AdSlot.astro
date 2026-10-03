@@ -1,9 +1,12 @@
 ---
 interface Props {
-  slot_id: string;
+  slot_id?: string;
+  label?: string;
   height?: string;
+  minHeight?: number;
 }
-const { slot_id, height = "250px" } = Astro.props;
+const { slot_id, label = "Advertisement", height, minHeight } = Astro.props;
+const resolvedHeight = height ?? (minHeight ? `${minHeight}px` : "250px");
 ---
 
 <!--
@@ -13,6 +16,6 @@ const { slot_id, height = "250px" } = Astro.props;
   AdSense property is approved — the reserved box model keeps CLS at 0.00
   either way.
 -->
-<div class="ad-slot" data-ad-slot={slot_id} style={`min-height:${height}; height:${height};`}>
-  <span class="ad-slot__label">Advertisement</span>
+<div class="ad-slot" data-ad-slot={slot_id} style={`min-height:${resolvedHeight}; height:${resolvedHeight};`}>
+  <span class="ad-slot__label">{label}</span>
 </div>

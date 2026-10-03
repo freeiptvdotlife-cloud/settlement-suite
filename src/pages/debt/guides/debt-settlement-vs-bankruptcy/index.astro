@@ -1,0 +1,158 @@
+---
+import ArticleLayout from "../../../../layouts/ArticleLayout.astro";
+import type { Source } from "../../../../lib/sources";
+
+const sources: Source[] = [
+  {
+    title: "CFPB — What is a debt relief program and how do I know if I should use one?",
+    url: "https://www.consumerfinance.gov/ask-cfpb/what-is-a-debt-relief-program-and-how-do-i-know-if-i-should-use-one-en-1457/",
+    accessed: "2026-09-27",
+  },
+  {
+    title: "U.S. Courts, Chapter 7 Bankruptcy Basics",
+    url: "https://www.uscourts.gov/court-programs/bankruptcy/bankruptcy-basics/chapter-7-bankruptcy-basics",
+    accessed: "2026-09-27",
+  },
+];
+---
+
+<ArticleLayout
+  title="Debt Settlement vs. Consolidation vs. Bankruptcy: The Real Math"
+  description="What debt settlement, debt consolidation, Chapter 7, and Chapter 13 actually cost and how long each one takes — compared side by side with a worked example."
+  lastUpdated="2026-09-25"
+  reviewed="2026-09-27"
+  sources={sources}
+  toolHref="/compare/"
+  toolLabel="Compare Paths Calculator"
+>
+  <p>
+    When you're behind on debt, the marketing you see makes every option
+    sound like the obvious answer — settlement companies sell settlement,
+    consolidation lenders sell consolidation, and bankruptcy attorneys sell
+    bankruptcy. None of them are wrong, exactly; they're just each showing
+    you the case where their path wins. The only way to actually compare is
+    to run the same numbers through all four paths at once, which is what
+    our <a href="/debt/compare/">comparison calculator</a> does.
+  </p>
+
+  <h2>The four paths, in plain terms</h2>
+
+  <h3>Debt settlement</h3>
+  <p>
+    You (or a settlement company, for a fee) stop paying your creditors
+    directly and instead save money into a dedicated account. Once there's
+    enough saved, you offer creditors a lump sum — typically somewhere
+    around 45–55% of the balance — to settle the account for less than you
+    owe. Settlement companies commonly charge 15–25% of the enrolled debt on
+    top of that. It's faster and cheaper than paying debt off in full, but
+    it tanks your credit while you're not paying, and forgiven debt over
+    $600 is usually taxable income.
+  </p>
+
+  <h3>Debt consolidation</h3>
+  <p>
+    You take out one new loan — sized to pay off all your existing unsecured
+    debt — at whatever interest rate your credit qualifies you for, and pay
+    that single loan down over time. You pay 100% of what you owe (unlike
+    settlement), but you replace several high-interest revolving balances
+    with one fixed, amortizing payment. This only actually helps if the new
+    loan's rate is meaningfully lower than your current average rate —
+    consolidating at a similar or higher rate just stretches the same debt
+    over more months of interest.
+  </p>
+
+  <h3>Chapter 7 bankruptcy</h3>
+  <p>
+    If you pass the <a href="/debt/guides/chapter-7-means-test/">means test</a>,
+    Chapter 7 discharges most unsecured debt outright in about 3–4 months,
+    for the cost of attorney and filing fees — usually a small fraction of
+    the debt itself. It's the fastest and cheapest path by far when you
+    qualify, at the cost of the most severe, longest-lasting credit impact
+    of the four options, plus the loss of any non-exempt assets.
+  </p>
+
+  <h3>Chapter 13 bankruptcy</h3>
+  <p>
+    If you don't pass the means test, or you have assets you want to
+    protect (like a home you're behind on), Chapter 13 restructures your
+    debt into a court-supervised repayment plan lasting 3–5 years, sized to
+    your disposable income. At the end, remaining eligible debt is
+    discharged. You pay more in total than Chapter 7, over a much longer
+    time, but you keep more control over what happens to your assets along
+    the way.
+  </p>
+
+  <h2>Worked example</h2>
+  <p>
+    $30,000 in unsecured debt, $500/month available to put toward it, and a
+    12% APR consolidation loan on offer:
+  </p>
+  <table class="compare-table">
+    <thead>
+      <tr><th>Path</th><th>Total cost</th><th>Time to debt-free</th><th>Credit impact</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Debt settlement</td><td>$21,000</td><td>42 months</td><td>Significant</td></tr>
+      <tr><td>Debt consolidation</td><td>$46,500</td><td>93 months</td><td>Moderate</td></tr>
+      <tr><td>Chapter 7</td><td>$1,500</td><td>4 months</td><td>Severe</td></tr>
+      <tr><td>Chapter 13 (at an $800/mo plan payment)</td><td>$48,000</td><td>60 months</td><td>Severe</td></tr>
+    </tbody>
+  </table>
+  <p>
+    Notice what actually separates these: Chapter 7 is dramatically cheaper
+    and faster <em>if you qualify</em> — that's the whole reason the means
+    test exists as a gate. Settlement beats consolidation on total cost here
+    because the consolidation loan's term stretched out further than the
+    settlement timeline at this specific payment level; at a higher monthly
+    payment or a lower APR, that ranking can flip. This is exactly why a
+    one-size-fits-all recommendation from any single company is unreliable —
+    run your own numbers in the <a href="/debt/compare/">calculator</a>.
+  </p>
+
+  <h2>How to think about which one fits</h2>
+  <ul>
+    <li>
+      <strong>If you pass the means test</strong>, Chapter 7 is very hard to
+      beat on pure cost and speed — the tradeoff is entirely about credit
+      impact and any assets at risk, not price.
+    </li>
+    <li>
+      <strong>If your rate on a consolidation loan isn't meaningfully lower
+      than your current average rate</strong>, consolidation usually isn't
+      solving the actual problem — you're just repackaging the same debt.
+    </li>
+    <li>
+      <strong>Settlement trades a lower total payoff for real credit damage
+      and a 1099-C tax bill</strong> on the forgiven amount — factor the tax
+      hit in before comparing it to bankruptcy on cost alone.
+    </li>
+    <li>
+      <strong>If you have an asset to protect</strong> — a home you're
+      current on, for instance — Chapter 13's structure exists specifically
+      to let you keep paying for it while everything else restructures.
+    </li>
+  </ul>
+
+  <p class="disclaimer-note">
+    These figures are cost-model estimates, not quotes from any specific
+    settlement company, lender, or attorney, and don't include the tax
+    consequences of forgiven debt. See our
+    <a href="/debt/compare/">calculator's disclaimer</a> for the assumptions
+    behind each path's math.
+  </p>
+</ArticleLayout>
+
+<style>
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.9rem;
+  }
+  .compare-table th, .compare-table td {
+    text-align: left;
+    padding: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .disclaimer-note { font-size: 0.85rem; color: var(--text-muted); }
+</style>

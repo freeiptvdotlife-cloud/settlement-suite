@@ -1,0 +1,156 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import AdSlot from "../../../components/AdSlot.astro";
+import Disclaimer from "../../../components/Disclaimer.astro";
+import Icon from "../../../components/Icon.astro";
+---
+
+<BaseLayout
+  active="dti"
+  title="DTI & Post-Bankruptcy Credit Recovery Timeline — Calculator"
+  description="Check your debt-to-income ratio and estimate when you'd re-qualify for a mortgage after bankruptcy."
+>
+  <div class="hero">
+    <h1><Icon name="chart" />DTI &amp; Post-Bankruptcy Credit Recovery Timeline</h1>
+    <p class="subtitle">Enter your numbers below. Nothing here is saved or sent anywhere.</p>
+  </div>
+  <p class="guide-link"><a href="/debt/guides/dti-and-credit-recovery-after-bankruptcy/">How DTI and re-qualification work →</a></p>
+
+  <div class="grid-layout">
+    <form id="dti-form" class="card">
+      <div class="field">
+        <label class="field-label" for="dti-debt">Monthly debt obligations (all minimum payments combined)</label>
+        <input id="dti-debt" type="number" name="monthlyDebtObligations" min="0" step="1" required />
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="dti-income">Monthly gross income</label>
+        <input id="dti-income" type="number" name="monthlyGrossIncome" min="1" step="1" required />
+      </div>
+
+      <div class="field">
+        <span class="field-label">Have you filed bankruptcy, or are you considering it?</span>
+        <div class="segmented" role="group" aria-label="Bankruptcy chapter">
+          <button type="button" class="segmented__option" data-value="" aria-pressed="true">Not applicable</button>
+          <button type="button" class="segmented__option" data-value="chapter7" aria-pressed="false">Chapter 7</button>
+          <button type="button" class="segmented__option" data-value="chapter13" aria-pressed="false">Chapter 13</button>
+        </div>
+        <input type="hidden" name="chapter" id="dti-chapter" value="" />
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="dti-anchor">Discharge date (Chapter 7) or filing date (Chapter 13)</label>
+        <input id="dti-anchor" type="date" name="anchorDate" />
+      </div>
+
+      <button type="submit" class="btn-primary">Calculate</button>
+    </form>
+
+    <div class="card result-card">
+      <h2>Result</h2>
+      <div id="dti-result" role="status" aria-live="polite">
+        <div class="metric-grid">
+          <div class="metric-card metric-card--accent">
+            <span class="metric-label">Status</span>
+            <span class="metric-value metric-value--lg">Enter your details</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <AdSlot label="Advertisement" minHeight={250} />
+
+  <Disclaimer />
+
+  <script>
+    import {
+      calculateDti,
+      projectRecoveryTimeline,
+      type DtiResult,
+      type RecoveryTimelineEntry,
+      type BankruptcyChapter,
+    } from "../../../lib/debt/index";
+
+    const form = document.querySelector<HTMLFormElement>("#dti-form")!;
+    const resultEl = document.querySelector<HTMLDivElement>("#dti-result")!;
+    const chapterInput = document.querySelector<HTMLInputElement>("#dti-chapter")!;
+    const segmentedOptions = document.querySelectorAll<HTMLButtonElement>(
+      '.segmented__option[data-value]'
+    );
+
+    segmentedOptions.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        segmentedOptions.forEach((b) => b.setAttribute("aria-pressed", "false"));
+        btn.setAttribute("aria-pressed", "true");
+        chapterInput.value = btn.dataset.value ?? "";
+      });
+    });
+
+    const LOAN_LABELS: Record<RecoveryTimelineEntry["loanType"], string> = {
+      conventional: "Conventional loan",
+      fha: "FHA loan",
+      va: "VA loan",
+    };
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const data = new FormData(form);
+
+      const dti = calculateDti({
+        monthlyDebtObligations: Number(data.get("monthlyDebtObligations")),
+        monthlyGrossIncome: Number(data.get("monthlyGrossIncome")),
+      });
+
+      const chapter = String(data.get("chapter") || "") as BankruptcyChapter | "";
+      const anchorDateRaw = String(data.get("anchorDate") || "");
+
+      let timeline: RecoveryTimelineEntry[] | undefined;
+      if (chapter && anchorDateRaw) {
+        timeline = projectRecoveryTimeline({
+          chapter,
+          anchorDate: new Date(anchorDateRaw),
+        });
+      }
+
+      resultEl.innerHTML = renderResult(dti, timeline);
+    });
+
+    function metricCard(label: string, value: string, accent = false): string {
+      return `<div class="metric-card${accent ? " metric-card--accent" : ""}">
+        <span class="metric-label">${label}</span>
+        <span class="metric-value${accent ? " metric-value--lg" : ""}">${value}</span>
+      </div>`;
+    }
+
+    function renderResult(dti: DtiResult, timeline?: RecoveryTimelineEntry[]): string {
+      const pct = (dti.dti * 100).toFixed(1);
+      const qualifyCards = (Object.keys(dti.qualifies) as (keyof typeof dti.qualifies)[])
+        .map((loanType) =>
+          metricCard(
+            LOAN_LABELS[loanType as RecoveryTimelineEntry["loanType"]],
+            dti.qualifies[loanType] ? "Meets guideline" : "Above guideline"
+          )
+        )
+        .join("");
+
+      let timelineCards = "";
+      if (timeline) {
+        timelineCards = timeline
+          .map((entry) =>
+            metricCard(
+              `${LOAN_LABELS[entry.loanType]} window`,
+              `${entry.earliestEligibleDate.toLocaleDateString()} – ${entry.latestEligibleDate.toLocaleDateString()}`
+            )
+          )
+          .join("");
+      }
+
+      return `<div class="metric-grid">
+        ${metricCard("Debt-to-income ratio", `${pct}%`, true)}
+        ${qualifyCards}
+        ${timelineCards}
+      </div>`;
+    }
+  </script>
+</BaseLayout>

@@ -1,0 +1,158 @@
+---
+import ArticleLayout from "../../../../layouts/ArticleLayout.astro";
+import type { Source } from "../../../../lib/sources";
+
+const sources: Source[] = [
+  {
+    title: "HUD Handbook 4000.1, FHA Single Family Housing Policy Handbook",
+    url: "https://www.hud.gov/hud-partners/single-family-handbook-4000-1",
+    accessed: "2026-09-27",
+  },
+  {
+    title: "CFPB — Qualified Mortgage Definition under the Truth in Lending Act (Regulation Z)",
+    url: "https://www.consumerfinance.gov/rules-policy/final-rules/qualified-mortgage-definition-under-truth-lending-act-regulation-z-general-qm-loan-definition/",
+    accessed: "2026-09-27",
+  },
+];
+---
+
+<ArticleLayout
+  title="DTI Explained: How Lenders Read Your Debt-to-Income Ratio"
+  description="The debt-to-income ceilings conventional, FHA, and VA lenders actually use, and how long re-qualification typically takes after a Chapter 7 or Chapter 13 bankruptcy."
+  lastUpdated="2026-09-25"
+  reviewed="2026-09-27"
+  sources={sources}
+  toolHref="/dti/"
+  toolLabel="DTI & Recovery Calculator"
+>
+  <p>
+    Debt-to-income ratio (DTI) is the single number mortgage lenders lean on
+    most to decide whether you can afford a loan — and it's also the number
+    most people calculate wrong, because "debt" in this formula means
+    something narrower than it sounds like. Get it right and you'll know
+    before you apply whether you're in range; get it wrong and a
+    pre-approval can fall apart at underwriting.
+  </p>
+
+  <h2>What actually counts as "debt" in DTI</h2>
+  <p>
+    DTI is your total <strong>monthly minimum debt obligations</strong>
+    divided by your <strong>monthly gross income</strong>. The debt side
+    includes minimum payments on credit cards, auto loans, student loans,
+    personal loans, child support or alimony you owe, and (for a mortgage
+    application) the new proposed housing payment. It does <em>not</em>
+    include things like groceries, utilities, insurance, or subscriptions —
+    those affect your budget, not your DTI.
+  </p>
+
+  <h2>The ceilings, by loan type</h2>
+  <p>
+    Lenders don't share one DTI cutoff — each loan program sets its own, and
+    they vary more than most people expect:
+  </p>
+  <ul>
+    <li><strong>Conventional loans:</strong> typically capped around 45%.</li>
+    <li><strong>FHA loans:</strong> considerably more lenient, up to roughly 57%.</li>
+    <li><strong>VA loans:</strong> guideline around 41%, though VA underwriting weighs residual income alongside DTI more heavily than the other two.</li>
+  </ul>
+  <p>
+    These are guideline maximums, not guarantees — individual lenders layer
+    their own "overlays" on top, and a DTI right at the ceiling with a thin
+    credit file is a very different application than the same DTI with
+    strong credit and reserves.
+  </p>
+
+  <h2>Worked example</h2>
+  <p>
+    $2,000/month in debt obligations against $5,000/month gross income:
+  </p>
+  <table class="dti-table">
+    <tbody>
+      <tr><td>Debt-to-income ratio</td><td>40.0%</td></tr>
+      <tr><td>Conventional (≤45%)</td><td>Meets guideline</td></tr>
+      <tr><td>FHA (≤57%)</td><td>Meets guideline</td></tr>
+      <tr><td>VA (≤41%)</td><td>Meets guideline</td></tr>
+    </tbody>
+  </table>
+  <p>
+    At 40%, this borrower clears all three ceilings — but barely clears VA's
+    41% limit, which is the kind of margin that disappears fast if a new car
+    payment gets added before closing.
+  </p>
+
+  <h2>Re-qualifying after bankruptcy</h2>
+  <p>
+    DTI is only half the picture if you've filed bankruptcy — lenders also
+    enforce a minimum waiting period before they'll consider you at all,
+    regardless of your ratio. These are widely published guideline windows
+    (not a single official table), and individual lenders can be stricter:
+  </p>
+  <table class="dti-table">
+    <thead>
+      <tr><th>Loan type</th><th>After Chapter 7 discharge</th><th>After Chapter 13 filing</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Conventional</td><td>~4 years</td><td>~2–4 years</td></tr>
+      <tr><td>FHA</td><td>~2 years</td><td>~1 year, with trustee approval</td></tr>
+      <tr><td>VA</td><td>~2 years</td><td>~1 year, with trustee approval</td></tr>
+    </tbody>
+  </table>
+  <p>
+    Notice the Chapter 13 columns are measured from your <em>filing</em>
+    date, not your discharge date — because FHA and VA allow you to
+    re-qualify while you're still inside an active, on-time repayment plan,
+    with the trustee's sign-off. Conventional loans, by contrast, generally
+    wait for full discharge before that shorter 2-year clock can start.
+    That's a real, practical difference: someone who files Chapter 13 can be
+    FHA-eligible roughly a year into a 3–5 year plan, years before a
+    conventional lender will consider them.
+  </p>
+  <p>
+    For a filer discharged from Chapter 7 on January 15, 2028, that
+    puts conventional eligibility at January 15, 2028 itself (the 4-year
+    conventional clock in our model runs from the same discharge date), and
+    FHA/VA eligibility roughly two years earlier — run your actual dates
+    through the <a href="/debt/dti/">calculator</a> to see the specific windows.
+  </p>
+
+  <h2>What to do with this before you apply</h2>
+  <ul>
+    <li>
+      Pay down or pay off a small revolving balance before applying if
+      you're close to a ceiling — DTI is far more sensitive to eliminating
+      a monthly payment than to reducing income.
+    </li>
+    <li>
+      Don't take on new financed debt (a car, furniture on credit) between
+      pre-approval and closing — DTI is re-checked at closing, and a new
+      payment can push you over the line after you thought you were done.
+    </li>
+    <li>
+      If you're inside a Chapter 13 plan, ask specifically about FHA or VA
+      eligibility with trustee approval — many borrowers assume they have
+      to wait for full discharge and don't realize they may already qualify.
+    </li>
+  </ul>
+
+  <p class="disclaimer-note">
+    DTI ceilings and post-bankruptcy waiting periods are lender guidelines,
+    not statutes — individual underwriters and loan investors can apply
+    stricter standards. See our
+    <a href="/debt/dti/">calculator's disclaimer</a> for the current assumptions.
+  </p>
+</ArticleLayout>
+
+<style>
+  .dti-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.9rem;
+  }
+  .dti-table th, .dti-table td {
+    text-align: left;
+    padding: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .disclaimer-note { font-size: 0.85rem; color: var(--text-muted); }
+</style>

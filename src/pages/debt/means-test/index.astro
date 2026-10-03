@@ -1,0 +1,139 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import AdSlot from "../../../components/AdSlot.astro";
+import Disclaimer from "../../../components/Disclaimer.astro";
+import Icon from "../../../components/Icon.astro";
+import { US_STATES } from "../../../lib/states";
+---
+
+<BaseLayout
+  active="means-test"
+  title="Chapter 7 Means Test Calculator — Free, No Sign-Up"
+  description="See whether your income and expenses pass the Chapter 7 bankruptcy means test. Free, instant, and your figures never leave your device."
+>
+  <div class="hero">
+    <h1><Icon name="scale" />Chapter 7 Means Test &amp; Eligibility Estimator</h1>
+    <p class="subtitle">Enter your household details. Nothing here is saved or sent anywhere.</p>
+  </div>
+  <p class="guide-link"><a href="/debt/guides/chapter-7-means-test/">How this calculation works →</a></p>
+
+  <div class="grid-layout">
+    <form id="means-test-form" class="card">
+      <div class="field">
+        <label class="field-label" for="mt-state"><Icon name="shield" size={16} />State</label>
+        <select id="mt-state" name="state" required>
+          <option value="">Select a state</option>
+          {US_STATES.map((s) => <option value={s.code}>{s.name}</option>)}
+        </select>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="mt-county">County</label>
+        <input id="mt-county" type="text" name="county" placeholder="e.g. Harris" required />
+      </div>
+      <p class="field-hint">
+        Full nationwide county data isn't wired in yet — Los Angeles (CA), Harris (TX),
+        Miami-Dade (FL), and New York (NY) counties have real IRS figures; other counties
+        will show a "not available yet" message for Part 2.
+      </p>
+
+      <div class="field">
+        <label class="field-label" for="mt-household">Household size</label>
+        <input id="mt-household" type="number" name="householdSize" min="1" value="1" required />
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="mt-65plus">Household members aged 65 or older</label>
+        <input id="mt-65plus" type="number" name="membersAge65OrOlder" min="0" value="0" required />
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="mt-income">Average gross monthly income (last 6 months)</label>
+        <input id="mt-income" type="number" name="monthlyIncome" min="0" step="1" required />
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="mt-secured">Monthly secured debt payments (mortgage, auto)</label>
+        <input id="mt-secured" type="number" name="securedDebt" min="0" step="1" value="0" required />
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="mt-unsecured">Total unsecured debt</label>
+        <input id="mt-unsecured" type="number" name="unsecuredDebt" min="0" step="1" value="0" required />
+      </div>
+
+      <button type="submit" class="btn-primary">Check eligibility</button>
+    </form>
+
+    <div class="card result-card">
+      <h2>Result</h2>
+      <div id="means-test-result" role="status" aria-live="polite">
+        <div class="metric-grid">
+          <div class="metric-card metric-card--accent">
+            <span class="metric-label">Status</span>
+            <span class="metric-value metric-value--lg">Enter your details</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <AdSlot label="Advertisement" minHeight={250} />
+
+  <Disclaimer />
+
+  <script>
+    import { runMeansTest } from "../../../lib/debt/index";
+
+    const form = document.querySelector<HTMLFormElement>("#means-test-form")!;
+    const resultEl = document.querySelector<HTMLDivElement>("#means-test-result")!;
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const data = new FormData(form);
+      const monthlyIncome = Number(data.get("monthlyIncome"));
+
+      const result = runMeansTest({
+        state: String(data.get("state")),
+        county: String(data.get("county")),
+        householdSize: Number(data.get("householdSize")),
+        membersAge65OrOlder: Number(data.get("membersAge65OrOlder")),
+        last6MonthsGrossIncome: Array(6).fill(monthlyIncome),
+        monthlySecuredDebtPayments: Number(data.get("securedDebt")),
+        totalUnsecuredDebt: Number(data.get("unsecuredDebt")),
+      });
+
+      resultEl.innerHTML = renderResult(result);
+    });
+
+    function metricCard(label: string, value: string, accent = false): string {
+      return `<div class="metric-card${accent ? " metric-card--accent" : ""}">
+        <span class="metric-label">${label}</span>
+        <span class="metric-value${accent ? " metric-value--lg" : ""}">${value}</span>
+      </div>`;
+    }
+
+    function renderResult(result: ReturnType<typeof runMeansTest>): string {
+      if ("error" in result) {
+        return `<div class="metric-grid">${metricCard("Status", "State not supported yet", true)}</div>`;
+      }
+      if (result.part1 === "pass") {
+        return `<div class="metric-grid">
+          ${metricCard("Status", "Passes Part 1", true)}
+          ${metricCard("State median income", `$${result.stateMedianIncome.toLocaleString()}`)}
+          ${metricCard("Annualized income", `$${result.annualizedIncome.toLocaleString()}`)}
+        </div>`;
+      }
+      if (result.part2 === "unknown-local-standards") {
+        return `<div class="metric-grid">${metricCard("Status", "County data not available yet", true)}</div>`;
+      }
+      const passed = result.part2 === "pass";
+      return `<div class="metric-grid">
+        ${metricCard("Status", passed ? "Passes the means test" : "Does not pass", true)}
+        ${metricCard("Disposable monthly income", `$${result.disposableMonthlyIncome?.toFixed(0)}`)}
+        ${metricCard("5-year disposable income", `$${result.disposableIncomeOver60Months?.toFixed(0)}`)}
+        ${result.projectedChapter13PlanPayment !== undefined ? metricCard("Est. Chapter 13 plan payment", `$${result.projectedChapter13PlanPayment.toFixed(0)}/mo`) : ""}
+      </div>`;
+    }
+  </script>
+</BaseLayout>

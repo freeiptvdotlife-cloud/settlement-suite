@@ -1,0 +1,64 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+import SourcesList from "../components/SourcesList.astro";
+import type { Source } from "../lib/sources";
+
+interface Props {
+  title: string;
+  description: string;
+  lastUpdated: string;
+  toolHref: string;
+  toolLabel: string;
+  /**
+   * ISO date the content was last checked against `sources`. Optional: existing guides don't
+   * have sourced content yet (that backfill is Phase 1 of the content pipeline build,
+   * docs/strategy/04-content-pipeline.md section 11) — this just adds the capability.
+   */
+  reviewed?: string;
+  sources?: Source[];
+}
+
+const { title, description, lastUpdated, toolHref, toolLabel, reviewed, sources } = Astro.props;
+---
+
+<BaseLayout title={title} description={description} active="guides">
+  <p class="breadcrumb"><a href="/debt/guides/">← All guides</a></p>
+  <article class="guide card">
+    <h1>{title}</h1>
+    <p class="meta">
+      Last updated: {lastUpdated}
+      {reviewed && <> · Reviewed against its sources {reviewed}</>}
+    </p>
+
+    <div class="guide__cta">
+      <a href={toolHref}>Try the {toolLabel} →</a>
+    </div>
+
+    <slot />
+
+    <div class="guide__cta guide__cta--bottom">
+      <a href={toolHref}>Try the {toolLabel} →</a>
+    </div>
+
+    {sources && sources.length > 0 && <SourcesList sources={sources} />}
+  </article>
+</BaseLayout>
+
+<style>
+  .breadcrumb { font-size: 0.85rem; }
+  .breadcrumb a { color: var(--text-muted); text-decoration: none; }
+  .meta { color: var(--text-dim); font-size: 0.85rem; margin-top: -0.5rem; }
+  .guide :global(h2) { margin-top: 2rem; }
+  .guide :global(h3) { margin-top: 1.5rem; }
+  .guide :global(p) { line-height: 1.65; color: var(--text); }
+  .guide :global(li) { line-height: 1.6; }
+  .guide__cta {
+    background: var(--bg-inset);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 0.9rem 1.1rem;
+    margin: 1.25rem 0;
+  }
+  .guide__cta a { font-weight: 700; text-decoration: none; color: var(--accent); }
+  .guide__cta--bottom { margin-top: 2rem; }
+</style>

@@ -1,0 +1,65 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+
+export const guides = [
+  {
+    href: "/debt/guides/chapter-7-means-test/",
+    title: "How to Calculate the Chapter 7 Means Test",
+    description:
+      "Step-by-step walkthrough of Part 1 and Part 2 of the means test, with a worked example and the mistakes that most often change the result.",
+    date: "2026-09-27",
+  },
+  {
+    href: "/debt/guides/debt-settlement-vs-bankruptcy/",
+    title: "Debt Settlement vs. Consolidation vs. Bankruptcy: The Real Math",
+    description:
+      "What each path actually costs, how long it takes, and the situations where one clearly beats the others.",
+    date: "2026-09-27",
+  },
+  {
+    href: "/debt/guides/dti-and-credit-recovery-after-bankruptcy/",
+    title: "DTI Explained: How Lenders Read Your Debt-to-Income Ratio",
+    description:
+      "The DTI ceilings conventional, FHA, and VA lenders actually use, and how long re-qualification takes after a Chapter 7 or Chapter 13.",
+    date: "2026-09-27",
+  },
+  {
+    href: "/debt/guides/statute-of-limitations-on-debt/",
+    title: "Statute of Limitations on Debt: What Time-Barred Really Means",
+    description:
+      "Why an old debt can still show up on your credit report after the statute of limitations expires, and how a single payment can restart the clock.",
+    date: "2026-09-27",
+  },
+];
+---
+
+<BaseLayout
+  title="Debt Relief Guides — Recovery Numbers"
+  description="Plain-language guides on the Chapter 7 means test, debt settlement vs. bankruptcy, DTI and mortgage re-qualification, and statutes of limitations on debt."
+  active="guides"
+>
+  <h1>Debt Relief Guides</h1>
+  <p>
+    Longer explainers behind each calculator — how the math works, what the
+    inputs mean, and the mistakes that most often change the answer.
+  </p>
+
+  <ul class="guide-list">
+    {guides.map((g) => (
+      <li>
+        <a href={g.href}>{g.title}</a>
+        <p>{g.description}</p>
+      </li>
+    ))}
+  </ul>
+</BaseLayout>
+
+<style>
+  .guide-list { list-style: none; padding: 0; }
+  .guide-list li {
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .guide-list a { font-weight: 600; font-size: 1.05rem; }
+  .guide-list p { margin: 0.25rem 0 0; color: var(--text-muted); font-size: 0.9rem; }
+</style>

@@ -1,0 +1,164 @@
+---
+import ArticleLayout from "../../../../layouts/ArticleLayout.astro";
+import type { Source } from "../../../../lib/sources";
+
+const sources: Source[] = [
+  {
+    title: "FTC Consumer Advice — Debt Collection FAQs",
+    url: "https://consumer.ftc.gov/articles/debt-collection-faqs",
+    accessed: "2026-09-27",
+  },
+  {
+    title: "CFPB Regulation F §1006.26, Collection of Time-Barred Debts",
+    url: "https://www.consumerfinance.gov/rules-policy/regulations/1006/26/",
+    accessed: "2026-09-27",
+  },
+];
+---
+
+<ArticleLayout
+  title="Statute of Limitations on Debt: What Time-Barred Really Means"
+  description="Why an old debt can still appear on your credit report after the statute of limitations expires, how the clock is set per state and debt type, and how a single payment can restart it."
+  lastUpdated="2026-09-25"
+  reviewed="2026-09-27"
+  sources={sources}
+  toolHref="/statute-of-limitations/"
+  toolLabel="Statute of Limitations Checker"
+>
+  <p>
+    "Zombie debt" is old, often long-forgotten debt that gets sold — usually
+    for pennies on the dollar — to a collector who then tries to collect on
+    it years later. Sometimes that debt is past its statute of limitations,
+    meaning a creditor legally can't sue you over it anymore. That doesn't
+    mean the debt is gone, and it definitely doesn't mean you should ignore
+    a collector's letter — it means the leverage in that conversation has
+    shifted, and it's worth knowing exactly where you stand before you
+    respond.
+  </p>
+
+  <h2>What "time-barred" actually means</h2>
+  <p>
+    Every state sets a statute of limitations — a number of years — on how
+    long a creditor or debt collector has to <em>sue</em> you to collect a
+    debt, starting from your last payment or other qualifying activity on
+    the account. Once that period passes, the debt becomes "time-barred":
+    the collector can still ask you to pay, call you, and send letters, but
+    if they sue you and you correctly raise the statute of limitations as a
+    defense, the court won't let the lawsuit proceed.
+  </p>
+  <p>
+    Crucially, time-barred debt can still legally appear on your credit
+    report for up to 7 years from the date of first delinquency — a
+    completely separate clock, governed by the Fair Credit Reporting Act,
+    that has nothing to do with your state's statute of limitations. "Time-
+    barred" and "off your credit report" are two different milestones that
+    rarely land on the same date.
+  </p>
+
+  <h2>The clock varies by state <em>and</em> by debt type</h2>
+  <p>
+    There's no single national number. States commonly set different
+    limitations periods depending on how the debt was created:
+  </p>
+  <ul>
+    <li>
+      <strong>Open-ended accounts (credit cards)</strong> often have their
+      own, sometimes shorter, limitations period.
+    </li>
+    <li>
+      <strong>Written contracts</strong> — the category most medical debt
+      and auto loan deficiencies fall into, when there's a signed agreement
+      — commonly run longer than open-account periods in the same state.
+    </li>
+    <li>
+      <strong>Court judgments</strong> run on their own, usually much
+      longer, clock — often a decade or more, and frequently renewable by
+      the creditor before it expires.
+    </li>
+  </ul>
+  <p>
+    Two states with the same reputation for being "debtor-friendly" or
+    "creditor-friendly" can still land on very different numbers once you
+    split by debt type — which is exactly why a flat "how long until my
+    debt expires" rule of thumb is unreliable. Check your specific state and
+    debt type in the <a href="/debt/statute-of-limitations/">checker</a>.
+  </p>
+
+  <h2>Worked example</h2>
+  <p>
+    A New York credit card account, last payment made January 1, 2019, no
+    further activity:
+  </p>
+  <p class="result-box">
+    This debt appears <strong>time-barred</strong> — New York's 3-year
+    statute of limitations on open-ended accounts expired January 1, 2022.
+  </p>
+  <p>
+    Contrast that with a Georgia court judgment entered in 2015 with no
+    further collection activity — Georgia's judgment statute of limitations
+    is 7 years, so that judgment expired in 2022 too, despite the very
+    different debt type and state, purely because the two periods happened
+    to match.
+  </p>
+
+  <h2>The revival trap</h2>
+  <p>
+    This is the single most consequential thing to understand before you
+    respond to a zombie-debt collector: in many states, making
+    <strong>any</strong> payment — even $5, even a "good faith" partial
+    payment offered to sound cooperative — can restart the statute of
+    limitations clock from that new payment date. So can, in some states,
+    simply acknowledging the debt is yours in writing.
+  </p>
+  <p>
+    A collector who calls about a debt that's already time-barred often
+    knows exactly what they're doing when they push for "just a small
+    payment to show good faith." If the debt is genuinely time-barred and
+    you make a payment, you can hand the collector a fresh, fully
+    enforceable claim against you — voluntarily, for the price of $5. Before
+    making any payment on an old debt, confirm its status first.
+  </p>
+
+  <h2>What to actually do</h2>
+  <ul>
+    <li>
+      <strong>Check the debt's status before responding to anything</strong> —
+      use the <a href="/debt/statute-of-limitations/">checker</a> with your best
+      record of the last payment or activity date.
+    </li>
+    <li>
+      <strong>Get everything in writing.</strong> Debt collectors are
+      required to validate a debt if you dispute it in writing within 30
+      days of first contact — do this before discussing payment.
+    </li>
+    <li>
+      <strong>Don't confirm the debt is yours, and don't make any payment,</strong>
+      until you know whether the clock has run — and understand that doing
+      either one may restart it.
+    </li>
+    <li>
+      <strong>Remember time-barred isn't the same as "not on your credit
+      report."</strong> The 7-year FCRA reporting clock runs independently
+      and may still be active even on a debt you can't be successfully sued
+      over.
+    </li>
+  </ul>
+
+  <p class="disclaimer-note">
+    Statute of limitations rules — including exactly what counts as
+    "activity" that resets the clock — vary by state and are genuinely
+    contested in court in some cases. This is not legal advice; see our
+    <a href="/debt/statute-of-limitations/">calculator's disclaimer</a>, and talk
+    to a consumer-rights attorney before making any payment on old debt.
+  </p>
+</ArticleLayout>
+
+<style>
+  .result-box {
+    background: var(--bg-inset);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+  }
+  .disclaimer-note { font-size: 0.85rem; color: var(--text-muted); }
+</style>
