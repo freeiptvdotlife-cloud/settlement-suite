@@ -5,6 +5,19 @@ import Icon from "../components/Icon.astro";
 import SegmentedControl from "../components/SegmentedControl.astro";
 import PercentSlider from "../components/PercentSlider.astro";
 import PresetButtons from "../components/PresetButtons.astro";
+import { estimateSettlement } from "../lib/settlement";
+
+// Default worked-example values — pre-rendered so results appear before JS loads
+const defaults = {
+  medicalExpenses: 10_000,
+  futureMedicalExpenses: 5_000,
+  lostWages: 3_000,
+  futureLostWages: 0,
+  severity: "moderate" as const,
+  comparativeFaultPct: 0,
+};
+const initial = estimateSettlement(defaults);
+const fmt = (n: number) => n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 ---
 <BaseLayout
   title="Personal Injury Settlement Estimator — Free Calculator"
@@ -16,13 +29,11 @@ import PresetButtons from "../components/PresetButtons.astro";
     <p class="subtitle">Estimate a settlement range using the multiplier method attorneys commonly use. Free, instant, no data stored.</p>
   </section>
 
-  <AdSlot slot_id="top-banner" height="250px" />
-
   <div class="grid-layout">
     <form id="calc-form" class="card" aria-label="Settlement inputs">
       <div class="field">
         <label for="medicalExpenses"><Icon name="medical" size={16} /> Medical expenses to date ($)</label>
-        <input type="number" id="medicalExpenses" min="0" step="1" value="0" required />
+        <input type="number" id="medicalExpenses" min="0" step="1" value={defaults.medicalExpenses} required />
         <PresetButtons
           targetId="medicalExpenses"
           presets={[
@@ -36,12 +47,12 @@ import PresetButtons from "../components/PresetButtons.astro";
 
       <div class="field">
         <label for="futureMedicalExpenses"><Icon name="medical" size={16} /> Estimated future medical expenses ($)</label>
-        <input type="number" id="futureMedicalExpenses" min="0" step="1" value="0" required />
+        <input type="number" id="futureMedicalExpenses" min="0" step="1" value={defaults.futureMedicalExpenses} required />
       </div>
 
       <div class="field">
         <label for="lostWages"><Icon name="briefcase" size={16} /> Lost wages to date ($)</label>
-        <input type="number" id="lostWages" min="0" step="1" value="0" required />
+        <input type="number" id="lostWages" min="0" step="1" value={defaults.lostWages} required />
         <PresetButtons
           targetId="lostWages"
           presets={[
@@ -54,13 +65,13 @@ import PresetButtons from "../components/PresetButtons.astro";
 
       <div class="field">
         <label for="futureLostWages"><Icon name="briefcase" size={16} /> Estimated future lost wages ($)</label>
-        <input type="number" id="futureLostWages" min="0" step="1" value="0" required />
+        <input type="number" id="futureLostWages" min="0" step="1" value={defaults.futureLostWages} required />
       </div>
 
       <SegmentedControl
         id="severity"
         label="Injury Severity"
-        defaultValue="moderate"
+        defaultValue={defaults.severity}
         options={[
           { value: "minor", label: "Minor" },
           { value: "moderate", label: "Moderate" },
@@ -69,7 +80,7 @@ import PresetButtons from "../components/PresetButtons.astro";
         ]}
       />
 
-      <PercentSlider id="comparativeFaultPct" label="Your Share of Fault" min={0} max={100} value={0} />
+      <PercentSlider id="comparativeFaultPct" label="Your Share of Fault" min={0} max={100} value={defaults.comparativeFaultPct} />
 
       <button type="submit" class="btn-primary">Estimate Settlement Range</button>
     </form>
@@ -79,20 +90,21 @@ import PresetButtons from "../components/PresetButtons.astro";
       <div class="metric-grid">
         <div class="metric-card metric-card--accent">
           <span class="metric-label"><Icon name="currency" size={14} /> Estimated Range</span>
-          <span class="metric-value metric-value--lg" id="range-output">$0 – $0</span>
+          <span class="metric-value metric-value--lg" id="range-output">{fmt(initial.estimateLow)} – {fmt(initial.estimateHigh)}</span>
         </div>
         <div class="metric-card">
           <span class="metric-label"><Icon name="briefcase" size={14} /> Economic Damages</span>
-          <span class="metric-value" id="economic-output">$0</span>
+          <span class="metric-value" id="economic-output">{fmt(initial.economicDamages)}</span>
         </div>
         <div class="metric-card">
           <span class="metric-label"><Icon name="document" size={14} /> Multiplier Used</span>
-          <span class="metric-value" id="multiplier-output">–</span>
+          <span class="metric-value" id="multiplier-output">{initial.multiplierRange[0]}x – {initial.multiplierRange[1]}x</span>
         </div>
       </div>
     </div>
   </div>
 
+  <AdSlot slot_id="mid-content" height="250px" />
   <AdSlot slot_id="bottom-rectangle" height="250px" />
 
   <Fragment slot="disclaimer">

@@ -1,0 +1,47 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+<BaseLayout
+  title="Methodology — Recovery Numbers"
+  description="How Recovery Numbers calculates settlement estimates, workers' comp ranges, debt relief options, and child support guidance."
+>
+  <section class="hero">
+    <h1>Methodology</h1>
+    <p class="subtitle">How each calculator works and what its estimates represent.</p>
+  </section>
+
+  <div class="card" style="max-width: 680px; margin: 0 auto;">
+    <h2>Personal Injury Settlement Estimator</h2>
+    <p>Uses the <strong>multiplier method</strong>: total economic damages (medical bills + lost wages) multiplied by a factor that reflects injury severity. Minor injuries use a 1.5–2.5× range; moderate 2.5–4×; severe 4–7×; catastrophic 7–10×. Comparative fault reduces the final range proportionally. This is one of several methods attorneys use; it does not account for liability disputes, insurance limits, or jurisdiction-specific caps.</p>
+
+    <h2>Workers' Compensation Settlement Estimator</h2>
+    <p>Uses the <strong>scheduled-loss (PPD) method</strong>: each body part is assigned a maximum number of weeks of compensation; the impairment rating percentage is applied to that schedule. The weekly compensation rate is two-thirds of the average weekly wage. The low/high range reflects typical lump-sum discount factors (70–100%). State-specific caps and definitions vary significantly.</p>
+
+    <h2>Debt Relief: Means Test</h2>
+    <p>Applies the official Chapter 7 means test formula using IRS National and Local Standards for allowable expenses and current state median income figures (updated annually from Census/DOJ data). Passing does not guarantee eligibility; the full test requires attorney review of all income and expense categories.</p>
+
+    <h2>Debt Relief: DTI & Credit Recovery</h2>
+    <p>Calculates debt-to-income ratio as monthly debt payments ÷ gross monthly income. The credit recovery timeline uses heuristic ranges derived from CFPB and credit bureau guidance on how long negative events typically affect scores.</p>
+
+    <h2>Debt Relief: Comparison Tool</h2>
+    <p>Compares Chapter 7, Chapter 13, and debt settlement using simplified models. Total cost and time estimates assume average attorney fees and settlement rates; actual outcomes vary by jurisdiction and negotiation.</p>
+
+    <h2>Statute of Limitations Checker</h2>
+    <p>Uses state-specific SOL periods for credit card, medical, auto loan, and personal loan debt from legal databases and state statutes. The last-payment date determines the SOL clock start in most states; some states use different triggers. This is a general guide — consult an attorney before relying on SOL as a defense.</p>
+
+    <h2>Child Support Estimator</h2>
+    <p>Uses a simplified <strong>percentage-of-income</strong> model: 1 child = 17%, 2 = 25%, 3 = 29%, 4 = 31%, 5 = 34%, 6+ = 36% of the paying parent's gross income. Overnight adjustments reduce the obligation proportionally. Actual child support is determined by state-specific guidelines (income-shares or percentage models vary by state) and court discretion.</p>
+
+    <h2>Settlement Tools (Structured Settlement, Annuity Solver, Lawsuit Loan)</h2>
+    <p>Present-value calculations use standard time-value-of-money formulas. The lawsuit loan estimator uses typical pre-settlement funding rates (1.5–3.5% per month compounded). These are illustrative estimates; actual offers depend on lender underwriting and case assessment.</p>
+
+    <h2>Data sources</h2>
+    <ul>
+      <li>IRS National and Local Standards (updated annually)</li>
+      <li>U.S. Census Bureau — state median income</li>
+      <li>State workers' comp schedules (publicly available)</li>
+      <li>CFPB consumer credit guides</li>
+      <li>State statute databases</li>
+    </ul>
+  </div>
+</BaseLayout>

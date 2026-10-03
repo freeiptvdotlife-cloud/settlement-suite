@@ -4,6 +4,15 @@ import AdSlot from "../components/AdSlot.astro";
 import Icon from "../components/Icon.astro";
 import PercentSlider from "../components/PercentSlider.astro";
 import PresetButtons from "../components/PresetButtons.astro";
+import { estimateWorkersComp } from "../lib/workersComp";
+
+const defaults = {
+  averageWeeklyWage: 900,
+  impairmentRatingPct: 15,
+  bodyPart: "arm" as const,
+};
+const initial = estimateWorkersComp(defaults);
+const fmt = (n: number) => n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 ---
 <BaseLayout
   title="Workers' Comp Settlement Estimator — Free Calculator"
@@ -15,13 +24,11 @@ import PresetButtons from "../components/PresetButtons.astro";
     <p class="subtitle">Estimate a permanent partial disability settlement range using the scheduled-loss method. Free, instant, no data stored.</p>
   </section>
 
-  <AdSlot slot_id="top-banner" height="250px" />
-
   <div class="grid-layout">
     <form id="calc-form" class="card" aria-label="Workers' comp inputs">
       <div class="field">
         <label for="averageWeeklyWage"><Icon name="currency" size={16} /> Average weekly wage before injury ($)</label>
-        <input type="number" id="averageWeeklyWage" min="0" step="1" value="0" required />
+        <input type="number" id="averageWeeklyWage" min="0" step="1" value={defaults.averageWeeklyWage} required />
         <PresetButtons
           targetId="averageWeeklyWage"
           presets={[
@@ -32,12 +39,12 @@ import PresetButtons from "../components/PresetButtons.astro";
         />
       </div>
 
-      <PercentSlider id="impairmentRatingPct" label="Impairment Rating" min={0} max={100} value={0} />
+      <PercentSlider id="impairmentRatingPct" label="Impairment Rating" min={0} max={100} value={defaults.impairmentRatingPct} />
 
       <div class="field">
         <label for="bodyPart"><Icon name="medical" size={16} /> Injured body part</label>
         <select id="bodyPart">
-          <option value="arm">Arm</option>
+          <option value="arm" selected>Arm</option>
           <option value="leg">Leg</option>
           <option value="hand">Hand</option>
           <option value="foot">Foot</option>
@@ -55,20 +62,21 @@ import PresetButtons from "../components/PresetButtons.astro";
       <div class="metric-grid">
         <div class="metric-card metric-card--accent">
           <span class="metric-label"><Icon name="currency" size={14} /> Estimated Range</span>
-          <span class="metric-value metric-value--lg" id="range-output">$0 – $0</span>
+          <span class="metric-value metric-value--lg" id="range-output">{fmt(initial.estimateLow)} – {fmt(initial.estimateHigh)}</span>
         </div>
         <div class="metric-card">
           <span class="metric-label"><Icon name="briefcase" size={14} /> Weekly Comp Rate</span>
-          <span class="metric-value" id="rate-output">$0</span>
+          <span class="metric-value" id="rate-output">{fmt(initial.compensationRate)}</span>
         </div>
         <div class="metric-card">
           <span class="metric-label"><Icon name="document" size={14} /> Scheduled Weeks</span>
-          <span class="metric-value" id="weeks-output">–</span>
+          <span class="metric-value" id="weeks-output">{initial.scheduledWeeks} wks</span>
         </div>
       </div>
     </div>
   </div>
 
+  <AdSlot slot_id="mid-content" height="250px" />
   <AdSlot slot_id="bottom-rectangle" height="250px" />
 
   <Fragment slot="disclaimer">

@@ -4,6 +4,11 @@ import AdSlot from "../../../components/AdSlot.astro";
 import Icon from "../../../components/Icon.astro";
 import PercentSlider from "../../../components/PercentSlider.astro";
 import PresetButtons from "../../../components/PresetButtons.astro";
+import { estimateChildSupport } from "../../../lib/childSupport";
+
+const defaults = { payorMonthlyIncome: 5_000, numberOfChildren: 2 as const, payorOvernightsPct: 0 };
+const initial = estimateChildSupport(defaults);
+const fmt = (n: number) => n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 ---
 <BaseLayout
   title="Child Support Estimator — Free Calculator"
@@ -15,13 +20,12 @@ import PresetButtons from "../../../components/PresetButtons.astro";
     <p class="subtitle">Estimate a monthly child support range using a common percentage-of-income guideline. Free, instant, no data stored.</p>
   </section>
 
-  <AdSlot slot_id="top-banner" height="250px" />
 
   <div class="grid-layout">
     <form id="calc-form" class="card" aria-label="Child support inputs">
       <div class="field">
         <label for="payorMonthlyIncome"><Icon name="currency" size={16} /> Paying parent's gross monthly income ($)</label>
-        <input type="number" id="payorMonthlyIncome" min="0" step="1" value="0" required />
+        <input type="number" id="payorMonthlyIncome" min="0" step="1" value={defaults.payorMonthlyIncome} required />
         <PresetButtons
           targetId="payorMonthlyIncome"
           presets={[
@@ -54,20 +58,21 @@ import PresetButtons from "../../../components/PresetButtons.astro";
       <div class="metric-grid">
         <div class="metric-card metric-card--accent">
           <span class="metric-label"><Icon name="currency" size={14} /> Estimated Range / Month</span>
-          <span class="metric-value metric-value--lg" id="range-output">$0 – $0</span>
+          <span class="metric-value metric-value--lg" id="range-output">{fmt(initial.estimateLow)} – {fmt(initial.estimateHigh)}</span>
         </div>
         <div class="metric-card">
           <span class="metric-label"><Icon name="document" size={14} /> Guideline Percent</span>
-          <span class="metric-value" id="percent-output">–</span>
+          <span class="metric-value" id="percent-output">{initial.guidelinePercent}%</span>
         </div>
         <div class="metric-card">
           <span class="metric-label"><Icon name="briefcase" size={14} /> Base Obligation</span>
-          <span class="metric-value" id="base-output">$0</span>
+          <span class="metric-value" id="base-output">{fmt(initial.baseObligation)}</span>
         </div>
       </div>
     </div>
   </div>
 
+  <AdSlot slot_id="mid-content" height="250px" />
   <AdSlot slot_id="bottom-rectangle" height="250px" />
 
   <Fragment slot="disclaimer">
