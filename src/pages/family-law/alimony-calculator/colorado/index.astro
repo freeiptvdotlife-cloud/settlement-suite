@@ -1,0 +1,142 @@
+---
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import AdSlot from '../../../../components/AdSlot.astro';
+import Icon from '../../../../components/Icon.astro';
+import PresetButtons from '../../../../components/PresetButtons.astro';
+import { estimateColoradoAlimony } from '../../../../lib/alimony';
+
+const defaults = { payorMAGIMonthly: 7_500, payeeMAGIMonthly: 2_000, yearsMarried: 8 };
+const initial = estimateColoradoAlimony(defaults);
+const fmt = (n: number) => n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+---
+<BaseLayout
+  title="Colorado Alimony Calculator — Spousal Maintenance Estimator"
+  description="Estimate Colorado spousal maintenance using the statutory advisory guideline under C.R.S. §14-10-114. Free, instant, no login."
+  active="alimony-hub"
+  disclaimerLead="Not legal advice."
+>
+  <section class="hero">
+    <h1><Icon name="scale" size={26} /> Colorado Alimony Calculator</h1>
+    <p class="subtitle">
+      Estimate spousal maintenance under Colorado's advisory guideline formula
+      (C.R.S. §14-10-114(3)(b), eff. Jan. 1, 2014). Free, instant, no data stored.
+    </p>
+  </section>
+
+  <div class="grid-layout">
+    <form id="calc-form" class="card" aria-label="Colorado alimony inputs">
+      <div class="field">
+        <label for="payorMAGIMonthly"><Icon name="currency" size={16} /> Paying spouse's monthly MAGI ($)</label>
+        <input type="number" id="payorMAGIMonthly" min="0" step="1" value={defaults.payorMAGIMonthly} required />
+        <PresetButtons targetId="payorMAGIMonthly" presets={[
+          { label: "$5,000", value: 5000 },
+          { label: "$7,500", value: 7500 },
+          { label: "$12,000", value: 12000 },
+        ]} />
+        <span class="field-hint">Monthly adjusted gross income — gross income minus federal adjustments (IRA, alimony paid, etc.). Combined must not exceed $240,000/yr for the guideline to apply.</span>
+      </div>
+
+      <div class="field">
+        <label for="payeeMAGIMonthly"><Icon name="currency" size={16} /> Receiving spouse's monthly MAGI ($)</label>
+        <input type="number" id="payeeMAGIMonthly" min="0" step="1" value={defaults.payeeMAGIMonthly} required />
+        <PresetButtons targetId="payeeMAGIMonthly" presets={[
+          { label: "$0", value: 0 },
+          { label: "$2,000", value: 2000 },
+          { label: "$4,000", value: 4000 },
+        ]} />
+      </div>
+
+      <div class="field">
+        <label for="yearsMarried"><Icon name="clock" size={16} /> Years married</label>
+        <input type="number" id="yearsMarried" min="0" max="60" step="1" value={defaults.yearsMarried} required />
+        <PresetButtons targetId="yearsMarried" presets={[
+          { label: "5 yr", value: 5 },
+          { label: "8 yr", value: 8 },
+          { label: "15 yr", value: 15 },
+        ]} />
+      </div>
+
+      <button type="submit" class="btn-primary">Estimate Maintenance</button>
+    </form>
+
+    <div class="card result-card" id="result" aria-live="polite">
+      <h2>Estimated Maintenance</h2>
+      <div class="metric-grid">
+        <div class="metric-card metric-card--accent">
+          <span class="metric-label"><Icon name="currency" size={14} /> Monthly Guideline Amount</span>
+          <span class="metric-value metric-value--lg" id="amount-output">{fmt(initial.monthlyAmount)}</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label"><Icon name="clock" size={14} /> Duration Advisory</span>
+          <span class="metric-value" id="duration-output" style="font-size:0.9rem;">{initial.durationDescription}</span>
+        </div>
+      </div>
+      <p class="card-note" id="note-output">{initial.monthlyNote}</p>
+      <p class="card-note" style="margin-top:0.25rem;">Source: {initial.sourceStatute} (as of {initial.asOf}).</p>
+    </div>
+  </div>
+
+  <AdSlot slot_id="mid-content" height="250px" />
+
+  <section class="prose">
+    <h2>How the Colorado formula works</h2>
+    <p>
+      Colorado <strong>C.R.S. §14-10-114(3)(b)</strong> provides an advisory guideline
+      formula for spousal maintenance, effective January 1, 2014:
+    </p>
+    <p>
+      <strong>Amount:</strong> 40% of the higher earner's monthly adjusted gross income (MAGI)
+      minus 50% of the lower earner's monthly MAGI. If the result is zero or negative, no
+      maintenance is indicated by the guideline.
+    </p>
+    <p>
+      The guideline applies when combined gross income does not exceed <strong>$240,000 per year</strong>.
+      Above that threshold, courts use the guideline as a reference and apply additional factors.
+    </p>
+    <p>
+      <strong>Duration</strong> is also guideline-based and is roughly proportional to the length
+      of the marriage (approximately 30% of the marriage length in months, per the published
+      Judicial Branch advisory schedule). Courts frequently deviate from the duration guideline.
+    </p>
+    <h2>Frequently asked questions</h2>
+    <p>
+      <strong>What is MAGI for Colorado maintenance?</strong> Monthly adjusted gross income
+      is your gross income minus federal above-the-line adjustments such as IRA contributions,
+      student loan interest, and alimony paid under a pre-2019 agreement.
+    </p>
+    <p>
+      <strong>Is the Colorado formula mandatory?</strong> No — it is explicitly advisory.
+      Courts weigh it alongside other statutory factors including the marital standard of living,
+      each spouse's financial resources, and the time needed for the recipient to become
+      self-supporting. Actual awards often differ from the guideline.
+    </p>
+  </section>
+
+  <AdSlot slot_id="bottom-rectangle" height="250px" />
+
+  <Fragment slot="disclaimer">
+    This estimate uses the advisory guideline formula in C.R.S. §14-10-114(3)(b), effective
+    January 1, 2014. The guideline is advisory and subject to legislative change. Duration
+    estimates are approximations of the published Judicial Branch advisory schedule. Courts
+    may deviate significantly. Consult a licensed Colorado family law attorney.
+  </Fragment>
+</BaseLayout>
+
+<script>
+  import { estimateColoradoAlimony } from '../../../../lib/alimony';
+
+  const fmt = (n: number) =>
+    n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+
+  document.getElementById("calc-form")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const result = estimateColoradoAlimony({
+      payorMAGIMonthly: Number((document.getElementById("payorMAGIMonthly") as HTMLInputElement).value) || 0,
+      payeeMAGIMonthly: Number((document.getElementById("payeeMAGIMonthly") as HTMLInputElement).value) || 0,
+      yearsMarried: Number((document.getElementById("yearsMarried") as HTMLInputElement).value) || 0,
+    });
+    document.getElementById("amount-output")!.textContent = fmt(result.monthlyAmount);
+    document.getElementById("duration-output")!.textContent = result.durationDescription;
+    document.getElementById("note-output")!.textContent = result.monthlyNote;
+  });
+</script>

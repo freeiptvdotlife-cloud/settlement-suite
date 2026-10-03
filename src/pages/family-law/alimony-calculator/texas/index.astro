@@ -1,0 +1,144 @@
+---
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import AdSlot from '../../../../components/AdSlot.astro';
+import Icon from '../../../../components/Icon.astro';
+import PresetButtons from '../../../../components/PresetButtons.astro';
+import { estimateTexasAlimony } from '../../../../lib/alimony';
+
+const defaults = { payorGrossMonthly: 8_000, yearsMarried: 14 };
+const initial = estimateTexasAlimony(defaults);
+const fmt = (n: number) => n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+---
+<BaseLayout
+  title="Texas Alimony Calculator — Spousal Maintenance Estimator"
+  description="Estimate Texas spousal maintenance using the statutory cap under Tex. Fam. Code §8.055. Free, instant, no login."
+  active="alimony-hub"
+  disclaimerLead="Not legal advice."
+>
+  <section class="hero">
+    <h1><Icon name="scale" size={26} /> Texas Alimony (Spousal Maintenance) Calculator</h1>
+    <p class="subtitle">
+      Estimate the statutory maximum for Texas spousal maintenance
+      (Tex. Fam. Code §8.055, eff. Sept. 1, 2011). Free, instant, no data stored.
+    </p>
+  </section>
+
+  <div class="grid-layout">
+    <form id="calc-form" class="card" aria-label="Texas alimony inputs">
+      <div class="field">
+        <label for="payorGrossMonthly"><Icon name="currency" size={16} /> Paying spouse's average gross monthly income ($)</label>
+        <input type="number" id="payorGrossMonthly" min="0" step="1" value={defaults.payorGrossMonthly} required />
+        <PresetButtons targetId="payorGrossMonthly" presets={[
+          { label: "$5,000", value: 5000 },
+          { label: "$8,000", value: 8000 },
+          { label: "$15,000", value: 15000 },
+        ]} />
+        <span class="field-hint">Use average monthly gross income from all sources (wages, business, investments).</span>
+      </div>
+
+      <div class="field">
+        <label for="yearsMarried"><Icon name="clock" size={16} /> Years married</label>
+        <input type="number" id="yearsMarried" min="0" max="60" step="1" value={defaults.yearsMarried} required />
+        <PresetButtons targetId="yearsMarried" presets={[
+          { label: "10 yr", value: 10 },
+          { label: "14 yr", value: 14 },
+          { label: "25 yr", value: 25 },
+        ]} />
+        <span class="field-hint">Marriage must be at least 10 years for maintenance to be available under the general rule.</span>
+      </div>
+
+      <button type="submit" class="btn-primary">Estimate Maximum Maintenance</button>
+    </form>
+
+    <div class="card result-card" id="result" aria-live="polite">
+      <h2>Estimated Maintenance Cap</h2>
+      <div class="metric-grid">
+        <div class="metric-card metric-card--accent">
+          <span class="metric-label"><Icon name="currency" size={14} /> Maximum Monthly Amount</span>
+          <span class="metric-value metric-value--lg" id="amount-output">{fmt(initial.monthlyAmount)}</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label"><Icon name="clock" size={14} /> Duration Cap</span>
+          <span class="metric-value" id="duration-output" style="font-size:0.9rem;">{initial.durationDescription}</span>
+        </div>
+      </div>
+      <p class="card-note" id="note-output">{initial.monthlyNote}</p>
+      <p class="card-note" style="margin-top:0.25rem;">Source: {initial.sourceStatute} (as of {initial.asOf}).</p>
+    </div>
+  </div>
+
+  <AdSlot slot_id="mid-content" height="250px" />
+
+  <section class="prose">
+    <h2>How Texas spousal maintenance works</h2>
+    <p>
+      Texas calls alimony <em>spousal maintenance</em>. Unlike states with guideline formulas
+      that produce a specific amount, Texas law sets a <strong>statutory cap</strong>:
+      the court cannot order more than the lesser of:
+    </p>
+    <ul>
+      <li><strong>$5,000 per month</strong>, or</li>
+      <li><strong>20% of the paying spouse's average monthly gross income</strong></li>
+    </ul>
+    <p>
+      The actual amount the court orders can be anything below that cap, based on the
+      recipient's minimum reasonable needs and the paying spouse's ability to pay.
+    </p>
+    <h2>Who qualifies for Texas spousal maintenance?</h2>
+    <p>
+      Maintenance is available if the marriage lasted at least <strong>10 years</strong> and
+      the recipient lacks sufficient property to meet minimum reasonable needs. Eligibility
+      also arises regardless of marriage length if: the paying spouse was convicted of or
+      received deferred adjudication for family violence within two years of filing, or the
+      recipient spouse has an incapacitating physical or mental disability.
+    </p>
+    <h2>Duration caps by marriage length</h2>
+    <ul>
+      <li><strong>10–19 years:</strong> maximum 5 years (60 months)</li>
+      <li><strong>20–29 years:</strong> maximum 7 years (84 months)</li>
+      <li><strong>30+ years:</strong> maximum 10 years (120 months)</li>
+    </ul>
+    <p>
+      Courts order the shortest reasonable period during which the recipient can earn
+      enough to meet minimum reasonable needs. Permanent maintenance is not available under
+      the general rule; a disability exception may extend maintenance.
+    </p>
+    <h2>Frequently asked questions</h2>
+    <p>
+      <strong>Does Texas have "alimony" or "spousal support"?</strong> The Texas Family Code
+      uses "spousal maintenance." Contractual alimony (agreed in a divorce settlement) is
+      also recognized and can exceed the statutory cap.
+    </p>
+    <p>
+      <strong>Is the $5,000 cap adjusted for inflation?</strong> No — it has been $5,000 since 2011.
+      The cap applies per the statute as written unless the legislature amends it.
+    </p>
+  </section>
+
+  <AdSlot slot_id="bottom-rectangle" height="250px" />
+
+  <Fragment slot="disclaimer">
+    This calculator shows the statutory maximum under Tex. Fam. Code §8.055 and §8.054 as of
+    September 1, 2011. The actual amount ordered by a court will be at or below this cap and
+    depends on the recipient's minimum reasonable needs and case-specific facts. Texas law is
+    subject to legislative change. Consult a licensed Texas family law attorney.
+  </Fragment>
+</BaseLayout>
+
+<script>
+  import { estimateTexasAlimony } from '../../../../lib/alimony';
+
+  const fmt = (n: number) =>
+    n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+
+  document.getElementById("calc-form")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const result = estimateTexasAlimony({
+      payorGrossMonthly: Number((document.getElementById("payorGrossMonthly") as HTMLInputElement).value) || 0,
+      yearsMarried: Number((document.getElementById("yearsMarried") as HTMLInputElement).value) || 0,
+    });
+    document.getElementById("amount-output")!.textContent = fmt(result.monthlyAmount);
+    document.getElementById("duration-output")!.textContent = result.durationDescription;
+    document.getElementById("note-output")!.textContent = result.monthlyNote;
+  });
+</script>

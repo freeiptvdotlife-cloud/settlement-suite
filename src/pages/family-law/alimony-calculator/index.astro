@@ -1,0 +1,120 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Icon from '../../../components/Icon.astro';
+
+const states = [
+  {
+    slug: "illinois",
+    name: "Illinois",
+    formula: "33.33% of payor net − 25% of payee net (≤ 40% combined)",
+    statute: "750 ILCS 5/504",
+    note: "Highest-volume state for this keyword; statutory formula.",
+  },
+  {
+    slug: "new-york",
+    name: "New York",
+    formula: "30% of payor gross − 20% of payee gross (or 40% of combined − 2× payee, whichever is lower)",
+    statute: "N.Y. Dom. Rel. Law §236B(6)(e)",
+    note: "Formula-based since 2016.",
+  },
+  {
+    slug: "colorado",
+    name: "Colorado",
+    formula: "40% of payor MAGI − 50% of payee MAGI",
+    statute: "C.R.S. §14-10-114(3)(b)",
+    note: "Advisory guideline; courts may deviate.",
+  },
+  {
+    slug: "texas",
+    name: "Texas",
+    formula: "Lesser of $5,000/month or 20% of payor gross monthly income",
+    statute: "Tex. Fam. Code §8.055",
+    note: "Statutory cap; requires 10+ years of marriage.",
+  },
+];
+---
+<BaseLayout
+  title="Alimony Calculator by State — Free Spousal Support Estimator"
+  description="Free alimony calculators for states with a statutory formula or official guideline. Covers Illinois, New York, Colorado, and Texas. Instant, no login."
+  active="alimony-hub"
+>
+  <section class="hero">
+    <h1><Icon name="scale" size={26} /> Alimony Calculator by State</h1>
+    <p class="subtitle">
+      Estimate spousal support using each state's statutory formula or official guideline.
+      Only states with a codified calculation method are included — other states
+      leave the amount entirely to court discretion.
+    </p>
+  </section>
+
+  <div class="card" style="max-width:720px;margin:0 auto;">
+    <h2>Select your state</h2>
+    <p style="margin-bottom:1.5rem;color:var(--text-muted);font-size:0.93rem;">
+      Each calculator uses that state's actual statute or published guideline.
+      Results are estimates — courts may deviate for cause.
+    </p>
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      {states.map((s) => (
+        <a href={`/family-law/alimony-calculator/${s.slug}/`} class="state-card-link">
+          <div class="state-card">
+            <div class="state-card-header">
+              <strong>{s.name}</strong>
+              <code class="statute-tag">{s.statute}</code>
+            </div>
+            <p class="state-card-formula">{s.formula}</p>
+            <span class="state-card-note">{s.note}</span>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+
+  <section class="prose" style="max-width:680px;margin:2rem auto 0;">
+    <h2>Why only these four states?</h2>
+    <p>
+      Most states leave alimony (also called spousal maintenance or spousal support)
+      entirely to judicial discretion — there is no formula, and the outcome depends
+      on the judge's weighing of factors like income, marriage length, and the
+      "marital standard of living." A calculator would be guesswork for those states.
+    </p>
+    <p>
+      Illinois, New York, Colorado, and Texas each have a statutory formula or an
+      official advisory guideline that produces a specific number from the parties'
+      incomes and the marriage length. That makes a meaningful calculator possible.
+    </p>
+    <h2>How to use these calculators</h2>
+    <p>
+      Enter the paying spouse's monthly income, the receiving spouse's monthly income,
+      and the years of marriage. Each calculator outputs the guideline monthly amount
+      and the expected duration. Use it to understand the ballpark before speaking
+      with a family law attorney.
+    </p>
+  </section>
+
+  <Fragment slot="disclaimer">
+    These calculators provide rough estimates based on published statutory formulas and
+    advisory guidelines. Actual alimony depends on judicial discretion, case-specific
+    facts, and factors not captured here. Consult a licensed family law attorney in
+    your state before making any legal decision.
+  </Fragment>
+</BaseLayout>
+
+<style is:global>
+  .state-card-link { text-decoration: none; color: inherit; display: block; }
+  .state-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    background: var(--surface);
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .state-card:hover { border-color: var(--accent); box-shadow: 0 2px 8px var(--shadow); }
+  .state-card-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.35rem; flex-wrap: wrap; }
+  .state-card-header strong { font-size: 1.05rem; }
+  .statute-tag {
+    font-size: 0.72rem; background: var(--surface-alt); border: 1px solid var(--border);
+    border-radius: 4px; padding: 0.1rem 0.4rem; color: var(--text-muted);
+  }
+  .state-card-formula { font-size: 0.88rem; color: var(--text); margin: 0 0 0.25rem; }
+  .state-card-note { font-size: 0.78rem; color: var(--text-muted); }
+</style>

@@ -1,0 +1,143 @@
+---
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import AdSlot from '../../../../components/AdSlot.astro';
+import Icon from '../../../../components/Icon.astro';
+import PresetButtons from '../../../../components/PresetButtons.astro';
+import { estimateNewYorkAlimony } from '../../../../lib/alimony';
+
+const defaults = { payorGrossMonthly: 7_000, payeeGrossMonthly: 2_500, yearsMarried: 10 };
+const initial = estimateNewYorkAlimony(defaults);
+const fmt = (n: number) => n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+---
+<BaseLayout
+  title="New York Alimony Calculator — Post-Divorce Maintenance Estimator"
+  description="Estimate New York post-divorce maintenance using the statutory formula under N.Y. Dom. Rel. Law §236B(6)(e). Free, instant, no login."
+  active="alimony-hub"
+  disclaimerLead="Not legal advice."
+>
+  <section class="hero">
+    <h1><Icon name="scale" size={26} /> New York Alimony Calculator</h1>
+    <p class="subtitle">
+      Estimate post-divorce maintenance under New York's statutory formula
+      (Dom. Rel. Law §236B(6)(e), eff. Jan. 25, 2016). Free, instant, no data stored.
+    </p>
+  </section>
+
+  <div class="grid-layout">
+    <form id="calc-form" class="card" aria-label="New York alimony inputs">
+      <div class="field">
+        <label for="payorGrossMonthly"><Icon name="currency" size={16} /> Paying spouse's gross monthly income ($)</label>
+        <input type="number" id="payorGrossMonthly" min="0" step="1" value={defaults.payorGrossMonthly} required />
+        <PresetButtons targetId="payorGrossMonthly" presets={[
+          { label: "$5,000", value: 5000 },
+          { label: "$7,000", value: 7000 },
+          { label: "$12,000", value: 12000 },
+        ]} />
+        <span class="field-hint">Use gross income up to the annual income cap ($203,000/yr as of 2024).</span>
+      </div>
+
+      <div class="field">
+        <label for="payeeGrossMonthly"><Icon name="currency" size={16} /> Receiving spouse's gross monthly income ($)</label>
+        <input type="number" id="payeeGrossMonthly" min="0" step="1" value={defaults.payeeGrossMonthly} required />
+        <PresetButtons targetId="payeeGrossMonthly" presets={[
+          { label: "$0", value: 0 },
+          { label: "$2,500", value: 2500 },
+          { label: "$5,000", value: 5000 },
+        ]} />
+      </div>
+
+      <div class="field">
+        <label for="yearsMarried"><Icon name="clock" size={16} /> Years married</label>
+        <input type="number" id="yearsMarried" min="0" max="60" step="1" value={defaults.yearsMarried} required />
+        <PresetButtons targetId="yearsMarried" presets={[
+          { label: "5 yr", value: 5 },
+          { label: "10 yr", value: 10 },
+          { label: "20 yr", value: 20 },
+        ]} />
+      </div>
+
+      <button type="submit" class="btn-primary">Estimate Maintenance</button>
+    </form>
+
+    <div class="card result-card" id="result" aria-live="polite">
+      <h2>Estimated Maintenance</h2>
+      <div class="metric-grid">
+        <div class="metric-card metric-card--accent">
+          <span class="metric-label"><Icon name="currency" size={14} /> Monthly Guideline Amount</span>
+          <span class="metric-value metric-value--lg" id="amount-output">{fmt(initial.monthlyAmount)}</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label"><Icon name="clock" size={14} /> Duration Advisory</span>
+          <span class="metric-value" id="duration-output" style="font-size:0.9rem;">{initial.durationDescription}</span>
+        </div>
+      </div>
+      <p class="card-note" id="note-output">{initial.monthlyNote}</p>
+      <p class="card-note" style="margin-top:0.25rem;">Source: {initial.sourceStatute} (as of {initial.asOf}).</p>
+    </div>
+  </div>
+
+  <AdSlot slot_id="mid-content" height="250px" />
+
+  <section class="prose">
+    <h2>How the New York formula works</h2>
+    <p>
+      New York Domestic Relations Law <strong>§236B(6)(e)</strong> provides a formula
+      for post-divorce maintenance (formerly called "alimony"). The court applies the
+      lower of two sub-formulas:
+    </p>
+    <ul>
+      <li><strong>Formula 1:</strong> 30% of the higher-income spouse's gross income minus 20% of the lower-income spouse's gross income.</li>
+      <li><strong>Formula 2:</strong> 40% of the spouses' combined gross income minus 2× the lower-income spouse's gross income.</li>
+    </ul>
+    <p>
+      The income cap for the paying spouse is <strong>$203,000 per year</strong> (approximately
+      $16,917/month) as of 2024; income above that cap is not included in the formula
+      calculation, though the court retains discretion to award additional support above the
+      guideline. The cap is adjusted periodically by the Chief Administrative Judge.
+    </p>
+    <p>
+      <strong>Duration</strong> is advisory under the statute. For marriages under 15 years,
+      the guideline range is 15–30% of the marriage length; for 15–19 years, 30–40%;
+      for 20 or more years, 35–50%, with permanent maintenance possible.
+    </p>
+    <h2>Frequently asked questions</h2>
+    <p>
+      <strong>Is this the same as temporary maintenance?</strong> No. New York also has a
+      formula for temporary maintenance (pendente lite) during the divorce proceedings.
+      This calculator covers post-divorce maintenance only.
+    </p>
+    <p>
+      <strong>Can the court award more than the formula?</strong> Yes. Courts may deviate for
+      factors including the standard of living during the marriage, health, and the need for
+      education or training.
+    </p>
+  </section>
+
+  <AdSlot slot_id="bottom-rectangle" height="250px" />
+
+  <Fragment slot="disclaimer">
+    This estimate uses the post-divorce maintenance formula in N.Y. Dom. Rel. Law §236B(6)(e),
+    effective January 25, 2016. The income cap and formula are subject to legislative and
+    judicial amendment. This tool does not account for child support offsets, imputed income,
+    or case-specific deviations. Consult a licensed New York family law attorney.
+  </Fragment>
+</BaseLayout>
+
+<script>
+  import { estimateNewYorkAlimony } from '../../../../lib/alimony';
+
+  const fmt = (n: number) =>
+    n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+
+  document.getElementById("calc-form")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const result = estimateNewYorkAlimony({
+      payorGrossMonthly: Number((document.getElementById("payorGrossMonthly") as HTMLInputElement).value) || 0,
+      payeeGrossMonthly: Number((document.getElementById("payeeGrossMonthly") as HTMLInputElement).value) || 0,
+      yearsMarried: Number((document.getElementById("yearsMarried") as HTMLInputElement).value) || 0,
+    });
+    document.getElementById("amount-output")!.textContent = fmt(result.monthlyAmount);
+    document.getElementById("duration-output")!.textContent = result.durationDescription;
+    document.getElementById("note-output")!.textContent = result.monthlyNote;
+  });
+</script>

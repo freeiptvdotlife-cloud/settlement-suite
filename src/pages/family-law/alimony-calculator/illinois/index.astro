@@ -1,0 +1,134 @@
+---
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import AdSlot from '../../../../components/AdSlot.astro';
+import Icon from '../../../../components/Icon.astro';
+import PresetButtons from '../../../../components/PresetButtons.astro';
+import { estimateIllinoisAlimony } from '../../../../lib/alimony';
+
+const defaults = { payorNetMonthly: 6_000, payeeNetMonthly: 2_000, yearsMarried: 12 };
+const initial = estimateIllinoisAlimony(defaults);
+const fmt = (n: number) => n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+---
+<BaseLayout
+  title="Illinois Alimony Calculator — Spousal Maintenance Estimator"
+  description="Estimate Illinois spousal maintenance using the statutory formula under 750 ILCS 5/504. Free, instant, no login."
+  active="alimony-hub"
+  disclaimerLead="Not legal advice."
+>
+  <section class="hero">
+    <h1><Icon name="scale" size={26} /> Illinois Alimony Calculator</h1>
+    <p class="subtitle">
+      Estimate spousal maintenance under Illinois' statutory formula
+      (750 ILCS 5/504, as of Jan. 1, 2019). Enter net monthly incomes and
+      years married. Free, instant, no data stored.
+    </p>
+  </section>
+
+  <div class="grid-layout">
+    <form id="calc-form" class="card" aria-label="Illinois alimony inputs">
+      <div class="field">
+        <label for="payorNetMonthly"><Icon name="currency" size={16} /> Paying spouse's net monthly income ($)</label>
+        <input type="number" id="payorNetMonthly" min="0" step="1" value={defaults.payorNetMonthly} required />
+        <PresetButtons targetId="payorNetMonthly" presets={[
+          { label: "$4,000", value: 4000 },
+          { label: "$6,000", value: 6000 },
+          { label: "$9,000", value: 9000 },
+        ]} />
+        <span class="field-hint">Net income = gross minus taxes and mandatory deductions (IL §505).</span>
+      </div>
+
+      <div class="field">
+        <label for="payeeNetMonthly"><Icon name="currency" size={16} /> Receiving spouse's net monthly income ($)</label>
+        <input type="number" id="payeeNetMonthly" min="0" step="1" value={defaults.payeeNetMonthly} required />
+        <PresetButtons targetId="payeeNetMonthly" presets={[
+          { label: "$0", value: 0 },
+          { label: "$2,000", value: 2000 },
+          { label: "$4,000", value: 4000 },
+        ]} />
+      </div>
+
+      <div class="field">
+        <label for="yearsMarried"><Icon name="clock" size={16} /> Years married</label>
+        <input type="number" id="yearsMarried" min="0" max="60" step="1" value={defaults.yearsMarried} required />
+        <PresetButtons targetId="yearsMarried" presets={[
+          { label: "5 yr", value: 5 },
+          { label: "12 yr", value: 12 },
+          { label: "20 yr", value: 20 },
+        ]} />
+      </div>
+
+      <button type="submit" class="btn-primary">Estimate Maintenance</button>
+    </form>
+
+    <div class="card result-card" id="result" aria-live="polite">
+      <h2>Estimated Maintenance</h2>
+      <div class="metric-grid">
+        <div class="metric-card metric-card--accent">
+          <span class="metric-label"><Icon name="currency" size={14} /> Monthly Guideline Amount</span>
+          <span class="metric-value metric-value--lg" id="amount-output">{fmt(initial.monthlyAmount)}</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label"><Icon name="clock" size={14} /> Guideline Duration</span>
+          <span class="metric-value" id="duration-output" style="font-size:0.9rem;">{initial.durationDescription}</span>
+        </div>
+      </div>
+      <p class="card-note" id="note-output">{initial.monthlyNote}</p>
+      <p class="card-note" style="margin-top:0.25rem;">Source: {initial.sourceStatute} (as of {initial.asOf}).</p>
+    </div>
+  </div>
+
+  <AdSlot slot_id="mid-content" height="250px" />
+
+  <section class="prose">
+    <h2>How the Illinois formula works</h2>
+    <p>
+      Illinois courts calculate maintenance (alimony) using a two-part statutory formula
+      under <strong>750 ILCS 5/504(b-1)</strong>:
+    </p>
+    <ol>
+      <li><strong>Amount:</strong> 33.33% of the paying spouse's net income minus 25% of the receiving spouse's net income. The result cannot exceed 40% of the spouses' combined net income, and cannot be negative.</li>
+      <li><strong>Duration:</strong> The number of years of the marriage multiplied by a factor from the statutory table — ranging from 0.20 for short marriages to 0.80 for 19-year marriages. For marriages of 20 or more years, the court may order maintenance for an indefinite duration.</li>
+    </ol>
+    <p>
+      <strong>Net income</strong> under the formula is calculated the same way as in Illinois child support proceedings: gross income minus federal and state income taxes, Social Security and Medicare taxes, mandatory pension contributions, and union dues.
+    </p>
+    <p>
+      Courts may deviate from the guideline amounts for cause, including the standard of living during the marriage, each spouse's property, and the time needed for the recipient to become self-supporting.
+    </p>
+    <h2>Frequently asked questions</h2>
+    <p>
+      <strong>Does Illinois always award maintenance?</strong> No. The court first determines whether maintenance is appropriate at all. The formula applies only after that threshold is met.
+    </p>
+    <p>
+      <strong>Can both spouses earn maintenance?</strong> The formula produces a single number; if the result is zero or negative, no maintenance is payable. In practice, only one spouse receives maintenance.
+    </p>
+  </section>
+
+  <AdSlot slot_id="bottom-rectangle" height="250px" />
+
+  <Fragment slot="disclaimer">
+    This estimate uses the statutory formula in 750 ILCS 5/504(b-1) as of January 1, 2019.
+    The statute is subject to amendment. Courts may deviate from the formula. This tool does not
+    account for imputed income, property division, or case-specific factors. Consult a licensed
+    Illinois family law attorney.
+  </Fragment>
+</BaseLayout>
+
+<script>
+  import { estimateIllinoisAlimony } from '../../../../lib/alimony';
+
+  const fmt = (n: number) =>
+    n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+
+  document.getElementById("calc-form")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const result = estimateIllinoisAlimony({
+      payorNetMonthly: Number((document.getElementById("payorNetMonthly") as HTMLInputElement).value) || 0,
+      payeeNetMonthly: Number((document.getElementById("payeeNetMonthly") as HTMLInputElement).value) || 0,
+      yearsMarried: Number((document.getElementById("yearsMarried") as HTMLInputElement).value) || 0,
+    });
+    document.getElementById("amount-output")!.textContent = fmt(result.monthlyAmount);
+    document.getElementById("duration-output")!.textContent = result.durationDescription;
+    document.getElementById("note-output")!.textContent = result.monthlyNote;
+  });
+</script>
