@@ -1,5 +1,6 @@
 ---
 import AdLoader from "../components/AdLoader.astro";
+import GA4 from "../components/GA4.astro";
 import Icon from "../components/Icon.astro";
 
 export interface Props {
@@ -60,6 +61,7 @@ const navItems = [
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <GA4 />
   <title>{title}</title>
   <meta name="description" content={description} />
   <meta name="color-scheme" content="light dark" />

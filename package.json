@@ -8,7 +8,7 @@
     "preview": "astro preview",
     "typecheck": "astro check",
     "test": "vitest run",
-    "deploy": "npm run build && wrangler deploy",
+    "deploy": "PUBLIC_GA_MEASUREMENT_ID=G-4TS87Y0RDH npm run build && wrangler deploy",
     "lint": "eslint .",
     "verify": "npm run lint && npm run typecheck && npm test && npm run build"
   },
