@@ -1,0 +1,38 @@
+---
+const client = import.meta.env.PUBLIC_ADSENSE_CLIENT;
+---
+
+{client && <script is:inline data-ad-client={client}>
+  (() => {
+    const client = document.currentScript.dataset.adClient;
+    let loaded = false;
+    const fill = () => {
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            if (!e.isIntersecting) continue;
+            io.unobserve(e.target);
+            if (e.target.offsetParent === null) continue;
+            (window.adsbygoogle = window.adsbygoogle || []).push({});
+          }
+        },
+        { rootMargin: '400px' },
+      );
+      document.querySelectorAll('ins.adsbygoogle').forEach((el) => io.observe(el));
+    };
+    const load = () => {
+      if (loaded) return;
+      loaded = true;
+      const s = document.createElement('script');
+      s.async = true;
+      s.crossOrigin = 'anonymous';
+      s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' + client;
+      s.onload = fill;
+      document.head.append(s);
+    };
+    for (const type of ['pointerdown', 'keydown', 'scroll']) {
+      addEventListener(type, load, { once: true, passive: true });
+    }
+    addEventListener('load', () => setTimeout(load, 2000), { once: true });
+  })();
+</script>}

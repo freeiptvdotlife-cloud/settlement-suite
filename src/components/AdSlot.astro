@@ -7,15 +7,20 @@ interface Props {
 }
 const { slot_id, label = "Advertisement", height, minHeight } = Astro.props;
 const resolvedHeight = height ?? (minHeight ? `${minHeight}px` : "250px");
+const client = import.meta.env.PUBLIC_ADSENSE_CLIENT as string | undefined;
+const isLive = Boolean(client && slot_id);
 ---
 
-<!--
-  Zero-CLS ad container: fixed min-height + height reserved at parse time,
-  never resized after mount, never adjacent to interactive form controls.
-  Swap the placeholder for the real <ins class="adsbygoogle"> unit once the
-  AdSense property is approved — the reserved box model keeps CLS at 0.00
-  either way.
--->
-<div class="ad-slot" data-ad-slot={slot_id} style={`min-height:${resolvedHeight}; height:${resolvedHeight};`}>
+<div class="ad-slot" style={`min-height:${resolvedHeight}; height:${resolvedHeight};`}>
   <span class="ad-slot__label">{label}</span>
+  {isLive && (
+    <ins
+      class="adsbygoogle"
+      style="display:block;width:100%;height:100%"
+      data-ad-client={client}
+      data-ad-slot={slot_id}
+      data-ad-format="auto"
+      data-full-width-responsive="true"
+    />
+  )}
 </div>
