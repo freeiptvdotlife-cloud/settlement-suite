@@ -1,0 +1,276 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import AdSlot from "../../../components/AdSlot.astro";
+import Icon from "../../../components/Icon.astro";
+import ExportBar from "../../../components/ExportBar.astro";
+import Disclaimer from "../../../components/Disclaimer.astro";
+---
+
+<BaseLayout
+  active="personal-injury"
+  title="Personal Injury Settlement Calculator — Free Estimate"
+  description="Estimate a personal injury settlement value based on medical expenses, lost wages, and pain and suffering. Free, instant, nothing stored or sent."
+>
+  <div class="hero">
+    <h1><Icon name="scale" />Personal Injury Settlement Estimator</h1>
+    <p class="subtitle">Estimate a settlement range based on your documented expenses and a pain-and-suffering multiplier. Free, instant, no data stored.</p>
+  </div>
+  <p class="guide-link"><a href="/settlement/">Settlement calculator overview →</a></p>
+
+  <div class="grid-layout">
+    <form id="pi-form" class="card" aria-label="Personal injury inputs">
+
+      <div class="field">
+        <label class="field-label" for="medical-expenses">
+          <Icon name="document" size={16} /> Total medical expenses ($)
+        </label>
+        <input id="medical-expenses" type="number" name="medicalExpenses" min="0" step="1" value="25000" required />
+        <p class="field-hint">ER visits, surgery, physical therapy, medication, future projected costs.</p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="lost-wages">
+          <Icon name="currency" size={16} /> Lost wages ($)
+        </label>
+        <input id="lost-wages" type="number" name="lostWages" min="0" step="1" value="10000" required />
+        <p class="field-hint">Wages, salary, or self-employment income lost due to the injury.</p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="future-lost-earning">
+          <Icon name="currency" size={16} /> Future lost earning capacity ($)
+        </label>
+        <input id="future-lost-earning" type="number" name="futureLostEarning" min="0" step="1" value="0" />
+        <p class="field-hint">Estimated long-term earning reduction from permanent impairment. Leave 0 if not applicable.</p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="other-damages">
+          <Icon name="document" size={16} /> Other economic damages ($)
+        </label>
+        <input id="other-damages" type="number" name="otherDamages" min="0" step="1" value="0" />
+        <p class="field-hint">Property damage, out-of-pocket costs, home modification expenses.</p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="multiplier">
+          Pain &amp; suffering multiplier: <span id="multiplier-display">3×</span>
+        </label>
+        <input
+          id="multiplier"
+          type="range"
+          name="multiplier"
+          min="1"
+          max="5"
+          step="0.5"
+          value="3"
+          aria-valuemin="1"
+          aria-valuemax="5"
+          aria-valuenow="3"
+        />
+        <div class="multiplier-labels" aria-hidden="true">
+          <span>1× Minor</span>
+          <span>3× Moderate</span>
+          <span>5× Severe</span>
+        </div>
+        <p class="field-hint">Insurance adjusters and attorneys typically use 1.5–3× for soft-tissue injuries, 3–5× for serious or permanent injuries. This is a negotiating starting point, not a legal standard.</p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="liability-pct">
+          Your share of liability: <span id="liability-display">0%</span>
+        </label>
+        <input
+          id="liability-pct"
+          type="range"
+          name="liabilityPct"
+          min="0"
+          max="50"
+          step="5"
+          value="0"
+        />
+        <p class="field-hint">In comparative negligence states, your settlement is reduced by your percentage of fault. Leave at 0% if you were not at fault.</p>
+      </div>
+
+      <button type="submit" class="btn-primary">Estimate settlement</button>
+    </form>
+
+    <div class="card result-card" id="pi-result" role="status" aria-live="polite">
+      <h2>Estimated settlement range</h2>
+      <div class="metric-grid" id="pi-metrics">
+        <div class="metric-card metric-card--accent">
+          <span class="metric-label">Status</span>
+          <span class="metric-value metric-value--lg">Enter your details</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ExportBar />
+
+  <AdSlot label="Advertisement" minHeight={250} />
+
+  <section class="card prose">
+    <h2>Worked example</h2>
+    <p>Maria is rear-ended at a stoplight. She is 0% at fault. Her documented damages:</p>
+    <ul>
+      <li>Medical: $25,000 (ER, surgery, 12 weeks of physical therapy)</li>
+      <li>Lost wages: $10,000 (10 weeks off work at $1,000/week)</li>
+      <li>Future lost earnings: $0 (full recovery expected)</li>
+      <li>Other economic damages: $3,500 (rental car, out-of-pocket prescription costs)</li>
+    </ul>
+    <p>Economic damages total: <strong>$38,500</strong>. The injury required surgery and left Maria with lingering discomfort for six months, so her attorney uses a <strong>3× multiplier</strong> for pain and suffering: $25,000 × 3 = $75,000.</p>
+    <p><strong>Estimated settlement range:</strong> $38,500 + $75,000 = <strong>$113,500</strong> (at 3×). A conservative insurer opening at 1.5× would offer $75,500; a strong case with documented permanent symptoms could push toward 4–5× and $152,000–$190,500.</p>
+    <p>The insurer's first offer was $45,000. Maria's attorney countered at $120,000. They settled at $98,500 — above the 3× estimate because of a documented re-injury during recovery that strengthened the demand.</p>
+  </section>
+
+  <section class="card prose">
+    <h2>How the multiplier method works</h2>
+    <p>The <strong>multiplier method</strong> is the most common framework for estimating pain-and-suffering damages. It is not a legal rule — it is a negotiating convention used by insurance adjusters and personal injury attorneys as a starting point. The formula is:</p>
+    <p><strong>Total settlement = economic damages + (medical expenses × multiplier)</strong></p>
+    <p>Economic damages are objective and documented: medical bills, wage stubs, receipts. The multiplier captures non-economic harms — pain, emotional distress, loss of enjoyment of life — that have no receipt. Higher multipliers apply when injuries are severe, permanent, or clearly documented; lower multipliers apply to soft-tissue injuries that resolve quickly.</p>
+    <p>Some attorneys and insurers use the <strong>per diem method</strong> instead, assigning a daily dollar value to suffering and multiplying by the number of days until maximum medical improvement. Both methods produce a range, not a guaranteed outcome.</p>
+
+    <h2>Frequently asked questions</h2>
+
+    <details>
+      <summary>How accurate is the multiplier method?</summary>
+      <p>It is a starting point for negotiation, not a binding formula. Actual settlements depend on jurisdiction, the insurer's internal guidelines, the strength of the liability evidence, the quality of medical documentation, and whether the case goes to trial. Cases with clear liability, strong medical records, and a sympathetic plaintiff tend to settle at the higher end of the multiplier range. Cases with disputed liability or gaps in treatment settle lower.</p>
+    </details>
+
+    <details>
+      <summary>Does my state's fault rule affect the result?</summary>
+      <p>Yes. In <strong>pure comparative negligence</strong> states (CA, NY, FL, and most others), your recovery is reduced by your share of fault — but you can still recover even if you are 99% at fault. In <strong>modified comparative negligence</strong> states (TX, CO, GA, and most Midwest states), you cannot recover if you are 50% or 51% at fault or more (threshold varies by state). In <strong>contributory negligence</strong> states (MD, VA, AL, NC, DC), any fault on your part bars recovery entirely. The liability percentage field above applies a simple proportional reduction.</p>
+    </details>
+
+    <details>
+      <summary>What is a reasonable settlement for a soft-tissue injury?</summary>
+      <p>Soft-tissue injuries (whiplash, sprains, muscle strains) that resolve within a few months typically attract multipliers of 1.5–2×. A $10,000 medical bill on a fully recovered soft-tissue injury might settle for $20,000–$25,000 total. Injuries requiring surgery, leaving scar tissue, or causing documented chronic pain attract higher multipliers. Insurance companies track these closely — a settlement attorney can tell you the local jury verdicts for your injury type, which anchors the multiplier more precisely than any calculator.</p>
+    </details>
+
+    <details>
+      <summary>Should I accept the insurer's first offer?</summary>
+      <p>Almost never. Initial offers are designed to close the case quickly before you understand the full scope of your damages — especially future medical costs and long-term wage loss. You have until the statute of limitations to settle (typically 2–3 years from the injury date, varying by state). Get all your treatment completed or a clear prognosis before settling, so future medical costs are included in the negotiation base.</p>
+    </details>
+
+    <details>
+      <summary>When do I need a personal injury attorney?</summary>
+      <p>For minor accidents with fast full recovery and clear fault, you may be able to negotiate directly. For anything involving surgery, hospitalization, permanent impairment, disputed liability, a government defendant, or commercial trucking, an attorney is almost always worth the cost. Personal injury attorneys work on contingency (typically 33–40% of settlement) and have access to local verdict data that significantly improves multiplier negotiation. Their fee comes out of the settlement — you pay nothing upfront.</p>
+    </details>
+
+    <details>
+      <summary>Is this the same as workers' compensation?</summary>
+      <p>No. Workers' compensation is a no-fault system for injuries that occur on the job — it pays a portion of lost wages and medical bills regardless of employer negligence, but limits what you can recover. A personal injury claim against a third party is fault-based and can recover full economic damages plus pain and suffering. If you were injured on the job by a third party's negligence (e.g., a delivery driver hits you while you are working), you may be able to pursue both. Use the <a href="/workers-comp/">workers' comp estimator</a> for job-related injuries.</p>
+    </details>
+  </section>
+
+  <Disclaimer />
+
+  <style>
+    .multiplier-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--color-muted, #6b7280);
+      margin-top: 4px;
+    }
+    .pi-breakdown {
+      font-size: 13px;
+      color: var(--color-muted, #6b7280);
+      margin-top: 8px;
+    }
+    .prose details {
+      border: 1px solid var(--color-border, #e5e7eb);
+      border-radius: 8px;
+      padding: 0 16px;
+      margin: 8px 0;
+    }
+    .prose details[open] { border-color: var(--color-accent, #6366f1); }
+    .prose summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 46px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.925rem;
+      list-style: none;
+      padding: 2px 0;
+    }
+    .prose summary::-webkit-details-marker { display: none; }
+    .prose summary::after {
+      content: "+";
+      font-size: 1.1rem;
+      color: var(--color-muted, #6b7280);
+      flex-shrink: 0;
+      margin-left: 12px;
+    }
+    .prose details[open] summary::after { content: "−"; }
+    .prose details > p { margin-bottom: 14px; font-size: 0.9rem; line-height: 1.65; }
+  </style>
+</BaseLayout>
+
+<script>
+  const form = document.getElementById("pi-form") as HTMLFormElement;
+  const metricsEl = document.getElementById("pi-metrics") as HTMLDivElement;
+  const multiplierInput = document.getElementById("multiplier") as HTMLInputElement;
+  const multiplierDisplay = document.getElementById("multiplier-display") as HTMLSpanElement;
+  const liabilityInput = document.getElementById("liability-pct") as HTMLInputElement;
+  const liabilityDisplay = document.getElementById("liability-display") as HTMLSpanElement;
+
+  function fmt(n: number): string {
+    return n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+  }
+
+  function metricCard(label: string, value: string, accent = false, note = ""): string {
+    return `<div class="metric-card${accent ? " metric-card--accent" : ""}">
+      <span class="metric-label">${label}</span>
+      <span class="metric-value${accent ? " metric-value--lg" : ""}">${value}</span>
+      ${note ? `<span class="metric-label pi-breakdown">${note}</span>` : ""}
+    </div>`;
+  }
+
+  multiplierInput.addEventListener("input", () => {
+    multiplierDisplay.textContent = `${Number(multiplierInput.value).toFixed(1)}×`;
+    multiplierInput.setAttribute("aria-valuenow", multiplierInput.value);
+  });
+
+  liabilityInput.addEventListener("input", () => {
+    liabilityDisplay.textContent = `${liabilityInput.value}%`;
+  });
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const medical = Math.max(0, Number((document.getElementById("medical-expenses") as HTMLInputElement).value) || 0);
+    const wages = Math.max(0, Number((document.getElementById("lost-wages") as HTMLInputElement).value) || 0);
+    const future = Math.max(0, Number((document.getElementById("future-lost-earning") as HTMLInputElement).value) || 0);
+    const other = Math.max(0, Number((document.getElementById("other-damages") as HTMLInputElement).value) || 0);
+    const multiplier = Number(multiplierInput.value) || 3;
+    const liabilityPct = Number(liabilityInput.value) || 0;
+
+    const economic = medical + wages + future + other;
+    const painAndSuffering = medical * multiplier;
+    const gross = economic + painAndSuffering;
+    const liabilityReduction = gross * (liabilityPct / 100);
+    const net = gross - liabilityReduction;
+
+    const lowMultiplier = Math.max(1, multiplier - 0.5);
+    const highMultiplier = multiplier + 0.5;
+    const low = Math.round((economic + medical * lowMultiplier) * (1 - liabilityPct / 100));
+    const high = Math.round((economic + medical * highMultiplier) * (1 - liabilityPct / 100));
+
+    metricsEl.innerHTML = [
+      metricCard(
+        "Estimated settlement range",
+        `${fmt(low)} – ${fmt(high)}`,
+        true,
+        `At ${lowMultiplier.toFixed(1)}× to ${highMultiplier.toFixed(1)}× pain &amp; suffering multiplier`
+      ),
+      metricCard("Economic damages", fmt(economic), false, `Medical ${fmt(medical)} + wages ${fmt(wages)} + future ${fmt(future)} + other ${fmt(other)}`),
+      metricCard("Pain &amp; suffering", fmt(painAndSuffering), false, `${fmt(medical)} medical × ${multiplier.toFixed(1)}× multiplier`),
+      metricCard("Gross before fault reduction", fmt(gross)),
+      ...(liabilityPct > 0 ? [metricCard("Fault reduction", `−${fmt(liabilityReduction)}`, false, `${liabilityPct}% liability share`)] : []),
+      metricCard("Estimated net settlement", fmt(net), net === gross),
+    ].join("");
+  });
+</script>

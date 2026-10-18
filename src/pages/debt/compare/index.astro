@@ -17,6 +17,70 @@ import ExportBar from '../../../components/ExportBar.astro';
   </div>
   <p class="guide-link"><a href="/debt/guides/debt-settlement-vs-bankruptcy/">How this comparison works →</a></p>
 
+  <section class="card prose worked-example">
+    <h2>Example: $20,000 in credit card debt</h2>
+    <p>Alex carries $20,000 in credit card balances at an average 23% APR and can afford $400 a month. Here is what each path costs:</p>
+    <div class="example-table-wrap">
+      <table class="example-table">
+        <thead>
+          <tr>
+            <th>Path</th>
+            <th>Total paid</th>
+            <th>Months</th>
+            <th>Credit impact</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Debt settlement (40% negotiated)</td>
+            <td>$12,000</td>
+            <td>30</td>
+            <td>Severe (7 years)</td>
+          </tr>
+          <tr>
+            <td>Consolidation loan at 18% APR</td>
+            <td>$28,036</td>
+            <td>60</td>
+            <td>Minor</td>
+          </tr>
+          <tr>
+            <td>Chapter 7 bankruptcy</td>
+            <td>~$2,000 (filing &amp; attorney)</td>
+            <td>3–6</td>
+            <td>Severe (10 years)</td>
+          </tr>
+          <tr>
+            <td>Chapter 13 (est. $350/mo plan)</td>
+            <td>$21,000</td>
+            <td>60</td>
+            <td>Severe (7 years)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>In Alex's case, Chapter 7 costs the least if they qualify — but Chapter 7 eliminates debt permanently and does not work for secured debts or recent taxes. Debt consolidation preserves credit the most. Settlement saves money but leaves a collection record. Enter your own numbers above to see how these paths compare for your situation.</p>
+
+    <h2>Typical consolidation loan APR by credit score</h2>
+    <div class="example-table-wrap">
+      <table class="example-table">
+        <thead>
+          <tr>
+            <th>Credit score range</th>
+            <th>Typical APR</th>
+            <th>Note</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>720 or above</td><td>8–14%</td><td>Best rates; some lenders below 10%</td></tr>
+          <tr><td>660–719</td><td>14–20%</td><td>Qualifies at most lenders</td></tr>
+          <tr><td>600–659</td><td>20–28%</td><td>Limited lender options; compare carefully</td></tr>
+          <tr><td>Below 600</td><td>28–36%</td><td>A consolidation loan may cost more than minimum payments</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="source">APR ranges are illustrative estimates for unsecured personal loans as of 2025–2026. Actual rates vary by lender, loan term, and income. Verify current rates directly with lenders before applying. See also the <a href="/debt/means-test/">Chapter 7 means test calculator</a> to check whether you qualify for Chapter 7.</p>
+  </section>
+
   <div class="grid-layout">
     <form id="compare-form" class="card">
       <div class="field">
@@ -77,6 +141,16 @@ import ExportBar from '../../../components/ExportBar.astro';
   <AdSlot label="Advertisement" minHeight={250} />
 
   <Disclaimer />
+
+  <style>
+    .worked-example { margin-bottom: 1.5rem; }
+    .example-table-wrap { overflow-x: auto; margin: 14px 0; border: 1px solid var(--color-border, #e5e7eb); border-radius: 8px; }
+    .example-table { border-collapse: collapse; width: 100%; min-width: 420px; font-size: 13px; }
+    .example-table th { background: var(--color-surface-alt, #f9fafb); color: var(--color-muted, #6b7280); font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--color-border, #e5e7eb); }
+    .example-table td { padding: 8px 12px; border-bottom: 1px solid var(--color-border, #e5e7eb); vertical-align: top; }
+    .example-table tr:last-child td { border-bottom: 0; }
+    .source { font-size: 12px; color: var(--color-muted, #6b7280); margin-top: 8px; }
+  </style>
 
   <script>
     import { compareDebtPaths, type PathResult } from "../../../lib/debt/index";
