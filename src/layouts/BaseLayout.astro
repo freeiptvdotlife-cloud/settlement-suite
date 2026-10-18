@@ -1,5 +1,7 @@
 ---
 import AdLoader from "../components/AdLoader.astro";
+import ConsentManager from "../components/ConsentManager.astro";
+import ConsentMode from "../components/ConsentMode.astro";
 import GA4 from "../components/GA4.astro";
 import Icon from "../components/Icon.astro";
 
@@ -61,6 +63,7 @@ const navItems = [
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <ConsentMode />
   <GA4 />
   <title>{title}</title>
   <meta name="description" content={description} />
@@ -139,6 +142,7 @@ const navItems = [
     </footer>
   </div>
   <AdLoader />
+  <ConsentManager />
 </body>
 </html>
 

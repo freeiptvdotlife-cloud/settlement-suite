@@ -1,0 +1,27 @@
+---
+// Google Consent Mode v2 defaults. Must load before GA4.astro and AdLoader.astro.
+// geo_consent cookie is set by functions/_middleware.js based on cf.country.
+// Non-EU visitors (absent cookie or not_required) get analytics_storage granted
+// immediately; EU/EEA/UK/CH visitors stay denied until they accept the banner.
+---
+
+<script is:inline>
+  (function () {
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+    window.gtag = window.gtag || gtag;
+    var geoCookie = document.cookie.split('; ').find(function (r) {
+      return r.startsWith('geo_consent=');
+    });
+    var euVisitor = geoCookie ? geoCookie.split('=')[1] === 'required' : false;
+    gtag('consent', 'default', {
+      ad_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied',
+      analytics_storage: euVisitor ? 'denied' : 'granted',
+      wait_for_update: euVisitor ? 500 : 0,
+    });
+  })();
+</script>
