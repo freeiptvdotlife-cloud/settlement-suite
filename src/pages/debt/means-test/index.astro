@@ -5,6 +5,13 @@ import Disclaimer from "../../../components/Disclaimer.astro";
 import Icon from "../../../components/Icon.astro";
 import { US_STATES } from "../../../lib/states";
 import ExportBar from '../../../components/ExportBar.astro';
+import { stateMedianIncome, STATE_MEDIAN_INCOME_EFFECTIVE_DATE } from "../../../lib/debt/data/stateMedianIncome";
+
+const stateNames: Record<string, string> = Object.fromEntries(US_STATES.map((s) => [s.code, s.name]));
+stateNames['DC'] = 'District of Columbia';
+const incomeTableRows = Object.entries(stateMedianIncome)
+  .sort(([a], [b]) => a.localeCompare(b))
+  .map(([code, row]) => ({ code, name: stateNames[code] ?? code, s1: row.bySize[1], s2: row.bySize[2], s3: row.bySize[3], s4: row.bySize[4] }));
 ---
 
 <BaseLayout
@@ -83,7 +90,75 @@ import ExportBar from '../../../components/ExportBar.astro';
 
   <AdSlot label="Advertisement" minHeight={250} />
 
+  <section class="card prose mt-worked-example">
+    <h2>How it works — Texas example</h2>
+    <p>Sarah lives alone in Texas. Her average gross monthly income over the last six months was $4,700, annualizing to <strong>$56,400</strong>. The IRS median for a 1-person Texas household (effective July 15, 2026) is <strong>$66,837</strong>. Because $56,400 &lt; $66,837, Sarah <strong>passes Part 1 automatically</strong> and does not need to complete the expense deduction section (Part 2). She qualifies to file Chapter 7.</p>
+    <p>If her income were $5,800/month ($69,600 annualized), she would fail Part 1 and proceed to Part 2. Part 2 subtracts allowed IRS expense standards and actual secured debt payments from her disposable income. If the remaining disposable income over 60 months is below the Chapter 7 threshold, she still qualifies despite failing Part 1.</p>
+
+    <h2>Frequently asked questions</h2>
+
+    <details>
+      <summary>What happens if I fail the Part 1 income test?</summary>
+      <p>Failing Part 1 only means your income is above the state median — it does not disqualify you from Chapter 7. You proceed to Part 2, which subtracts IRS expense standards (housing, transportation, food, healthcare) plus your actual secured debt payments and certain priority debt payments. If your remaining disposable income over 60 months is below $9,075 (or less than 25% of your unsecured debt), you pass the overall means test. Many filers with above-median income still qualify after Part 2 deductions.</p>
+    </details>
+
+    <details>
+      <summary>Does my spouse's income count?</summary>
+      <p>If you and your spouse live together and file jointly, yes — both incomes are combined. If you file alone but your spouse lives with you, you may still need to include their income (minus their personal expenses) depending on whether you use a marital adjustment. If you are separated and your spouse lives separately, their income is generally excluded. This is one of the more nuanced parts of the means test; consult a bankruptcy attorney if you are married and filing alone.</p>
+    </details>
+
+    <details>
+      <summary>What if I fail the means test entirely?</summary>
+      <p>If you fail both Part 1 and Part 2, there is a presumption of abuse on a Chapter 7 filing. You can rebut it by showing "special circumstances" (job loss, medical crisis, or other extraordinary costs), but that is difficult. Your practical alternative is Chapter 13 bankruptcy, which restructures debt over a 3–5 year repayment plan instead of discharging it. Use the <a href="/debt/compare/">debt comparison calculator</a> to see how Chapter 13 total cost compares to settlement or consolidation for your specific balance.</p>
+    </details>
+  </section>
+
+  <section class="card prose mt-income-table">
+    <h2>State median family income — all 50 states</h2>
+    <p>Figures used in the Chapter 7 means test Part 1 comparison. Effective {STATE_MEDIAN_INCOME_EFFECTIVE_DATE}. Source: U.S. Trustee Program / Census Bureau. For households larger than 4, add $11,100 per additional member.</p>
+    <div class="mt-table-wrap">
+      <table class="mt-table">
+        <thead>
+          <tr>
+            <th scope="col">State</th>
+            <th scope="col">1 person</th>
+            <th scope="col">2 people</th>
+            <th scope="col">3 people</th>
+            <th scope="col">4 people</th>
+          </tr>
+        </thead>
+        <tbody>
+          {incomeTableRows.map((r) => (
+            <tr>
+              <td>{r.name} ({r.code})</td>
+              <td>${r.s1.toLocaleString()}</td>
+              <td>${r.s2.toLocaleString()}</td>
+              <td>${r.s3.toLocaleString()}</td>
+              <td>${r.s4.toLocaleString()}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
   <Disclaimer />
+
+  <style>
+    .mt-worked-example, .mt-income-table { margin-top: 1.5rem; }
+    .mt-table-wrap { overflow-x: auto; margin: 12px 0; border: 1px solid var(--color-border, #e5e7eb); border-radius: 8px; }
+    .mt-table { border-collapse: collapse; width: 100%; min-width: 520px; font-size: 13px; font-variant-numeric: tabular-nums; }
+    .mt-table th { background: var(--color-surface-alt, #f9fafb); color: var(--color-muted, #6b7280); font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--color-border, #e5e7eb); }
+    .mt-table td { padding: 6px 12px; border-bottom: 1px solid var(--color-border, #e5e7eb); }
+    .mt-table tr:last-child td { border-bottom: 0; }
+    .prose details { border: 1px solid var(--color-border, #e5e7eb); border-radius: 8px; padding: 0 16px; margin: 8px 0; }
+    .prose details[open] { border-color: var(--color-accent, #6366f1); }
+    .prose summary { display: flex; align-items: center; justify-content: space-between; min-height: 46px; cursor: pointer; font-weight: 600; font-size: 0.925rem; list-style: none; padding: 2px 0; }
+    .prose summary::-webkit-details-marker { display: none; }
+    .prose summary::after { content: "+"; font-size: 1.1rem; color: var(--color-muted, #6b7280); flex-shrink: 0; margin-left: 12px; }
+    .prose details[open] summary::after { content: "−"; }
+    .prose details > p { margin-bottom: 14px; font-size: 0.9rem; line-height: 1.65; }
+  </style>
 
   <script>
     import { runMeansTest } from "../../../lib/debt/index";

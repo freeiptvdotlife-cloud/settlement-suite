@@ -82,12 +82,42 @@ const fmt = (n: number) => n.toLocaleString("en-US", { style: "currency", curren
   <AdSlot slot_id="mid-content" height="250px" />
   <AdSlot slot_id="bottom-rectangle" height="250px" />
 
+  <section class="card prose wc-faq">
+    <h2>Frequently asked questions</h2>
+
+    <details>
+      <summary>What is the scheduled-loss method?</summary>
+      <p>The scheduled-loss (or scheduled-award) method assigns a fixed number of "weeks of compensation" to specific body parts under a state schedule. Your weekly compensation rate is a percentage of your average weekly wage, typically 66⅔% in most states. The settlement estimate is: scheduled weeks × impairment rating % × weekly rate. This method applies to permanent partial disabilities (PPD) where you lose function in a body part that has a published schedule. It generally does not apply to whole-body or spinal injuries, which use a different "whole person" calculation in most states.</p>
+    </details>
+
+    <details>
+      <summary>How do state schedules differ?</summary>
+      <p>Every state publishes its own schedule — the number of weeks for each body part varies significantly. New York assigns 312 weeks for an arm; Florida uses 280 weeks; Texas uses a modified whole-person approach. Wage caps also differ: many states cap weekly benefits at a percentage of the state average weekly wage, so high earners may be entitled to more weeks on paper but face a ceiling on actual dollars. This calculator uses simplified illustrative figures; always verify with your state workers' compensation board or an attorney before relying on any estimate.</p>
+    </details>
+
+    <details>
+      <summary>What is an impairment rating and who assigns it?</summary>
+      <p>An impairment rating is a percentage that quantifies how much permanent function you lost. It is assigned by a physician — your treating doctor or an independent medical examiner (IME) appointed by the insurer. Most states use the AMA Guides to the Evaluation of Permanent Impairment. If you disagree with the insurer's rating, you can request your own independent evaluation. A 1–2% difference in rating can translate to thousands of dollars in settlement value — getting a second opinion is often worth the cost for significant injuries.</p>
+    </details>
+  </section>
+
   <Fragment slot="disclaimer">
     This tool provides a rough estimate using a simplified scheduled-loss (PPD) calculation. Actual
     workers' compensation awards depend on state-specific schedules, wage caps, and case-specific
     factors this tool does not account for.
   </Fragment>
 </BaseLayout>
+
+<style>
+  .wc-faq { margin-top: 1.5rem; }
+  .wc-faq details { border: 1px solid var(--color-border, #e5e7eb); border-radius: 8px; padding: 0 16px; margin: 8px 0; }
+  .wc-faq details[open] { border-color: var(--color-accent, #6366f1); }
+  .wc-faq summary { display: flex; align-items: center; justify-content: space-between; min-height: 46px; cursor: pointer; font-weight: 600; font-size: 0.925rem; list-style: none; padding: 2px 0; }
+  .wc-faq summary::-webkit-details-marker { display: none; }
+  .wc-faq summary::after { content: "+"; font-size: 1.1rem; color: var(--color-muted, #6b7280); flex-shrink: 0; margin-left: 12px; }
+  .wc-faq details[open] summary::after { content: "−"; }
+  .wc-faq details > p { margin-bottom: 14px; font-size: 0.9rem; line-height: 1.65; }
+</style>
 
 <script>
   import { estimateWorkersComp, type BodyPart } from "../lib/workersComp";
