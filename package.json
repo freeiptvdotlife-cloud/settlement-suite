@@ -8,6 +8,7 @@
     "preview": "astro preview",
     "typecheck": "astro check",
     "test": "vitest run",
+    "deploy": "npm run build && wrangler deploy",
     "lint": "eslint ."
   },
   "devDependencies": {
