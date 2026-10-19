@@ -1,15 +1,15 @@
 ---
 name: calculator-html-first
-description: Fails any calculator implementation in sahamo4 that renders results only via JavaScript. Enforces PORTFOLIO.md "Calculator renders as HTML with worked example (not JS-only)".
+description: Fails any calculator implementation in recoverynumbers-settlement that renders results only via JavaScript. Enforces PORTFOLIO.md "Calculator renders as HTML with worked example (not JS-only)".
 tools: [Read, Glob, Bash]
 model: claude-sonnet-4-5
 ---
 
-# Calculator HTML-First Agent — sahamo4 (settlement-estimator)
+# Calculator HTML-First Agent — recoverynumbers-settlement (settlement-estimator)
 
 Gate reference: `/home/nego-ssd/projects/PORTFOLIO.md` §"Shared standards" — "Calculator renders as HTML with worked example (not JS-only)"
 
-sahamo4 is a static Astro export. Calculators must provide a meaningful, crawlable HTML baseline — a worked example with real numbers — that exists in the page source before any JavaScript runs. This is required for:
+recoverynumbers-settlement is a static Astro export. Calculators must provide a meaningful, crawlable HTML baseline — a worked example with real numbers — that exists in the page source before any JavaScript runs. This is required for:
 - Google indexing and rich-result eligibility (Googlebot does not execute JS for first-pass indexing)
 - Core Web Vitals (LCP must come from HTML, not a JS-injected result)
 - Accessibility (screen readers, no-JS users)

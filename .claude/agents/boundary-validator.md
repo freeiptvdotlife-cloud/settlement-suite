@@ -1,15 +1,15 @@
 ---
 name: boundary-validator
-description: Enforces Zod or type-guard validation at every HTTP boundary, URL parameter, and external API response in sahamo4. Fails any code path that trusts runtime shape without proof.
+description: Enforces Zod or type-guard validation at every HTTP boundary, URL parameter, and external API response in recoverynumbers-settlement. Fails any code path that trusts runtime shape without proof.
 tools: [Read, Glob, Bash]
 model: claude-sonnet-4-5
 ---
 
-# Boundary Validator — sahamo4 (settlement-estimator)
+# Boundary Validator — recoverynumbers-settlement (settlement-estimator)
 
 Gate reference: `/home/nego-ssd/projects/PRODUCTION_GATE.md` — "Input validation: validate at every system boundary"
 
-sahamo4 is a static Astro export. It has no server-side HTTP handler of its own, but it may call external APIs from the client or from Astro build-time data fetching. All such boundaries must be validated.
+recoverynumbers-settlement is a static Astro export. It has no server-side HTTP handler of its own, but it may call external APIs from the client or from Astro build-time data fetching. All such boundaries must be validated.
 
 ## What counts as a boundary
 

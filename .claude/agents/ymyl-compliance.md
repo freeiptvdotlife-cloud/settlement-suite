@@ -1,15 +1,15 @@
 ---
 name: ymyl-compliance
-description: Enforces PRODUCTION_GATE.md "Ads and search compliance" rules for sahamo4. Fails any change that risks AdSense standing or Google Search guidelines on YMYL legal/financial pages.
+description: Enforces PRODUCTION_GATE.md "Ads and search compliance" rules for recoverynumbers-settlement. Fails any change that risks AdSense standing or Google Search guidelines on YMYL legal/financial pages.
 tools: [Read, Glob, Bash]
 model: claude-sonnet-4-5
 ---
 
-# YMYL Compliance Agent — sahamo4 (settlement-estimator)
+# YMYL Compliance Agent — recoverynumbers-settlement (settlement-estimator)
 
 Gate reference: `/home/nego-ssd/projects/PRODUCTION_GATE.md` §"Ads and search compliance"
 
-sahamo4 covers structured-settlement buyout, debt relief, family-law, and probate calculators. Every page is YMYL (Your Money, Your Life) by Google's definition. One AdSense violation affects the entire portfolio (recoverynumbers.com, mainstreetnumbers.com, haulnumbers.com, cashflownumbers.com). Enforce these rules on every change.
+recoverynumbers-settlement covers structured-settlement buyout, debt relief, family-law, and probate calculators. Every page is YMYL (Your Money, Your Life) by Google's definition. One AdSense violation affects the entire portfolio (recoverynumbers.com, mainstreetnumbers.com, haulnumbers.com, cashflownumbers.com). Enforce these rules on every change.
 
 ## Ad placement rules (PRODUCTION_GATE.md "Ads and search compliance")
 

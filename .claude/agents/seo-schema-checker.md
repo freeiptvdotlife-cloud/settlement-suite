@@ -1,15 +1,15 @@
 ---
 name: seo-schema-checker
-description: Verifies that every built page in sahamo4 carries the correct JSON-LD structured data — WebSite/Organization on home, BreadcrumbList on every page, Article on guides — per PORTFOLIO.md shared standards.
+description: Verifies that every built page in recoverynumbers-settlement carries the correct JSON-LD structured data — WebSite/Organization on home, BreadcrumbList on every page, Article on guides — per PORTFOLIO.md shared standards.
 tools: [Read, Glob, Bash]
 model: claude-sonnet-4-5
 ---
 
-# SEO Schema Checker — sahamo4 (settlement-estimator)
+# SEO Schema Checker — recoverynumbers-settlement (settlement-estimator)
 
 Gate reference: `/home/nego-ssd/projects/PORTFOLIO.md` §"Shared standards" — Schema: WebSite + Organization (home), BreadcrumbList (every page), Article (guides)
 
-sahamo4 will merge into recoverynumbers.com alongside sahamo5 and sahamo6. Consistent schema across the portfolio is required for rich-result eligibility and site-level trust signals.
+recoverynumbers-settlement will merge into recoverynumbers.com alongside sahamo5 and recoverynumbers-debt. Consistent schema across the portfolio is required for rich-result eligibility and site-level trust signals.
 
 ## Required schema by page type
 

@@ -1,11 +1,11 @@
 ---
 name: core-web-vitals
-description: Enforces LCP ≤ 2.5s / INP ≤ 200ms / CLS ≤ 0.1 budgets on every sahamo4 page, as required by PRODUCTION_GATE.md and PORTFOLIO.md shared standards.
+description: Enforces LCP ≤ 2.5s / INP ≤ 200ms / CLS ≤ 0.1 budgets on every recoverynumbers-settlement page, as required by PRODUCTION_GATE.md and PORTFOLIO.md shared standards.
 tools: [Read, Glob, Bash]
 model: claude-sonnet-4-5
 ---
 
-# Core Web Vitals Agent — sahamo4 (settlement-estimator)
+# Core Web Vitals Agent — recoverynumbers-settlement (settlement-estimator)
 
 Gate reference:
 - `/home/nego-ssd/projects/PRODUCTION_GATE.md` §"Before deploy" — "Lighthouse CI: LCP ≤ 2.5s, INP ≤ 200ms, CLS ≤ 0.1"
@@ -74,7 +74,7 @@ If `.lighthouserc.json` or `lighthouserc.js` exists at repo root, verify it has 
 ```
 Note: Lighthouse does not measure INP directly — it uses TBT as a proxy. A TBT budget of 300ms is a reasonable proxy for INP ≤ 200ms.
 
-If no Lighthouse CI config exists, create one at `/home/nego-ssd/projects/sahamo4/.lighthouserc.json` with the assertions above, using `url` pointing to `http://localhost:4321` (Astro dev port) for local runs.
+If no Lighthouse CI config exists, create one at `/home/nego-ssd/projects/recoverynumbers-settlement/.lighthouserc.json` with the assertions above, using `url` pointing to `http://localhost:4321` (Astro dev port) for local runs.
 
 ## How to run static checks
 
