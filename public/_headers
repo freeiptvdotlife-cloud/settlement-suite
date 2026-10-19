@@ -1,4 +1,5 @@
 /*
+  Content-Security-Policy: script-src 'sha256-TSCmVqhR4SEOr11zuxPuwmjvM+96SDgaOnY3wIEQITg=' 'sha256-peCtUki95VOTPyhsVAml2gVx1xu40Wm0TlXvIfCqQs8=' 'sha256-lbSlLUzorxxrZnwPfuUomIhH0sfMyT5ZN+TvNjwt9eM=' 'sha256-qqyQ1Mu7WnFlyfD9tXFOEjZbCb7yHjVZfnIFSQnvg78=' 'strict-dynamic' https: 'unsafe-inline'; connect-src https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://stats.g.doubleclick.net; frame-src https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://www.google.com
   X-Content-Type-Options: nosniff
   X-Frame-Options: SAMEORIGIN
   Referrer-Policy: strict-origin-when-cross-origin
