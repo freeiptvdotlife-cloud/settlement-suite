@@ -77,6 +77,9 @@ const navItems = [
   />
   <script is:inline>
     (function () {
+      // Lets the CSS collapse the 15-link nav into the drawer on phones. Without JS the nav
+      // stays inline (tall, but usable) instead of showing a button that does nothing.
+      document.documentElement.classList.add("js");
       var stored = null;
       try { stored = localStorage.getItem("theme"); } catch (e) {}
       var theme = stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
@@ -97,18 +100,6 @@ const navItems = [
         <span>Recovery Numbers</span>
       </a>
       <div class="header-controls">
-        <nav class="app-nav" aria-label="Calculators">
-          {navItems.map((item) => (
-            <a
-              href={item.href}
-              class={`nav-link ${item.key === active ? "nav-link--active" : ""}`}
-              aria-current={item.key === active ? "page" : undefined}
-            >
-              <Icon name={item.icon} size={14} />
-              {item.label}
-            </a>
-          ))}
-        </nav>
         <button
           type="button"
           id="theme-toggle"
@@ -119,7 +110,42 @@ const navItems = [
           <Icon name="sun" size={18} />
           <Icon name="moon" size={18} />
         </button>
+        <button
+          type="button"
+          class="nav-ham"
+          id="nav-ham"
+          aria-expanded="false"
+          aria-controls="mobile-nav"
+          aria-label="Open menu"
+        >
+          <span></span><span></span><span></span>
+        </button>
       </div>
+      {/* 15 links never fit beside the brand, so the nav owns its own row (and wraps inside it)
+          instead of pushing the theme toggle onto a row of its own. */}
+      <nav class="app-nav" aria-label="Calculators">
+        {navItems.map((item) => (
+          <a
+            href={item.href}
+            class={`nav-link ${item.key === active ? "nav-link--active" : ""}`}
+            aria-current={item.key === active ? "page" : undefined}
+          >
+            <Icon name={item.icon} size={14} />
+            {item.label}
+          </a>
+        ))}
+      </nav>
+      {/* Same links as .app-nav, shown only on narrow screens where the 15-link row is unusable.
+          The drawer is hidden by CSS unless the inline script marks the document as JS-capable,
+          so a no-JS phone keeps the plain wrapped nav instead of an inert button. */}
+      <nav class="mobile-nav" id="mobile-nav" aria-hidden="true" aria-label="Calculators">
+        {navItems.map((item) => (
+          <a href={item.href} aria-current={item.key === active ? "page" : undefined}>
+            <Icon name={item.icon} size={16} />
+            {item.label}
+          </a>
+        ))}
+      </nav>
     </header>
 
     <main class="app-main">
@@ -167,5 +193,35 @@ const navItems = [
       // localStorage unavailable (private browsing) — theme still applies for this session
     }
     syncPressedState();
+  });
+
+  // Mobile drawer. Markup mirrors recoverynumbers-debt's header so the two apps of the domain
+  // behave the same; same markup, same aria contract: aria-expanded on the button,
+  // aria-hidden on the drawer.
+  const ham = document.getElementById("nav-ham");
+  const mobileNav = document.getElementById("mobile-nav");
+
+  function setMenu(open: boolean) {
+    ham?.setAttribute("aria-expanded", String(open));
+    ham?.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+    mobileNav?.setAttribute("aria-hidden", String(!open));
+  }
+
+  ham?.addEventListener("click", () => {
+    setMenu(ham.getAttribute("aria-expanded") !== "true");
+  });
+  // A jump link should not leave the drawer open behind the new page position.
+  mobileNav?.querySelectorAll("a").forEach((a) => {
+    a.addEventListener("click", () => {
+      setMenu(false);
+    });
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") setMenu(false);
+  });
+  // Reset when the viewport grows past the drawer breakpoint (the CSS hides it there anyway,
+  // but the button state must not be left stale for a later resize back down).
+  window.matchMedia("(min-width: 761px)").addEventListener("change", (e) => {
+    if (e.matches) setMenu(false);
   });
 </script>
