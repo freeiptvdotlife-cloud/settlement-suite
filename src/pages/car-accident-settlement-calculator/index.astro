@@ -1,0 +1,401 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import AdSlot from "../../components/AdSlot.astro";
+import Icon from "../../components/Icon.astro";
+import SegmentedControl from "../../components/SegmentedControl.astro";
+import PercentSlider from "../../components/PercentSlider.astro";
+import PresetButtons from "../../components/PresetButtons.astro";
+import ExportBar from "../../components/ExportBar.astro";
+import { estimateCarAccidentSettlement } from "../../lib/carAccident";
+import { US_STATES } from "../../lib/states";
+
+const defaults = {
+  medicalExpenses: 12_000,
+  futureMedicalExpenses: 4_000,
+  lostWages: 5_000,
+  futureLostWages: 0,
+  propertyDamage: 8_000,
+  severity: "moderate" as const,
+  accidentType: "rear-end" as const,
+  comparativeFaultPct: 0,
+  stateCode: "TX",
+};
+const initial = estimateCarAccidentSettlement(defaults);
+const fmt = (n: number) => n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+
+const faqItems = [
+  {
+    q: "How is a car accident settlement calculated?",
+    a: "Attorneys typically use the multiplier method: add up your economic damages (medical bills, lost wages), then multiply by a factor of 1.5× to 10× based on injury severity to estimate pain and suffering. The total is then reduced by your percentage of fault under your state's comparative negligence rule.",
+  },
+  {
+    q: "Does my state's fault rule affect what I can recover?",
+    a: "Yes. Most states use modified comparative fault, which bars recovery if you are 50% or 51% or more at fault. Five jurisdictions (Alabama, DC, Maryland, North Carolina, Virginia) use pure contributory negligence — any fault on your part bars recovery entirely. Twelve no-fault states (FL, HI, KS, KY, MA, MI, MN, NJ, NY, ND, PA, UT) require you to exhaust PIP benefits and meet a serious-injury threshold before suing in tort.",
+  },
+  {
+    q: "Is property damage included in the settlement figure?",
+    a: "No — this calculator shows your personal injury settlement range only. Property damage (vehicle repair or replacement) is typically resolved through a separate property damage claim with the at-fault driver's insurer. We display it separately for reference.",
+  },
+  {
+    q: "Why does accident type affect the estimate?",
+    a: "Head-on and intersection collisions statistically produce more serious injuries and carry higher jury verdict averages than rear-end or sideswipe impacts at comparable medical damage figures. The calculator adjusts the multiplier range accordingly.",
+  },
+  {
+    q: "How accurate is this estimate?",
+    a: "This is a rough range based on common attorney formulas. Actual settlements vary widely depending on insurance policy limits, liability evidence, jurisdiction, the specific facts of the case, and negotiation. Use this as a starting point, not a guarantee. Consult a licensed personal injury attorney for an actual case evaluation.",
+  },
+];
+
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faqItems.map(({ q, a }) => ({
+    "@type": "Question",
+    name: q,
+    acceptedAnswer: { "@type": "Answer", text: a },
+  })),
+};
+
+const toolSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: "Car Accident Settlement Calculator",
+  url: "https://recoverynumbers.com/car-accident-settlement-calculator/",
+  applicationCategory: "FinanceApplication",
+  offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+  description: "Estimate a car accident personal injury settlement range by state using the multiplier method. Accounts for comparative fault rules in all 50 states plus DC.",
+};
+---
+<BaseLayout
+  title="Car Accident Settlement Calculator — Estimate by State"
+  description="Estimate your car accident personal injury settlement range. Accounts for your state's comparative fault rules, injury severity, and accident type. Free, instant, no login."
+  active="car-accident"
+>
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(faqSchema)} />
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(toolSchema)} />
+
+  <section class="hero">
+    <h1><Icon name="scale" size={26} /> Car Accident Settlement Calculator</h1>
+    <p class="subtitle">Estimate a personal injury settlement range using the multiplier method, adjusted for your state's fault rules and accident type. Free, instant, no data stored.</p>
+  </section>
+
+  <div class="grid-layout">
+    <form id="calc-form" class="card" aria-label="Car accident settlement inputs">
+
+      <div class="field">
+        <label for="stateCode"><Icon name="document" size={16} /> State where accident occurred</label>
+        <select id="stateCode">
+          {US_STATES.map((s) => (
+            <option value={s.code} selected={s.code === defaults.stateCode}>{s.name}</option>
+          ))}
+        </select>
+      </div>
+
+      <SegmentedControl
+        id="accidentType"
+        label="Accident Type"
+        defaultValue={defaults.accidentType}
+        options={[
+          { value: "rear-end",     label: "Rear-end" },
+          { value: "intersection", label: "Intersection" },
+          { value: "sideswipe",    label: "Sideswipe" },
+          { value: "head-on",      label: "Head-on" },
+          { value: "hit-and-run",  label: "Hit & Run" },
+        ]}
+      />
+
+      <SegmentedControl
+        id="severity"
+        label="Injury Severity"
+        defaultValue={defaults.severity}
+        options={[
+          { value: "minor",        label: "Minor" },
+          { value: "moderate",     label: "Moderate" },
+          { value: "severe",       label: "Severe" },
+          { value: "catastrophic", label: "Catastrophic" },
+        ]}
+      />
+
+      <div class="field">
+        <label for="medicalExpenses"><Icon name="medical" size={16} /> Medical expenses to date ($)</label>
+        <input type="number" id="medicalExpenses" min="0" step="1" value={defaults.medicalExpenses} required />
+        <PresetButtons targetId="medicalExpenses" presets={[
+          { label: "$5,000",  value: 5_000 },
+          { label: "$15,000", value: 15_000 },
+          { label: "$30,000", value: 30_000 },
+          { label: "$75,000", value: 75_000 },
+        ]} />
+      </div>
+
+      <div class="field">
+        <label for="futureMedicalExpenses"><Icon name="medical" size={16} /> Estimated future medical expenses ($)</label>
+        <input type="number" id="futureMedicalExpenses" min="0" step="1" value={defaults.futureMedicalExpenses} required />
+      </div>
+
+      <div class="field">
+        <label for="lostWages"><Icon name="briefcase" size={16} /> Lost wages to date ($)</label>
+        <input type="number" id="lostWages" min="0" step="1" value={defaults.lostWages} required />
+        <PresetButtons targetId="lostWages" presets={[
+          { label: "$2,000",  value: 2_000 },
+          { label: "$5,000",  value: 5_000 },
+          { label: "$15,000", value: 15_000 },
+        ]} />
+      </div>
+
+      <div class="field">
+        <label for="futureLostWages"><Icon name="briefcase" size={16} /> Estimated future lost wages ($)</label>
+        <input type="number" id="futureLostWages" min="0" step="1" value={defaults.futureLostWages} required />
+      </div>
+
+      <div class="field">
+        <label for="propertyDamage"><Icon name="document" size={16} /> Vehicle / property damage ($)</label>
+        <input type="number" id="propertyDamage" min="0" step="1" value={defaults.propertyDamage} required />
+        <p class="field-hint">Shown separately — settled as a distinct property damage claim.</p>
+      </div>
+
+      <PercentSlider id="comparativeFaultPct" label="Your Share of Fault" min={0} max={100} value={defaults.comparativeFaultPct} />
+
+      <button type="submit" class="btn-primary">Estimate Settlement Range</button>
+    </form>
+
+    <div class="card result-card" id="result" aria-live="polite">
+      <h2>Estimated Settlement Range</h2>
+
+      <div id="barred-notice" class="notice notice--warn" hidden>
+        <Icon name="warning" size={16} />
+        <span id="barred-text"></span>
+      </div>
+
+      <div id="no-fault-notice" class="notice notice--info" hidden={!initial.isNoFault}>
+        <Icon name="shield" size={16} />
+        <span>Your state uses a no-fault PIP system. You must exhaust personal injury protection benefits and meet a serious-injury threshold before filing a tort claim. Consult an attorney about whether your injuries qualify.</span>
+      </div>
+
+      <div class="metric-grid">
+        <div class="metric-card metric-card--accent">
+          <span class="metric-label"><Icon name="currency" size={14} /> Personal Injury Range</span>
+          <span class="metric-value metric-value--lg" id="range-output">
+            {initial.isBarred ? "—" : `${fmt(initial.estimateLow)} – ${fmt(initial.estimateHigh)}`}
+          </span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label"><Icon name="briefcase" size={14} /> Economic Damages</span>
+          <span class="metric-value" id="economic-output">{fmt(initial.personalInjuryBase)}</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label"><Icon name="document" size={14} /> Multiplier Used</span>
+          <span class="metric-value" id="multiplier-output">{initial.multiplierRange[0]}x – {initial.multiplierRange[1]}x</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label"><Icon name="document" size={14} /> Property Damage (separate)</span>
+          <span class="metric-value" id="property-output">{fmt(initial.propertyDamage)}</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label"><Icon name="scale" size={14} /> State Fault Rule</span>
+          <span class="metric-value" id="fault-system-output">{initial.faultSystem.replace(/-/g, " ")}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ExportBar />
+  <AdSlot slot_id="mid-content" height="250px" />
+
+  <section class="content-section">
+    <h2>How this calculator works</h2>
+    <p>The calculator uses the <strong>multiplier method</strong>, the most common approach attorneys use to estimate pain and suffering damages:</p>
+    <ol>
+      <li><strong>Economic damages</strong> = medical expenses (current + future) + lost wages (current + future). Property damage is excluded — it is resolved through a separate property damage claim.</li>
+      <li><strong>Pain &amp; suffering</strong> = economic damages × multiplier. The multiplier range is set by injury severity (1.5× for minor injuries, up to 10× for catastrophic) and adjusted upward for higher-impact accident types (head-on collisions carry a 0.75 bump; intersection and hit-and-run carry 0.25).</li>
+      <li><strong>Total PI estimate</strong> = economic damages + pain &amp; suffering, then reduced by your percentage of fault.</li>
+      <li><strong>State fault rule</strong> determines the reduction. Pure comparative states (CA, NY, FL, etc.) reduce proportionally at any fault level. Modified comparative states bar recovery at 50% or 51% fault. Pure contributory states (AL, DC, MD, NC, VA) bar recovery entirely if you are <em>any</em> percent at fault.</li>
+    </ol>
+
+    <h3>Worked example</h3>
+    <p>Rear-end collision in Texas. $12,000 medical bills, $5,000 lost wages, 0% fault, moderate injuries:</p>
+    <ul>
+      <li>Economic damages: $17,000</li>
+      <li>Multiplier range (moderate, rear-end): 2.5× – 4.0×</li>
+      <li>Pain &amp; suffering range: $42,500 – $68,000</li>
+      <li>Total estimate: <strong>$59,500 – $85,000</strong></li>
+      <li>Texas is a modified-51 state; at 0% fault no reduction applies.</li>
+    </ul>
+
+    <h3>What this estimate does not include</h3>
+    <ul>
+      <li>Policy limits — if the at-fault driver's liability coverage is $25,000, that caps the insurance recovery regardless of damages.</li>
+      <li>Punitive damages — rare; available only in egregious cases (DUI, reckless driving) in most states.</li>
+      <li>Structured settlements, liens (Medicare/Medicaid subrogation), or attorney fees.</li>
+      <li>No-fault PIP thresholds — in no-fault states, suing in tort requires meeting a state-specific serious-injury threshold.</li>
+    </ul>
+  </section>
+
+  <AdSlot slot_id="pre-faq" height="250px" />
+
+  <section class="content-section">
+    <h2>Frequently asked questions</h2>
+    <dl class="faq-list">
+      {faqItems.map(({ q, a }) => (
+        <div class="faq-item">
+          <dt>{q}</dt>
+          <dd>{a}</dd>
+        </div>
+      ))}
+    </dl>
+  </section>
+
+  <section class="content-section">
+    <h2>Related calculators</h2>
+    <ul class="related-links">
+      <li><a href="/">Personal Injury Settlement Estimator</a> — general multiplier method for any injury type</li>
+      <li><a href="/workers-comp/">Workers' Comp Settlement Estimator</a> — permanent partial disability using the scheduled-loss method</li>
+      <li><a href="/family-law/alimony-calculator/">Alimony Calculator</a></li>
+      <li><a href="/debt/means-test/">Chapter 7 Bankruptcy Means Test</a></li>
+    </ul>
+  </section>
+
+  <Fragment slot="disclaimer">
+    This tool provides a rough estimate for informational purposes only, using the multiplier method commonly referenced in personal injury practice. It is not a guarantee of any settlement amount or verdict. State laws, policy limits, liability evidence, and individual case facts significantly affect actual outcomes. Consult a licensed personal injury attorney in your state for an actual case evaluation.
+  </Fragment>
+</BaseLayout>
+
+<style>
+.field-hint {
+  font-size: 0.75rem;
+  color: var(--color-text-muted, #6b7280);
+  margin: 0.25rem 0 0;
+}
+.notice {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+.notice--warn {
+  background: color-mix(in srgb, var(--color-warning, #f59e0b) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-warning, #f59e0b) 30%, transparent);
+  color: var(--color-text, inherit);
+}
+.notice--info {
+  background: color-mix(in srgb, var(--color-accent, #2563eb) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-accent, #2563eb) 25%, transparent);
+  color: var(--color-text, inherit);
+}
+.content-section {
+  margin-top: 2.5rem;
+}
+.content-section h2 {
+  margin-bottom: 0.75rem;
+}
+.content-section h3 {
+  margin: 1.5rem 0 0.5rem;
+}
+.content-section p,
+.content-section ul,
+.content-section ol {
+  color: var(--color-text-secondary, inherit);
+  line-height: 1.7;
+}
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin: 0;
+  padding: 0;
+}
+.faq-item dt {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+.faq-item dd {
+  margin: 0;
+  color: var(--color-text-secondary, inherit);
+  line-height: 1.7;
+}
+.related-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-left: 1.25rem;
+}
+</style>
+
+<script>
+  import {
+    estimateCarAccidentSettlement,
+    type InjurySeverity,
+    type AccidentType,
+  } from "../../lib/carAccident";
+
+  const fmt = (n: number) =>
+    n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+
+  const FAULT_LABELS: Record<string, string> = {
+    "pure-comparative":    "Pure comparative",
+    "modified-51":         "Modified comparative (51% bar)",
+    "modified-50":         "Modified comparative (50% bar)",
+    "pure-contributory":   "Pure contributory",
+  };
+
+  const BARRED_MESSAGES: Record<string, string> = {
+    "pure-contributory": "Your state uses pure contributory negligence. Any share of fault bars recovery in tort. This estimate assumes you file only if you are 0% at fault.",
+    "modified-51": "Your fault share is 51% or more. Under your state's modified comparative rule this bars recovery.",
+    "modified-50": "Your fault share is 50% or more. Under your state's modified comparative rule this bars recovery.",
+  };
+
+  function update() {
+    const input = {
+      medicalExpenses:       Number((document.getElementById("medicalExpenses")       as HTMLInputElement).value) || 0,
+      futureMedicalExpenses: Number((document.getElementById("futureMedicalExpenses") as HTMLInputElement).value) || 0,
+      lostWages:             Number((document.getElementById("lostWages")             as HTMLInputElement).value) || 0,
+      futureLostWages:       Number((document.getElementById("futureLostWages")       as HTMLInputElement).value) || 0,
+      propertyDamage:        Number((document.getElementById("propertyDamage")        as HTMLInputElement).value) || 0,
+      severity:              (document.getElementById("severity")       as HTMLInputElement).value as InjurySeverity,
+      accidentType:          (document.getElementById("accidentType")   as HTMLInputElement).value as AccidentType,
+      comparativeFaultPct:   Number((document.getElementById("comparativeFaultPct")   as HTMLInputElement).value) || 0,
+      stateCode:             (document.getElementById("stateCode")      as HTMLSelectElement).value,
+    };
+
+    const result = estimateCarAccidentSettlement(input);
+
+    // PI range
+    const rangeEl = document.getElementById("range-output")!;
+    rangeEl.textContent = result.isBarred
+      ? "Barred — see notice above"
+      : `${fmt(result.estimateLow)} – ${fmt(result.estimateHigh)}`;
+
+    // Other metrics
+    document.getElementById("economic-output")!.textContent     = fmt(result.personalInjuryBase);
+    document.getElementById("multiplier-output")!.textContent   = `${result.multiplierRange[0]}x – ${result.multiplierRange[1]}x`;
+    document.getElementById("property-output")!.textContent     = fmt(result.propertyDamage);
+    document.getElementById("fault-system-output")!.textContent = FAULT_LABELS[result.faultSystem] ?? result.faultSystem;
+
+    // Barred notice
+    const barredNotice = document.getElementById("barred-notice") as HTMLElement;
+    const barredText   = document.getElementById("barred-text")   as HTMLElement;
+    if (result.isBarred) {
+      barredText.textContent = BARRED_MESSAGES[result.faultSystem] ?? "Recovery may be barred under your state's fault rules.";
+      barredNotice.hidden = false;
+    } else {
+      barredNotice.hidden = true;
+    }
+
+    // No-fault notice
+    const noFaultNotice = document.getElementById("no-fault-notice") as HTMLElement;
+    noFaultNotice.hidden = !result.isNoFault;
+  }
+
+  document.getElementById("calc-form")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    update();
+  });
+
+  // Live update on state / type / severity changes
+  ["stateCode", "accidentType", "severity"].forEach((id) => {
+    document.getElementById(id)?.addEventListener("change", update);
+  });
+</script>

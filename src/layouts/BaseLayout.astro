@@ -8,7 +8,7 @@ import Icon from "../components/Icon.astro";
 export interface Props {
   title: string;
   description: string;
-  active?: "settlement" | "child-support" | "workers-comp" | "structured-settlement" | "annuity-solver" | "lawsuit-loan" | "ssdi-backpay" | "alimony-hub" | "probate-hub" | "means-test" | "debt-compare" | "dti" | "sol" | "guides" | "personal-injury";
+  active?: "settlement" | "child-support" | "workers-comp" | "structured-settlement" | "annuity-solver" | "lawsuit-loan" | "ssdi-backpay" | "alimony-hub" | "alimony-buyout" | "probate-hub" | "means-test" | "debt-compare" | "dti" | "sol" | "guides" | "personal-injury" | "car-accident" | "medical-malpractice" | "viatical" | "ssdi-payout" | "unemployment" | "oop-max" | "hsa-vs-fsa" | "medical-payment";
   /** Bold lead-in for the footer disclaimer. Defaults to "Not legal advice." */
   disclaimerLead?: string;
 }
@@ -43,18 +43,27 @@ const breadcrumbSchema = breadcrumbItems.length > 0 ? {
 const navItems = [
   { href: "/", label: "Settlement", key: "settlement", icon: "scale" },
   { href: "/settlement/personal-injury-calculator/", label: "Personal Injury", key: "personal-injury", icon: "scale" },
+  { href: "/car-accident-settlement-calculator/", label: "Car Accident", key: "car-accident", icon: "scale" },
+  { href: "/medical-malpractice-settlement-calculator/", label: "Medical Malpractice", key: "medical-malpractice", icon: "medical" },
   { href: "/workers-comp/", label: "Workers' Comp", key: "workers-comp", icon: "briefcase" },
   { href: "/settlement/structured-settlement/", label: "Structured Settlement", key: "structured-settlement", icon: "coins" },
   { href: "/settlement/annuity-value-solver/", label: "Annuity Solver", key: "annuity-solver", icon: "clock" },
   { href: "/settlement/lawsuit-loan-cost-estimator/", label: "Lawsuit Loan", key: "lawsuit-loan", icon: "shield" },
   { href: "/settlement/ssdi-back-pay-calculator/", label: "SSDI Back Pay", key: "ssdi-backpay", icon: "shield" },
   { href: "/family-law/alimony-calculator/", label: "Alimony", key: "alimony-hub", icon: "scale" },
+  { href: "/family-law/alimony-buyout/", label: "Alimony Buyout", key: "alimony-buyout", icon: "coins" },
+  { href: "/settlement/viatical-settlement-calculator/", label: "Viatical Settlement", key: "viatical", icon: "shield" },
   { href: "/probate/probate-fee-calculator/", label: "Probate Fees", key: "probate-hub", icon: "document" },
+  { href: "/debt/ssdi-payout-calculator/", label: "SSDI Monthly Benefit", key: "ssdi-payout", icon: "shield" },
+  { href: "/debt/unemployment-calculator/", label: "Unemployment Benefits", key: "unemployment", icon: "briefcase" },
   { href: "/debt/means-test/", label: "Means Test", key: "means-test", icon: "shield" },
   { href: "/debt/compare/", label: "Compare Paths", key: "debt-compare", icon: "exchange" },
   { href: "/debt/dti/", label: "DTI & Recovery", key: "dti", icon: "chart" },
   { href: "/debt/statute-of-limitations/", label: "SOL Checker", key: "sol", icon: "clock" },
   { href: "/debt/child-support/", label: "Child Support", key: "child-support", icon: "document" },
+  { href: "/debt/oop-max-calculator/", label: "OOP Max", key: "oop-max", icon: "shield" },
+  { href: "/debt/hsa-vs-fsa/", label: "HSA vs FSA", key: "hsa-vs-fsa", icon: "coins" },
+  { href: "/debt/medical-payment-plan/", label: "Medical Bill Plan", key: "medical-payment", icon: "document" },
   { href: "/debt/guides/", label: "Guides", key: "guides", icon: "document" },
 ] as const;
 ---

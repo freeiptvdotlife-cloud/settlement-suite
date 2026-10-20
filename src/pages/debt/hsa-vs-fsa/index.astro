@@ -1,0 +1,285 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import AdSlot from '../../../components/AdSlot.astro';
+import ExportBar from '../../../components/ExportBar.astro';
+import Icon from '../../../components/Icon.astro';
+
+---
+
+<BaseLayout
+  title="HSA vs FSA Calculator — Compare Tax Savings Side by Side"
+  description="Free HSA vs FSA comparison calculator. Enter your income, tax bracket and expected healthcare spending to see which account saves you more money in 2025."
+  active="hsa-vs-fsa"
+  disclaimerLead="Not tax or financial advice."
+>
+  <section class="hero">
+    <h1><Icon name="coins" size={26} /> HSA vs FSA Calculator</h1>
+    <p class="subtitle">
+      Compare the tax savings from a Health Savings Account (HSA) and a Flexible Spending
+      Account (FSA) based on your income, tax bracket and expected medical spending.
+      Free, instant, no data stored.
+    </p>
+  </section>
+
+  <p class="guide-link">
+    <a href="/debt/oop-max-calculator/">← Out-of-pocket maximum calculator</a>
+  </p>
+
+  <div class="grid-layout">
+    <form id="hsa-form" class="card" aria-label="HSA vs FSA inputs" novalidate>
+
+      <div class="field">
+        <label class="field-label" for="plan-type">Coverage type</label>
+        <select id="plan-type">
+          <option value="individual">Self-only</option>
+          <option value="family">Family</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="federal-bracket">
+          Federal income tax bracket (%)
+        </label>
+        <select id="federal-bracket">
+          <option value="10">10%</option>
+          <option value="12">12%</option>
+          <option value="22" selected>22%</option>
+          <option value="24">24%</option>
+          <option value="32">32%</option>
+          <option value="35">35%</option>
+          <option value="37">37%</option>
+        </select>
+        <p class="field-hint">Your marginal federal rate. For 2025: single filers reach 22% at $47,150; MFJ at $94,300.</p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="state-rate">
+          State income tax rate (%)
+        </label>
+        <input id="state-rate" type="number" min="0" max="15" step="0.1" value="5" />
+        <p class="field-hint">Enter 0 if your state has no income tax (TX, FL, WA, NV, AK, SD, WY, TN, NH).</p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="hsa-contrib">
+          <Icon name="currency" size={16} /> HSA contribution amount ($)
+        </label>
+        <input id="hsa-contrib" type="number" min="0" step="100" value="3000" />
+        <p class="field-hint">2025 max: $4,300 (self-only) / $8,550 (family). Catch-up +$1,000 if age 55+. Requires an HDHP.</p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="fsa-contrib">
+          <Icon name="currency" size={16} /> FSA contribution amount ($)
+        </label>
+        <input id="fsa-contrib" type="number" min="0" step="100" value="2000" />
+        <p class="field-hint">2025 max: $3,200. Use-it-or-lose-it with up to $660 carryover (if your employer allows it). No HDHP required.</p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="expected-spending">
+          Expected annual medical spending ($)
+        </label>
+        <input id="expected-spending" type="number" min="0" step="100" value="2500" />
+        <p class="field-hint">Out-of-pocket expenses you'll pay: prescriptions, copays, dental, vision, procedures. Does not include premiums.</p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="investment-return">
+          Expected HSA investment return (% per year)
+        </label>
+        <input id="investment-return" type="number" min="0" max="20" step="0.5" value="5" />
+        <p class="field-hint">HSA balances can be invested (like a 401k) once past your plan's threshold (often $1,000). Enter 0 to ignore growth.</p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="years">
+          Years of contributions to project
+        </label>
+        <input id="years" type="number" min="1" max="30" step="1" value="10" />
+      </div>
+
+      <button type="submit" class="btn-primary">Compare accounts</button>
+    </form>
+
+    <div class="card result-card" id="hsa-result" role="status" aria-live="polite">
+      <h2>Comparison</h2>
+      <div class="metric-grid" id="hsa-metrics">
+        <div class="metric-card metric-card--accent">
+          <span class="metric-label">HSA annual tax savings</span>
+          <span class="metric-value metric-value--lg">—</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">FSA annual tax savings</span>
+          <span class="metric-value">—</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Recommendation</span>
+          <span class="metric-value">—</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ExportBar />
+
+  <AdSlot label="Advertisement" minHeight={250} />
+
+  <section class="card prose">
+    <h2>HSA vs FSA: key differences</h2>
+    <div style="overflow-x:auto;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th></th>
+            <th>HSA</th>
+            <th>FSA</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Requires HDHP</td><td>Yes</td><td>No</td></tr>
+          <tr><td>2025 contribution limit (self-only)</td><td>$4,300</td><td>$3,200</td></tr>
+          <tr><td>2025 contribution limit (family)</td><td>$8,550</td><td>$3,200 (per person)</td></tr>
+          <tr><td>Rolls over unused balance</td><td>Yes — indefinitely</td><td>No (up to $660 carryover)</td></tr>
+          <tr><td>Portable if you change jobs</td><td>Yes</td><td>No</td></tr>
+          <tr><td>Investable</td><td>Yes</td><td>No</td></tr>
+          <tr><td>Tax on contributions</td><td>Pre-tax (payroll) or deductible (IRA-style)</td><td>Pre-tax payroll only</td></tr>
+          <tr><td>Tax on earnings</td><td>Tax-free</td><td>N/A (no investment)</td></tr>
+          <tr><td>Tax on qualified withdrawals</td><td>Tax-free</td><td>Tax-free</td></tr>
+          <tr><td>Non-medical withdrawals after age 65</td><td>Taxed as ordinary income (like 401k)</td><td>Not allowed</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Frequently asked questions</h2>
+
+    <details>
+      <summary>What is an HDHP and do I qualify for an HSA?</summary>
+      <p>A High Deductible Health Plan (HDHP) has a minimum deductible of $1,650 (individual) / $3,300 (family) in 2025. If your plan meets that threshold AND the OOP maximum does not exceed $8,300 / $16,600, you are HSA-eligible while enrolled. You cannot contribute to an HSA if you are covered by Medicare, enrolled in a non-HDHP plan, or claimed as a dependent on someone else's taxes. Check your plan's Summary of Benefits or call your insurer to confirm HDHP status.</p>
+    </details>
+
+    <details>
+      <summary>What can HSA / FSA funds pay for?</summary>
+      <p>Both accounts cover the same IRS-defined qualified medical expenses: deductibles, copays, coinsurance, prescriptions, dental and orthodontia, vision (glasses, contacts, LASIK), mental health visits, and hundreds of other items listed in IRS Publication 502. Over-the-counter medications became eligible without a prescription after the CARES Act (2020). Premiums are generally not eligible, with a few exceptions (COBRA, long-term care, Medicare after 65).</p>
+    </details>
+
+    <details>
+      <summary>Can I have both an HSA and an FSA?</summary>
+      <p>Not a standard FSA — enrolling in a general-purpose FSA disqualifies you from contributing to an HSA. However, a <em>Limited-Purpose FSA</em> (for dental and vision only) is compatible with an HSA. Some employers also offer a Dependent Care FSA for childcare costs, which is always compatible with an HSA. Ask your HR team what FSA types your employer offers.</p>
+    </details>
+
+    <details>
+      <summary>What happens to my FSA balance if I don't use it?</summary>
+      <p>You lose it — unless your employer offers a grace period (2.5 months to spend after year-end) or a carryover of up to $660 into the next plan year. Employers can offer one or the other, not both. Check your plan documents before year-end to avoid forfeiting unspent FSA funds. An HSA has no such risk: your balance rolls over forever.</p>
+    </details>
+
+    <details>
+      <summary>Why is the HSA called "triple tax advantaged"?</summary>
+      <p>The HSA offers three tax benefits no other account matches: (1) contributions are pre-tax or deductible, reducing your taxable income; (2) earnings and investment gains grow tax-free; (3) withdrawals for qualified medical expenses are tax-free. A 401(k) is only double tax-advantaged (contributions are pre-tax; withdrawals are taxed). After age 65 you can use HSA funds for any expense, paying only ordinary income tax — making it effectively a second retirement account.</p>
+    </details>
+  </section>
+
+  <Fragment slot="disclaimer">
+    This calculator estimates tax savings using the contribution amounts and tax rates you enter.
+    Actual tax impact depends on your full tax situation. HSA eligibility requires enrollment in
+    a qualifying HDHP. Consult a tax professional before making contribution decisions.
+  </Fragment>
+
+  <style>
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+      margin: 0.75rem 0;
+    }
+    .data-table th, .data-table td {
+      padding: 0.5rem 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .data-table th { font-weight: 600; background: var(--surface-alt); }
+    .prose details { border: 1px solid var(--border); border-radius: 8px; padding: 0 16px; margin: 8px 0; }
+    .prose details[open] { border-color: var(--accent); }
+    .prose summary { display: flex; align-items: center; justify-content: space-between; min-height: 46px; cursor: pointer; font-weight: 600; font-size: 0.925rem; list-style: none; padding: 2px 0; }
+    .prose summary::-webkit-details-marker { display: none; }
+    .prose summary::after { content: "+"; font-size: 1.1rem; color: var(--text-muted); flex-shrink: 0; margin-left: 12px; }
+    .prose details[open] summary::after { content: "−"; }
+    .prose details > p { margin-bottom: 14px; font-size: 0.9rem; line-height: 1.65; }
+  </style>
+</BaseLayout>
+
+<script>
+  const form = document.getElementById('hsa-form') as HTMLFormElement;
+  const metricsEl = document.getElementById('hsa-metrics') as HTMLDivElement;
+
+  const HSA_LIMITS: Record<string, number> = { individual: 4_300, family: 8_550 };
+  const FSA_MAX = 3_200;
+  const FSA_CARRYOVER = 660;
+
+  function fmt(n: number): string {
+    return n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+  }
+
+  function metricCard(label: string, value: string, accent = false, note = ''): string {
+    return `<div class="metric-card${accent ? ' metric-card--accent' : ''}">
+      <span class="metric-label">${label}</span>
+      <span class="metric-value${accent ? ' metric-value--lg' : ''}">${value}</span>
+      ${note ? `<span class="metric-label" style="font-size:0.75rem;margin-top:0.25rem;">${note}</span>` : ''}
+    </div>`;
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const planType = (document.getElementById('plan-type') as HTMLSelectElement).value;
+    const federalRate = parseFloat((document.getElementById('federal-bracket') as HTMLSelectElement).value) / 100;
+    const stateRate = Math.max(0, parseFloat((document.getElementById('state-rate') as HTMLInputElement).value) || 0) / 100;
+    const hsaContrib = Math.min(Math.max(0, parseFloat((document.getElementById('hsa-contrib') as HTMLInputElement).value) || 0), HSA_LIMITS[planType] ?? 4_300);
+    const fsaContrib = Math.min(Math.max(0, parseFloat((document.getElementById('fsa-contrib') as HTMLInputElement).value) || 0), FSA_MAX);
+    const spending = Math.max(0, parseFloat((document.getElementById('expected-spending') as HTMLInputElement).value) || 0);
+    const investReturn = Math.max(0, parseFloat((document.getElementById('investment-return') as HTMLInputElement).value) || 0) / 100;
+    const years = Math.max(1, parseInt((document.getElementById('years') as HTMLInputElement).value) || 1);
+
+    const totalRate = federalRate + stateRate + 0.0765; // FICA (payroll deduction saves FICA too)
+
+    // Annual tax savings (contribution × marginal rate)
+    const hsaTaxSavings = hsaContrib * totalRate;
+    const fsaTaxSavings = fsaContrib * totalRate;
+
+    // FSA: forfeiture risk if you don't spend it all
+    const fsaUsed = Math.min(spending, fsaContrib);
+    const fsaForfeited = Math.max(0, fsaContrib - fsaUsed - FSA_CARRYOVER);
+
+    // HSA: unused balance rolls over and compounds
+    const hsaUsedAnnually = Math.min(spending, hsaContrib);
+    const hsaRolloverAnnual = hsaContrib - hsaUsedAnnually;
+
+    // Project HSA balance over N years
+    let hsaBalance = 0;
+    for (let y = 0; y < years; y++) {
+      hsaBalance = (hsaBalance + hsaRolloverAnnual) * (1 + investReturn);
+    }
+    const hsaTaxFreeGrowth = hsaBalance - hsaRolloverAnnual * years;
+
+    // Determine recommendation
+    let rec = '';
+    if (hsaContrib > 0 && fsaContrib > 0) {
+      rec = 'Use HSA for long-term savings + limited-purpose FSA for dental/vision';
+    } else if (hsaContrib >= fsaContrib) {
+      rec = 'HSA — higher limit, rolls over, investable';
+    } else {
+      rec = 'FSA — if no HDHP access, FSA is your only option';
+    }
+
+    metricsEl.innerHTML = [
+      metricCard('HSA annual tax savings', fmt(hsaTaxSavings), true,
+        `On $${Math.round(hsaContrib).toLocaleString()} contribution — incl. FICA`),
+      metricCard('FSA annual tax savings', fmt(fsaTaxSavings), false,
+        fsaForfeited > 0 ? `⚠ ~${fmt(fsaForfeited)} may be forfeited if unspent` : `Full $${fsaContrib.toLocaleString()} used`),
+      metricCard('HSA projected balance in ' + years + ' yrs', fmt(hsaBalance), false,
+        investReturn > 0 ? `${fmt(hsaTaxFreeGrowth)} in tax-free growth` : 'No investment return assumed'),
+      metricCard('HSA contribution limit (2025)', fmt(HSA_LIMITS[planType] ?? 4_300), false,
+        planType === 'family' ? 'Family coverage' : 'Self-only coverage'),
+      metricCard('Recommendation', rec),
+    ].join('');
+  });
+</script>

@@ -1,0 +1,234 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import AdSlot from '../../../components/AdSlot.astro';
+import ExportBar from '../../../components/ExportBar.astro';
+import Icon from '../../../components/Icon.astro';
+
+const OOP_LIMIT_INDIVIDUAL = 9_450;
+const OOP_LIMIT_FAMILY = 18_900;
+---
+
+<BaseLayout
+  title="Out-of-Pocket Maximum Calculator — Estimate Your Annual Healthcare Cost"
+  description="Free out-of-pocket maximum calculator. Enter your deductible, copays and coinsurance rate to see how much you could owe before your insurance covers 100%."
+  active="oop-max"
+  disclaimerLead="Not medical or financial advice."
+>
+  <section class="hero">
+    <h1><Icon name="shield" size={26} /> Out-of-Pocket Maximum Calculator</h1>
+    <p class="subtitle">
+      Estimate how much you could pay in a plan year before your health insurance
+      covers 100% of covered services. Free, instant, no data stored.
+    </p>
+  </section>
+
+  <p class="guide-link">
+    <a href="/debt/hsa-vs-fsa/">← Compare HSA vs FSA tax savings</a>
+  </p>
+
+  <div class="grid-layout">
+    <form id="oop-form" class="card" aria-label="OOP max inputs" novalidate>
+
+      <div class="field">
+        <label class="field-label" for="plan-type">Plan type</label>
+        <select id="plan-type">
+          <option value="individual">Individual coverage</option>
+          <option value="family">Family coverage</option>
+        </select>
+        <p class="field-hint">Determines the 2025 ACA OOP maximum limit: $9,450 (individual) or $18,900 (family).</p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="deductible">
+          <Icon name="currency" size={16} /> Annual deductible ($)
+        </label>
+        <input id="deductible" type="number" min="0" step="50" value="1500" required />
+        <p class="field-hint">The amount you pay in full before insurance starts paying. Check your Summary of Benefits and Coverage (SBC).</p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="coinsurance">
+          Coinsurance (your share after deductible, %)
+        </label>
+        <input id="coinsurance" type="number" min="0" max="100" step="5" value="20" required />
+        <p class="field-hint">Common coinsurance rates: 80/20 → enter 20. 70/30 → enter 30. After your deductible, you pay this % of covered costs until you hit the OOP max.</p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="copay-visits">
+          Primary care copay ($ per visit)
+        </label>
+        <input id="copay-visits" type="number" min="0" step="5" value="30" />
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="specialist-copay">
+          Specialist copay ($ per visit)
+        </label>
+        <input id="specialist-copay" type="number" min="0" step="5" value="60" />
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="estimated-bills">
+          <Icon name="currency" size={16} /> Estimated covered medical bills this year ($)
+        </label>
+        <input id="estimated-bills" type="number" min="0" step="500" value="8000" required />
+        <p class="field-hint">Total billed by in-network providers before insurance adjustments. Use last year's EOBs as a guide, or estimate conservatively for a worst-case view.</p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="pcp-visits">
+          Expected primary care visits
+        </label>
+        <input id="pcp-visits" type="number" min="0" max="52" step="1" value="4" />
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="specialist-visits">
+          Expected specialist visits
+        </label>
+        <input id="specialist-visits" type="number" min="0" max="52" step="1" value="2" />
+      </div>
+
+      <button type="submit" class="btn-primary">Calculate my OOP cost</button>
+    </form>
+
+    <div class="card result-card" id="oop-result" role="status" aria-live="polite">
+      <h2>Cost Estimate</h2>
+      <div class="metric-grid" id="oop-metrics">
+        <div class="metric-card metric-card--accent">
+          <span class="metric-label">Estimated annual OOP cost</span>
+          <span class="metric-value metric-value--lg">—</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Distance to OOP maximum</span>
+          <span class="metric-value">—</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">2025 OOP maximum</span>
+          <span class="metric-value">{OOP_LIMIT_INDIVIDUAL.toLocaleString('en-US', {style:'currency',currency:'USD',maximumFractionDigits:0})} / {OOP_LIMIT_FAMILY.toLocaleString('en-US', {style:'currency',currency:'USD',maximumFractionDigits:0})}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ExportBar />
+
+  <AdSlot label="Advertisement" minHeight={250} />
+
+  <section class="card prose">
+    <h2>How the out-of-pocket maximum works</h2>
+    <p>
+      The out-of-pocket maximum (OOP max) is the most you will pay in a plan year for covered in-network services.
+      Once you hit it, your insurance pays 100% of covered costs for the rest of the year.
+      The ACA sets a federal ceiling on OOP maxes each year — in 2025, that ceiling is
+      <strong>$9,450 for individual coverage</strong> and <strong>$18,900 for family coverage</strong>.
+      Your plan's actual OOP max may be lower than the federal ceiling but cannot be higher.
+    </p>
+    <p>Your spending counts toward the OOP max in this order:</p>
+    <ol>
+      <li><strong>Deductible</strong> — you pay 100% of covered costs until you reach your deductible.</li>
+      <li><strong>Coinsurance</strong> — after the deductible, you pay your coinsurance share (e.g., 20%) of covered costs.</li>
+      <li><strong>Copays</strong> — fixed-dollar amounts per visit. Whether copays count toward the OOP max depends on your plan; many plans count them.</li>
+      <li><strong>OOP max hit</strong> — once your total paid equals your OOP max, the insurer pays 100% for covered services.</li>
+    </ol>
+
+    <h2>What does NOT count toward your OOP max</h2>
+    <ul>
+      <li>Monthly premiums — these are never counted.</li>
+      <li>Out-of-network care (unless your plan has combined in/out-of-network tracking).</li>
+      <li>Non-covered services (cosmetic procedures, dental, vision on medical plans, etc.).</li>
+      <li>Amounts above the allowed charge — if your provider bills $500 and the insurer allows $300, only $300 counts.</li>
+    </ul>
+
+    <h2>Frequently asked questions</h2>
+
+    <details>
+      <summary>What is the 2025 OOP maximum?</summary>
+      <p>The 2025 ACA out-of-pocket maximum is $9,450 for self-only (individual) coverage and $18,900 for family coverage. This is the federal ceiling; your plan may have a lower OOP max. High-deductible health plans (HDHPs) have a separate OOP max that qualifies for HSA pairing — $8,300 individual / $16,600 family in 2025.</p>
+    </details>
+
+    <details>
+      <summary>Does my deductible count toward the OOP max?</summary>
+      <p>Yes. Your deductible is part of your out-of-pocket costs and counts toward the OOP max. If your deductible is $2,000 and your OOP max is $5,000, you only need to pay $3,000 more in coinsurance and copays after meeting the deductible before coverage becomes 100%.</p>
+    </details>
+
+    <details>
+      <summary>Do copays count toward the OOP max?</summary>
+      <p>On most ACA-compliant plans, copays count toward the OOP max. However, some employer plans and grandfathered plans may not count copays. Check your Summary of Benefits and Coverage (SBC) document — it must disclose this. If you have a lot of routine visits, it is worth confirming your copays accumulate.</p>
+    </details>
+
+    <details>
+      <summary>How does the family OOP max work?</summary>
+      <p>Family plans typically have two limits: an individual embedded limit and a family-level limit. An individual within the family plan cannot be made to pay more than the individual embedded limit (e.g., $9,450) before that person's costs are covered 100%, even if the family total has not hit the family limit. This protects high-utilization members within a family.</p>
+    </details>
+
+    <details>
+      <summary>Can an HSA reduce what I pay out of pocket?</summary>
+      <p>Yes. If you are on an HDHP, you can contribute to an HSA tax-free and use those funds to pay your deductible, coinsurance and copays. This effectively reduces your after-tax OOP cost without changing the OOP max dollar amount. See the <a href="/debt/hsa-vs-fsa/">HSA vs FSA comparison calculator</a> for a tax-savings breakdown.</p>
+    </details>
+  </section>
+
+  <Fragment slot="disclaimer">
+    This calculator estimates your annual out-of-pocket healthcare cost based on the inputs you provide.
+    Actual costs depend on your specific plan's deductible, copay structure, network, and how your
+    insurer applies benefits. Check your plan's Summary of Benefits and Coverage for exact terms.
+  </Fragment>
+</BaseLayout>
+
+<script>
+  const form = document.getElementById('oop-form') as HTMLFormElement;
+  const metricsEl = document.getElementById('oop-metrics') as HTMLDivElement;
+
+  const OOP_LIMITS: Record<string, number> = { individual: 9_450, family: 18_900 };
+
+  function fmt(n: number): string {
+    return n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+  }
+
+  function metricCard(label: string, value: string, accent = false, note = ''): string {
+    return `<div class="metric-card${accent ? ' metric-card--accent' : ''}">
+      <span class="metric-label">${label}</span>
+      <span class="metric-value${accent ? ' metric-value--lg' : ''}">${value}</span>
+      ${note ? `<span class="metric-label" style="font-size:0.75rem;margin-top:0.25rem;">${note}</span>` : ''}
+    </div>`;
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const planType = (document.getElementById('plan-type') as HTMLSelectElement).value;
+    const deductible = Math.max(0, parseFloat((document.getElementById('deductible') as HTMLInputElement).value) || 0);
+    const coinsurance = Math.max(0, Math.min(100, parseFloat((document.getElementById('coinsurance') as HTMLInputElement).value) || 0)) / 100;
+    const copayVisits = Math.max(0, parseFloat((document.getElementById('copay-visits') as HTMLInputElement).value) || 0);
+    const specialistCopay = Math.max(0, parseFloat((document.getElementById('specialist-copay') as HTMLInputElement).value) || 0);
+    const estimatedBills = Math.max(0, parseFloat((document.getElementById('estimated-bills') as HTMLInputElement).value) || 0);
+    const pcpVisits = Math.max(0, parseFloat((document.getElementById('pcp-visits') as HTMLInputElement).value) || 0);
+    const specialistVisits = Math.max(0, parseFloat((document.getElementById('specialist-visits') as HTMLInputElement).value) || 0);
+
+    const oopMax = OOP_LIMITS[planType] ?? 9_450;
+
+    // Phase 1: deductible
+    const deductiblePaid = Math.min(estimatedBills, deductible);
+    const billsAfterDeductible = Math.max(0, estimatedBills - deductible);
+
+    // Phase 2: coinsurance on remaining bills
+    const coinsurancePaid = billsAfterDeductible * coinsurance;
+
+    // Copays (counted toward OOP max on most ACA plans)
+    const copayTotal = pcpVisits * copayVisits + specialistVisits * specialistCopay;
+
+    const rawOop = deductiblePaid + coinsurancePaid + copayTotal;
+    const actualOop = Math.min(rawOop, oopMax);
+    const distanceToMax = Math.max(0, oopMax - actualOop);
+    const hitMax = actualOop >= oopMax;
+
+    metricsEl.innerHTML = [
+      metricCard('Estimated annual out-of-pocket cost', fmt(actualOop), true,
+        hitMax ? 'You hit the OOP maximum — insurance covers 100% after this point.' : `$${Math.round(distanceToMax).toLocaleString()} below the OOP maximum`),
+      metricCard('Deductible paid', fmt(deductiblePaid)),
+      metricCard('Coinsurance paid (after deductible)', fmt(coinsurancePaid)),
+      metricCard('Copays (visits)', fmt(copayTotal)),
+      metricCard('2025 OOP maximum', fmt(oopMax), false, `${planType === 'family' ? 'Family' : 'Individual'} coverage limit`),
+    ].join('');
+  });
+</script>

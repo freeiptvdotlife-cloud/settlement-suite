@@ -1,0 +1,379 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import AdSlot from '../../../components/AdSlot.astro';
+import ExportBar from '../../../components/ExportBar.astro';
+import Icon from '../../../components/Icon.astro';
+---
+
+<BaseLayout
+  title="Alimony Buyout Calculator — Lump-Sum Present Value of Spousal Support"
+  description="Free alimony buyout calculator. Enter your monthly support payments, years remaining, and a discount rate to see the fair lump-sum equivalent — instantly, with no signup."
+  active="alimony-buyout"
+  disclaimerLead="Not legal advice."
+>
+  <section class="hero">
+    <h1><Icon name="scale" size={26} /> Alimony Buyout Calculator</h1>
+    <p class="subtitle">
+      Find the present value of a future alimony stream — the lump sum that is
+      mathematically equivalent to your scheduled payments at a given discount rate.
+      Use it before negotiating or evaluating a buyout offer.
+    </p>
+  </section>
+
+  <p class="guide-link"><a href="/family-law/alimony-calculator/">← Alimony by state</a></p>
+
+  <div class="grid-layout">
+    <form id="buyout-form" class="card" aria-label="Alimony buyout inputs" novalidate>
+      <div class="field">
+        <label class="field-label" for="monthly-payment">
+          <Icon name="currency" size={16} /> Monthly payment ($)
+        </label>
+        <input id="monthly-payment" type="number" min="0" step="1" value="2000" required />
+        <p class="field-hint">The court-ordered or agreed monthly spousal support amount.</p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="years-remaining">
+          <Icon name="clock" size={16} /> Years remaining
+        </label>
+        <input id="years-remaining" type="number" min="0.5" max="50" step="0.5" value="10" required />
+        <p class="field-hint">How many years of payments are still owed. Use decimals for partial years (e.g. 7.5).</p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="discount-rate">
+          Discount rate: <span id="rate-display">5.0%</span>
+        </label>
+        <input
+          id="discount-rate"
+          type="range"
+          min="1"
+          max="12"
+          step="0.25"
+          value="5"
+          aria-valuemin="1"
+          aria-valuemax="12"
+          aria-valuenow="5"
+        />
+        <div class="rate-labels" aria-hidden="true">
+          <span>1% Conservative</span>
+          <span>6% Mid</span>
+          <span>12% High</span>
+        </div>
+        <p class="field-hint">The annual return the recipient could earn by investing a lump sum. Use a conservative rate (4–6%) for a stable, defensible estimate. Courts often use prevailing Treasury or bond rates.</p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="attorney-fee">
+          Attorney / transaction fee (%): <span id="fee-display">0%</span>
+        </label>
+        <input
+          id="attorney-fee"
+          type="range"
+          min="0"
+          max="15"
+          step="0.5"
+          value="0"
+        />
+        <p class="field-hint">Optional. If a mediator or attorney charges a fee to broker the buyout, enter it here to see the net amount after fees.</p>
+      </div>
+
+      <button type="submit" class="btn-primary">Calculate buyout value</button>
+    </form>
+
+    <div class="card result-card" id="buyout-result" role="status" aria-live="polite">
+      <h2>Buyout Summary</h2>
+      <div class="metric-grid" id="buyout-metrics">
+        <div class="metric-card metric-card--accent">
+          <span class="metric-label">Status</span>
+          <span class="metric-value metric-value--lg">Enter your details</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="implied-rate-tool">
+    <h2>Evaluate an Offer</h2>
+    <p class="card-note">
+      Already have a specific lump-sum offer? Enter it below — using the same payment and years
+      above — and we'll back-calculate the discount rate the offer implies. A higher implied rate
+      means the buyer is getting a better deal at your expense.
+    </p>
+    <div class="field">
+      <label class="field-label" for="offer-amount"><Icon name="currency" size={16} /> Lump-sum offer amount ($)</label>
+      <input id="offer-amount" type="number" min="0" step="100" placeholder="e.g. 180,000" />
+    </div>
+    <div class="metric-grid">
+      <div class="metric-card metric-card--accent" id="implied-rate-card" style="display:none;">
+        <span class="metric-label">Implied discount rate</span>
+        <span class="metric-value metric-value--lg" id="stat-implied-rate">—</span>
+      </div>
+      <div class="metric-card" id="implied-pct-card" style="display:none;">
+        <span class="metric-label">Offer as % of nominal total</span>
+        <span class="metric-value" id="stat-offer-pct">—</span>
+      </div>
+      <div class="metric-card" id="implied-verdict-card" style="display:none;">
+        <span class="metric-label">vs. fair value at your rate</span>
+        <span class="metric-value" id="stat-verdict">—</span>
+      </div>
+    </div>
+  </div>
+
+  <ExportBar />
+
+  <AdSlot label="Advertisement" minHeight={250} />
+
+  <section class="card prose">
+    <h2>How alimony buyouts work</h2>
+    <p>
+      A lump-sum alimony buyout (also called a spousal support commutation) replaces a stream of
+      future monthly payments with a single, immediate payment. Both parties may prefer this:
+      the payor eliminates ongoing obligations and the risk of a modification hearing; the recipient
+      gets certainty, liquidity, and no enforcement exposure.
+    </p>
+    <p>
+      The fair value of a buyout is the <strong>present value</strong> of the future payment stream —
+      the amount of money that, invested today at a reasonable rate of return, would exactly fund all
+      the scheduled payments. This calculator uses the standard annuity present-value formula:
+    </p>
+    <p class="formula-block">
+      PV = PMT × [ 1 − (1 + r)⁻ⁿ ] / r
+    </p>
+    <p>
+      Where PMT is the monthly payment, r is the monthly discount rate (annual rate ÷ 12), and n is
+      the total number of monthly payments. The result is the lump sum at which neither party gains
+      or loses in purely financial terms.
+    </p>
+
+    <h2>Frequently asked questions</h2>
+
+    <details>
+      <summary>What discount rate should I use?</summary>
+      <p>
+        The discount rate reflects the annual return the recipient could earn on a lump sum invested
+        at comparable risk. Courts often anchor to prevailing Treasury note yields or investment-grade
+        bond rates — typically 4–6% in recent years. A higher rate produces a smaller present value
+        (benefiting the payor); a lower rate produces a larger present value (benefiting the recipient).
+        Both parties should agree on the rate before presenting a figure; if you can't agree, use the
+        current 10-year Treasury yield as a neutral starting point.
+      </p>
+    </details>
+
+    <details>
+      <summary>Does a buyout release the payor from all future obligations?</summary>
+      <p>
+        Only if the court approves it as a full commutation and issues a modified order. An informal
+        agreement between the parties is not self-executing — the payor needs a court order to
+        actually terminate the alimony obligation. In most states, alimony can be modified or
+        terminated by the court on changed circumstances regardless of a private agreement, so a
+        court-approved lump-sum order is the only way to achieve finality.
+      </p>
+    </details>
+
+    <details>
+      <summary>How is a lump-sum buyout taxed?</summary>
+      <p>
+        Under the Tax Cuts and Jobs Act (TCJA), for divorce agreements executed after December 31,
+        2018, alimony payments (periodic or lump sum) are neither deductible by the payor nor
+        includible in the recipient's income. For pre-2019 agreements that haven't been modified
+        to adopt the new rules, periodic payments may still be deductible/includible, but lump-sum
+        buyouts are treated differently — consult a tax attorney or CPA before finalizing any
+        pre-2019 modification that converts periodic to lump-sum.
+      </p>
+    </details>
+
+    <details>
+      <summary>Can I use this for other recurring payment streams?</summary>
+      <p>
+        Yes — the present-value math is identical for any level, fixed-term payment stream: pension
+        buyouts, child support buyouts (less common), or any court-ordered annuity. Use the
+        <a href="/settlement/annuity-value-solver/">annuity value solver</a> for non-monthly
+        frequencies or irregular payment schedules.
+      </p>
+    </details>
+
+    <details>
+      <summary>What happens if alimony is modified before the term ends?</summary>
+      <p>
+        Modifiable alimony introduces uncertainty that reduces the present value of the stream — the
+        payor could theoretically petition for reduction on changed circumstances (loss of income,
+        recipient's cohabitation, etc.) before the term expires. A lump-sum buyout eliminates this
+        risk for the recipient. If you are the recipient, factor in modification risk when deciding
+        whether to accept a buyout: in volatile income situations, locking in today's value may be
+        worth accepting a slight discount to fair value.
+      </p>
+    </details>
+  </section>
+
+  <Fragment slot="disclaimer">
+    Results are mathematical estimates based on the inputs you enter. They are not a legal valuation
+    or a court-approved buyout figure. Actual buyout amounts depend on negotiation, judicial approval,
+    and state law. Consult a licensed family law attorney before entering into any alimony buyout
+    agreement.
+  </Fragment>
+
+  <style>
+    .rate-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-dim, #9ca3af);
+      margin-top: 4px;
+    }
+    .card-note {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin: 0 0 1rem;
+      line-height: 1.55;
+    }
+    .formula-block {
+      font-family: monospace;
+      background: var(--surface-alt);
+      border: 1px solid var(--border-soft);
+      border-radius: 6px;
+      padding: 0.6rem 1rem;
+      font-size: 0.95rem;
+      margin: 0.5rem 0 1rem;
+    }
+    .prose details {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0 16px;
+      margin: 8px 0;
+    }
+    .prose details[open] { border-color: var(--accent); }
+    .prose summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 46px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.925rem;
+      list-style: none;
+      padding: 2px 0;
+    }
+    .prose summary::-webkit-details-marker { display: none; }
+    .prose summary::after { content: "+"; font-size: 1.1rem; color: var(--text-muted); flex-shrink: 0; margin-left: 12px; }
+    .prose details[open] summary::after { content: "−"; }
+    .prose details > p { margin-bottom: 14px; font-size: 0.9rem; line-height: 1.65; }
+  </style>
+</BaseLayout>
+
+<script>
+  const form = document.getElementById("buyout-form") as HTMLFormElement;
+  const metricsEl = document.getElementById("buyout-metrics") as HTMLDivElement;
+  const rateInput = document.getElementById("discount-rate") as HTMLInputElement;
+  const rateDisplay = document.getElementById("rate-display") as HTMLSpanElement;
+  const feeInput = document.getElementById("attorney-fee") as HTMLInputElement;
+  const feeDisplay = document.getElementById("fee-display") as HTMLSpanElement;
+  const offerInput = document.getElementById("offer-amount") as HTMLInputElement;
+
+  const impliedRateCard = document.getElementById("implied-rate-card") as HTMLDivElement;
+  const impliedPctCard = document.getElementById("implied-pct-card") as HTMLDivElement;
+  const impliedVerdictCard = document.getElementById("implied-verdict-card") as HTMLDivElement;
+  const statImpliedRate = document.getElementById("stat-implied-rate") as HTMLSpanElement;
+  const statOfferPct = document.getElementById("stat-offer-pct") as HTMLSpanElement;
+  const statVerdict = document.getElementById("stat-verdict") as HTMLSpanElement;
+
+  function fmt(n: number): string {
+    return n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+  }
+  function fmtPct(n: number): string {
+    return n.toFixed(2) + "%";
+  }
+
+  function pvAnnuity(pmt: number, annualRate: number, months: number): number {
+    if (annualRate === 0) return pmt * months;
+    const r = annualRate / 100 / 12;
+    return pmt * (1 - Math.pow(1 + r, -months)) / r;
+  }
+
+  function impliedAnnualRate(pv: number, pmt: number, months: number): number {
+    if (pmt <= 0 || months <= 0) return 0;
+    if (pv >= pmt * months) return 0;
+    let lo = 0, hi = 5;
+    for (let i = 0; i < 60; i++) {
+      const mid = (lo + hi) / 2;
+      const calc = pvAnnuity(pmt, mid * 100, months);
+      if (calc > pv) lo = mid; else hi = mid;
+    }
+    return ((lo + hi) / 2) * 100;
+  }
+
+  function metricCard(label: string, value: string, accent = false, note = ""): string {
+    return `<div class="metric-card${accent ? " metric-card--accent" : ""}">
+      <span class="metric-label">${label}</span>
+      <span class="metric-value${accent ? " metric-value--lg" : ""}">${value}</span>
+      ${note ? `<span class="metric-label" style="font-size:0.75rem;margin-top:0.25rem;">${note}</span>` : ""}
+    </div>`;
+  }
+
+  rateInput.addEventListener("input", () => {
+    rateDisplay.textContent = parseFloat(rateInput.value).toFixed(2) + "%";
+    rateInput.setAttribute("aria-valuenow", rateInput.value);
+  });
+
+  feeInput.addEventListener("input", () => {
+    feeDisplay.textContent = parseFloat(feeInput.value).toFixed(1) + "%";
+  });
+
+  let lastPmt = 0, lastMonths = 0;
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const pmt = Math.max(0, parseFloat((document.getElementById("monthly-payment") as HTMLInputElement).value) || 0);
+    const years = Math.max(0, parseFloat((document.getElementById("years-remaining") as HTMLInputElement).value) || 0);
+    const annualRate = parseFloat(rateInput.value) || 5;
+    const feePct = parseFloat(feeInput.value) || 0;
+
+    const months = Math.round(years * 12);
+    lastPmt = pmt;
+    lastMonths = months;
+
+    const nominal = pmt * months;
+    const pv = pvAnnuity(pmt, annualRate, months);
+    const net = pv * (1 - feePct / 100);
+    const discount = nominal - pv;
+    const discountPct = nominal > 0 ? (discount / nominal) * 100 : 0;
+
+    metricsEl.innerHTML = [
+      metricCard("Fair lump-sum value", fmt(pv), true, `At ${annualRate.toFixed(2)}% annual discount rate`),
+      ...(feePct > 0 ? [metricCard("Net after fees", fmt(net), false, `−${feePct.toFixed(1)}% fee`)] : []),
+      metricCard("Total nominal payments", fmt(nominal), false, `${pmt.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })}/mo × ${months} months`),
+      metricCard("Time-value discount", fmt(discount), false, `${discountPct.toFixed(1)}% of nominal — what accepting a lump sum costs vs waiting`),
+    ].join("");
+
+    updateOfferAnalysis();
+  });
+
+  function updateOfferAnalysis(): void {
+    const offerVal = parseFloat(offerInput.value);
+    if (!isFinite(offerVal) || offerVal <= 0 || lastPmt <= 0 || lastMonths <= 0) {
+      impliedRateCard.style.display = "none";
+      impliedPctCard.style.display = "none";
+      impliedVerdictCard.style.display = "none";
+      return;
+    }
+
+    const annualRate = parseFloat(rateInput.value) || 5;
+    const nominal = lastPmt * lastMonths;
+    const fairPv = pvAnnuity(lastPmt, annualRate, lastMonths);
+    const implied = impliedAnnualRate(offerVal, lastPmt, lastMonths);
+    const offerPct = nominal > 0 ? (offerVal / nominal) * 100 : 0;
+    const vsFair = offerVal - fairPv;
+
+    statImpliedRate.textContent = fmtPct(implied);
+    statOfferPct.textContent = offerPct.toFixed(1) + "% of nominal";
+    statVerdict.textContent = vsFair >= 0
+      ? `${fmt(vsFair)} above fair value`
+      : `${fmt(Math.abs(vsFair))} below fair value`;
+    statVerdict.style.color = vsFair >= 0 ? "var(--success, #16a34a)" : "var(--error, #dc2626)";
+
+    impliedRateCard.style.display = "";
+    impliedPctCard.style.display = "";
+    impliedVerdictCard.style.display = "";
+  }
+
+  offerInput.addEventListener("input", updateOfferAnalysis);
+</script>

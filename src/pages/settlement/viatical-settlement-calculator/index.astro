@@ -1,0 +1,295 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import AdSlot from '../../../components/AdSlot.astro';
+import ExportBar from '../../../components/ExportBar.astro';
+import Icon from '../../../components/Icon.astro';
+---
+
+<BaseLayout
+  title="Viatical Settlement Calculator — Is Your Life Insurance Offer Fair?"
+  description="Free viatical settlement calculator. Enter your policy face value, the settlement offer, and your life expectancy to see the implied return, present value, and whether the offer is above or below fair value."
+  active="viatical"
+  disclaimerLead="Not financial or medical advice."
+>
+  <section class="hero">
+    <h1><Icon name="shield" size={26} /> Viatical Settlement Calculator</h1>
+    <p class="subtitle">
+      A viatical settlement lets a terminally ill policyholder sell their life insurance policy for
+      an immediate lump sum. This calculator shows you the present value of your death benefit,
+      the return your buyer is locking in, and whether the offer you have is fair.
+    </p>
+  </section>
+
+  <p class="guide-link"><a href="/settlement/structured-settlement/">← Structured settlement calculator</a></p>
+
+  <div class="grid-layout">
+    <form id="viatical-form" class="card" aria-label="Viatical settlement inputs" novalidate>
+      <div class="field">
+        <label class="field-label" for="face-value">
+          <Icon name="currency" size={16} /> Policy face value (death benefit) ($)
+        </label>
+        <input id="face-value" type="number" min="1" step="1000" value="500000" required />
+        <p class="field-hint">The amount your beneficiary would receive when you die. Found on the policy declarations page.</p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="offer-amount">
+          <Icon name="coins" size={16} /> Settlement offer ($)
+        </label>
+        <input id="offer-amount" type="number" min="0" step="1000" value="300000" required />
+        <p class="field-hint">The lump sum the viatical settlement provider is offering you today.</p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="life-expectancy">
+          <Icon name="clock" size={16} /> Life expectancy (months)
+        </label>
+        <input id="life-expectancy" type="number" min="1" max="360" step="1" value="24" required />
+        <p class="field-hint">Your physician's estimated survival period. Providers will have their own medical underwriting estimate, which may differ.</p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="discount-rate">
+          Comparison discount rate: <span id="rate-display">10.0%</span>
+        </label>
+        <input
+          id="discount-rate"
+          type="range"
+          min="4"
+          max="20"
+          step="0.25"
+          value="10"
+          aria-valuemin="4"
+          aria-valuemax="20"
+          aria-valuenow="10"
+        />
+        <div class="rate-labels" aria-hidden="true">
+          <span>4% Low</span>
+          <span>10% Mid</span>
+          <span>20% High</span>
+        </div>
+        <p class="field-hint">The annual rate of return you use to evaluate the offer. Industry benchmarks range from 8–15% annualized for viatical buyers. A lower rate means a higher fair value — better for you as the seller.</p>
+      </div>
+
+      <button type="submit" class="btn-primary">Evaluate offer</button>
+    </form>
+
+    <div class="card result-card" id="viatical-result" role="status" aria-live="polite">
+      <h2>Settlement Analysis</h2>
+      <div class="metric-grid" id="viatical-metrics">
+        <div class="metric-card metric-card--accent">
+          <span class="metric-label">Status</span>
+          <span class="metric-value metric-value--lg">Enter your details</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ExportBar />
+
+  <AdSlot label="Advertisement" minHeight={250} />
+
+  <section class="card prose">
+    <h2>How viatical settlements work</h2>
+    <p>
+      In a viatical settlement, a terminally ill or chronically ill person (the viator) sells their
+      life insurance policy to a licensed viatical settlement provider for a lump sum. The provider
+      becomes the policy's owner and beneficiary, pays all future premiums, and collects the death
+      benefit when the insured dies.
+    </p>
+    <p>
+      The offer is always less than the face value because the buyer is advancing money now in
+      exchange for a future benefit. The fair value is the <strong>present value of the death benefit</strong>:
+    </p>
+    <p class="formula-block">
+      Fair Value = Face Value ÷ (1 + r)^(n/12)
+    </p>
+    <p>
+      Where r is the buyer's required annual return and n is the estimated life expectancy in months.
+      This calculator shows you what fair value is at your chosen rate, what rate your specific offer
+      implies, and how the offer compares to the face value.
+    </p>
+
+    <h2>What affects the offer amount</h2>
+    <p>
+      Providers price offers based on: life expectancy (shorter = higher offer), policy face value,
+      insurance carrier's financial strength, cash surrender value (sets a floor), and current
+      premium obligations. You should always get offers from multiple licensed providers — the
+      National Association of Insurance Commissioners (NAIC) and LISA (the Life Insurance
+      Settlement Association) publish registries of licensed providers by state.
+    </p>
+
+    <h2>Frequently asked questions</h2>
+
+    <details>
+      <summary>What is the difference between a viatical and a life settlement?</summary>
+      <p>
+        A viatical settlement is specifically for terminally or chronically ill policyholders
+        (with life expectancy under 24 months in most states, or longer for chronic illness).
+        A <em>life settlement</em> is for any policyholder over age 65 who wants to sell a
+        policy they no longer need, regardless of health status. Tax treatment and state licensing
+        requirements differ between the two. This calculator applies to both — the math is identical.
+      </p>
+    </details>
+
+    <details>
+      <summary>How is the settlement taxed?</summary>
+      <p>
+        For a viatical settlement: if you are terminally ill (life expectancy ≤ 24 months certified
+        by a physician), proceeds are typically excluded from gross income under IRC § 101(g). If
+        you are chronically ill, tax treatment depends on whether the benefits qualify as a per-diem
+        exclusion under § 7702B. For a life settlement (not terminally ill), proceeds above the
+        policy's cost basis are generally taxable — consult a CPA or tax attorney before closing.
+      </p>
+    </details>
+
+    <details>
+      <summary>Can I negotiate a higher offer?</summary>
+      <p>
+        Yes. Getting competing offers from multiple licensed providers is the most effective way to
+        maximize the settlement amount. You are also entitled to keep the policy and name a new
+        beneficiary, surrender it for its cash value (often much less), or take an accelerated
+        death benefit directly from the insurer — which avoids a third-party provider entirely and
+        is sometimes the best option. This calculator helps you compare: check whether a provider's
+        offer is above or below the present-value benchmark before accepting.
+      </p>
+    </details>
+
+    <details>
+      <summary>Does selling my policy affect Medicaid eligibility?</summary>
+      <p>
+        Potentially yes. A viatical settlement converts an exempt asset (life insurance) into cash,
+        which counts as an asset for Medicaid eligibility purposes. If the proceeds are not spent
+        within the applicable look-back period, they may affect eligibility for Medicaid long-term
+        care benefits. Consult a Medicaid planning attorney before proceeding if this is a concern.
+      </p>
+    </details>
+
+    <details>
+      <summary>Where can I find licensed viatical settlement providers?</summary>
+      <p>
+        Your state insurance department licenses and regulates providers. LISA (Life Insurance
+        Settlement Association, lisassociation.org) maintains a member directory. Avoid unlicensed
+        brokers — viatical settlement fraud is a documented crime, and all providers must be licensed
+        in both the state where you reside and the state where the transaction occurs. Never pay
+        upfront fees to a provider.
+      </p>
+    </details>
+  </section>
+
+  <Fragment slot="disclaimer">
+    This calculator provides mathematical estimates only. It is not a financial valuation, a tax opinion,
+    or legal advice. Life expectancy estimates are inherently uncertain. Consult a licensed financial
+    advisor, tax attorney, and your physician before entering into any viatical or life settlement
+    transaction.
+  </Fragment>
+
+  <style>
+    .rate-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-dim, #9ca3af);
+      margin-top: 4px;
+    }
+    .formula-block {
+      font-family: monospace;
+      background: var(--surface-alt);
+      border: 1px solid var(--border-soft);
+      border-radius: 6px;
+      padding: 0.6rem 1rem;
+      font-size: 0.95rem;
+      margin: 0.5rem 0 1rem;
+    }
+    .prose details {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0 16px;
+      margin: 8px 0;
+    }
+    .prose details[open] { border-color: var(--accent); }
+    .prose summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 46px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.925rem;
+      list-style: none;
+      padding: 2px 0;
+    }
+    .prose summary::-webkit-details-marker { display: none; }
+    .prose summary::after { content: "+"; font-size: 1.1rem; color: var(--text-muted); flex-shrink: 0; margin-left: 12px; }
+    .prose details[open] summary::after { content: "−"; }
+    .prose details > p { margin-bottom: 14px; font-size: 0.9rem; line-height: 1.65; }
+  </style>
+</BaseLayout>
+
+<script>
+  const form = document.getElementById("viatical-form") as HTMLFormElement;
+  const metricsEl = document.getElementById("viatical-metrics") as HTMLDivElement;
+  const rateInput = document.getElementById("discount-rate") as HTMLInputElement;
+  const rateDisplay = document.getElementById("rate-display") as HTMLSpanElement;
+
+  function fmt(n: number): string {
+    return n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+  }
+  function fmtPct(n: number, digits = 2): string {
+    return n.toFixed(digits) + "%";
+  }
+
+  function pvSinglePayment(faceValue: number, annualRate: number, months: number): number {
+    if (annualRate === 0) return faceValue;
+    return faceValue / Math.pow(1 + annualRate / 100, months / 12);
+  }
+
+  function impliedAnnualReturn(offer: number, faceValue: number, months: number): number {
+    if (offer <= 0 || faceValue <= 0 || months <= 0) return 0;
+    if (offer >= faceValue) return 0;
+    return (Math.pow(faceValue / offer, 12 / months) - 1) * 100;
+  }
+
+  function metricCard(label: string, value: string, accent = false, note = ""): string {
+    return `<div class="metric-card${accent ? " metric-card--accent" : ""}">
+      <span class="metric-label">${label}</span>
+      <span class="metric-value${accent ? " metric-value--lg" : ""}">${value}</span>
+      ${note ? `<span class="metric-label" style="font-size:0.75rem;margin-top:0.25rem;">${note}</span>` : ""}
+    </div>`;
+  }
+
+  rateInput.addEventListener("input", () => {
+    rateDisplay.textContent = parseFloat(rateInput.value).toFixed(1) + "%";
+    rateInput.setAttribute("aria-valuenow", rateInput.value);
+  });
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const faceValue = Math.max(1, parseFloat((document.getElementById("face-value") as HTMLInputElement).value) || 0);
+    const offer = Math.max(0, parseFloat((document.getElementById("offer-amount") as HTMLInputElement).value) || 0);
+    const months = Math.max(1, parseFloat((document.getElementById("life-expectancy") as HTMLInputElement).value) || 0);
+    const annualRate = parseFloat(rateInput.value) || 10;
+
+    const fairPv = pvSinglePayment(faceValue, annualRate, months);
+    const offerPct = (offer / faceValue) * 100;
+    const impliedRate = impliedAnnualReturn(offer, faceValue, months);
+    const vsFair = offer - fairPv;
+    const vsFairPct = (Math.abs(vsFair) / fairPv) * 100;
+
+    const verdictText = vsFair >= 0
+      ? `${fmt(vsFair)} above fair value (+${vsFairPct.toFixed(1)}%)`
+      : `${fmt(Math.abs(vsFair))} below fair value (−${vsFairPct.toFixed(1)}%)`;
+
+    metricsEl.innerHTML = [
+      metricCard(
+        vsFair >= 0 ? "Offer exceeds fair value" : "Offer is below fair value",
+        verdictText,
+        true,
+        `Fair value at ${annualRate.toFixed(1)}%: ${fmt(fairPv)}`
+      ),
+      metricCard("Offer as % of face value", fmtPct(offerPct, 1), false, `${fmt(offer)} ÷ ${fmt(faceValue)}`),
+      metricCard("Buyer's implied annual return", fmtPct(impliedRate, 2), false, `Return the provider earns if you die at the estimated ${months}-month mark`),
+      metricCard("Present value at your rate", fmt(fairPv), false, `Death benefit discounted at ${annualRate.toFixed(1)}% over ${months} months`),
+    ].join("");
+  });
+</script>

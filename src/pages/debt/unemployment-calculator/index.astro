@@ -1,0 +1,329 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import AdSlot from '../../../components/AdSlot.astro';
+import ExportBar from '../../../components/ExportBar.astro';
+import Icon from '../../../components/Icon.astro';
+import { estimateUnemployment, STATE_UI, SUPPORTED_STATES } from '../../../lib/unemployment';
+
+const defaultState = 'CA';
+const defaultInput = {
+  state: defaultState,
+  highQuarterWages: 18_000,
+  basePeriodWages: 52_000,
+  dependents: 0,
+  partTimeWeeklyEarnings: 0,
+};
+const initial = estimateUnemployment(defaultInput);
+const fmt = (n: number) =>
+  n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+---
+
+<BaseLayout
+  title="Unemployment Benefits Calculator by State — Weekly Benefit Estimator"
+  description="Free unemployment benefit calculator. Select your state, enter your quarterly wages, and instantly estimate your weekly unemployment benefit amount, total benefits and duration."
+  active="unemployment"
+  disclaimerLead="Not legal or financial advice."
+>
+  <section class="hero">
+    <h1><Icon name="briefcase" size={26} /> Unemployment Benefits Calculator</h1>
+    <p class="subtitle">
+      Estimate your weekly unemployment insurance (UI) benefit amount by state.
+      Enter your wages, pick your state, and see your weekly benefit, maximum weeks
+      and total potential benefits. Free, instant, no data stored.
+    </p>
+  </section>
+
+  <p class="guide-link">
+    <a href="/debt/means-test/">← Chapter 7 means test calculator</a>
+  </p>
+
+  <div class="grid-layout">
+    <form id="ui-form" class="card" aria-label="Unemployment benefit inputs" novalidate>
+
+      <div class="field">
+        <label class="field-label" for="state-select">
+          <Icon name="document" size={16} /> State
+        </label>
+        <select id="state-select">
+          {SUPPORTED_STATES.map((code) => (
+            <option value={code} selected={code === defaultState}>
+              {STATE_UI[code]?.name ?? code}
+            </option>
+          ))}
+        </select>
+        <p class="field-hint">10 most populous states supported. Your state DOL website has exact figures.</p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="high-quarter">
+          <Icon name="currency" size={16} /> Highest quarter wages ($)
+        </label>
+        <input id="high-quarter" type="number" min="0" step="500" value={defaultInput.highQuarterWages} required />
+        <p class="field-hint">The highest of your four base-period calendar quarters. Check your pay stubs or W-2.</p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="base-period">
+          <Icon name="currency" size={16} /> Total base-period wages ($)
+        </label>
+        <input id="base-period" type="number" min="0" step="1000" value={defaultInput.basePeriodWages} required />
+        <p class="field-hint">Sum of all wages in your base period (usually the first four of the last five completed calendar quarters — your state may differ).</p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="dependents">
+          Dependents
+        </label>
+        <input id="dependents" type="number" min="0" max="10" step="1" value={defaultInput.dependents} />
+        <p class="field-hint">Some states (PA, OH, MI) pay a small dependent allowance per child or spouse. Enter 0 if your state does not offer this or you have no dependents.</p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="part-time">
+          Part-time weekly earnings while collecting ($/wk)
+        </label>
+        <input id="part-time" type="number" min="0" step="50" value={defaultInput.partTimeWeeklyEarnings} />
+        <p class="field-hint">If you work part-time while collecting UI, your benefit is reduced. Most states disregard the first 25% of your WBA, then reduce dollar-for-dollar.</p>
+      </div>
+
+      <button type="submit" class="btn-primary">Estimate benefits</button>
+    </form>
+
+    <div class="card result-card" id="ui-result" role="status" aria-live="polite">
+      <h2>Benefit Estimate</h2>
+      <div class="metric-grid" id="ui-metrics">
+        <div class="metric-card metric-card--accent">
+          <span class="metric-label">Weekly benefit amount</span>
+          <span class="metric-value metric-value--lg">{fmt(initial.weeklyBenefit)}</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Maximum weeks</span>
+          <span class="metric-value">{initial.maxWeeks} weeks</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Total potential benefits</span>
+          <span class="metric-value">{fmt(initial.totalBenefits)}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ExportBar />
+
+  <AdSlot label="Advertisement" minHeight={250} />
+
+  <section class="card prose">
+    <h2>How unemployment benefits are calculated</h2>
+    <p>
+      Each state administers its own UI program. The weekly benefit amount (WBA) is
+      calculated from your <strong>base-period wages</strong> — typically the first four
+      of the last five completed calendar quarters before you filed — using a formula
+      that varies by state. Most states divide your highest-quarter wages by a divisor
+      (usually 21–26), then cap the result at a state maximum.
+    </p>
+
+    <div style="overflow-x:auto;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>State</th>
+            <th>Max Weekly Benefit</th>
+            <th>Max Weeks</th>
+            <th>Dependent Allowance</th>
+          </tr>
+        </thead>
+        <tbody>
+          {SUPPORTED_STATES.map((code) => {
+            const s = STATE_UI[code]!;
+            return (
+              <tr>
+                <td>{s.name}</td>
+                <td>{fmt(s.maxWba)}</td>
+                <td>{s.maxWeeks}</td>
+                <td>{s.dependentAllowance !== null ? `$${s.dependentAllowance}/dependent` : '—'}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+    <p class="field-hint" style="margin-top:0.5rem;">Source: state DOL handbooks, reviewed 2026-10-20. Verify current figures at your state's UI agency before filing.</p>
+
+    <h2>Frequently asked questions</h2>
+
+    <details>
+      <summary>What is the base period?</summary>
+      <p>
+        The base period is the 12-month window of past earnings SSA uses to determine your
+        eligibility and benefit amount. Most states use the first four of the last five completed
+        calendar quarters — so if you file in October 2025, the base period is typically
+        January 2024 through December 2024. Some states offer an "alternate base period"
+        (the most recent four quarters) if you don't qualify under the standard base period.
+      </p>
+    </details>
+
+    <details>
+      <summary>Can I work part-time and still collect UI?</summary>
+      <p>
+        Yes, in most states. You must report all earnings each week you certify. States
+        typically disregard the first 25–50% of your weekly benefit amount, then reduce
+        your benefit dollar-for-dollar for earnings above that threshold. You receive
+        no benefit in a week where your part-time earnings exceed your WBA. Always
+        report accurately — UI fraud is a criminal offense with significant penalties.
+      </p>
+    </details>
+
+    <details>
+      <summary>How long do benefits last?</summary>
+      <p>
+        Standard UI benefits last 12–26 weeks depending on your state. Florida has the
+        shortest duration (12 weeks); most large states offer 26 weeks. During recessions,
+        extended benefits programs (EB) can add up to 20 additional weeks when your state's
+        unemployment rate triggers federal extension rules. The calculator shows standard weeks only.
+      </p>
+    </details>
+
+    <details>
+      <summary>Are unemployment benefits taxable?</summary>
+      <p>
+        Yes. UI benefits are taxable federal income. Many states also tax UI at the state level.
+        You can elect to have federal income tax withheld at a flat 10% when you file for benefits,
+        or you can pay estimated taxes quarterly. Failing to account for the tax can result in
+        an unexpected bill at tax time.
+      </p>
+    </details>
+
+    <details>
+      <summary>What if my state isn't listed?</summary>
+      <p>
+        This calculator covers the 10 most populous states. For other states, visit your state's
+        UI agency website — most offer their own benefit estimator. The U.S. Department of Labor
+        publishes a directory at <a href="https://www.careeronestop.org/LocalHelp/UnemploymentBenefits/find-unemployment-benefits.aspx" target="_blank" rel="noopener">CareerOneStop</a>.
+      </p>
+    </details>
+  </section>
+
+  <Fragment slot="disclaimer">
+    This calculator provides estimates based on simplified state UI formulas. Actual benefit
+    amounts are determined by your state's unemployment agency based on your complete earnings
+    record. Eligibility, benefit amounts and duration may differ. Always file with your state
+    UI agency for an official determination.
+  </Fragment>
+
+  <style>
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+      margin: 0.75rem 0;
+    }
+    .data-table th, .data-table td {
+      padding: 0.5rem 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .data-table th {
+      font-weight: 600;
+      background: var(--surface-alt);
+    }
+    .prose details {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0 16px;
+      margin: 8px 0;
+    }
+    .prose details[open] { border-color: var(--accent); }
+    .prose summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 46px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.925rem;
+      list-style: none;
+      padding: 2px 0;
+    }
+    .prose summary::-webkit-details-marker { display: none; }
+    .prose summary::after { content: "+"; font-size: 1.1rem; color: var(--text-muted); flex-shrink: 0; margin-left: 12px; }
+    .prose details[open] summary::after { content: "−"; }
+    .prose details > p { margin-bottom: 14px; font-size: 0.9rem; line-height: 1.65; }
+  </style>
+</BaseLayout>
+
+<script>
+  const form = document.getElementById('ui-form') as HTMLFormElement;
+  const metricsEl = document.getElementById('ui-metrics') as HTMLDivElement;
+
+  const STATE_DATA: Record<string, [string, number, number, number, number | null]> = {
+    CA: ['California', 450, 26, 25, null],
+    TX: ['Texas', 563, 26, 25, null],
+    FL: ['Florida', 275, 12, 26, null],
+    NY: ['New York', 504, 26, 25, null],
+    PA: ['Pennsylvania', 854, 26, 23, 8],
+    OH: ['Ohio', 783, 26, 23, 1],
+    GA: ['Georgia', 365, 14, 21, null],
+    NC: ['North Carolina', 350, 12, 25, null],
+    MI: ['Michigan', 614, 20, 43, 6],
+    IL: ['Illinois', 693, 26, 25, null],
+  };
+
+  function fmt(n: number): string {
+    return n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+  }
+
+  function metricCard(label: string, value: string, accent = false, note = ''): string {
+    return `<div class="metric-card${accent ? ' metric-card--accent' : ''}">
+      <span class="metric-label">${label}</span>
+      <span class="metric-value${accent ? ' metric-value--lg' : ''}">${value}</span>
+      ${note ? `<span class="metric-label" style="font-size:0.75rem;margin-top:0.25rem;">${note}</span>` : ''}
+    </div>`;
+  }
+
+  function calcWba(state: string, hq: number, bp: number): number {
+    switch (state) {
+      case 'TX': return (bp / 2) / 25;
+      case 'OH': return (bp / 2) / 23;
+      case 'NY': return (hq / 13) * 0.5;
+      case 'PA': return hq / 23;
+      case 'NC': return (hq / 13) * 0.5;
+      case 'MI': return bp / 43;
+      case 'GA': return hq / 21;
+      case 'FL': return hq / 26;
+      case 'IL': return (hq / 13) * 0.47;
+      default: return hq / 25;
+    }
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const state = (document.getElementById('state-select') as HTMLSelectElement).value;
+    const hq = Math.max(0, parseFloat((document.getElementById('high-quarter') as HTMLInputElement).value) || 0);
+    const bp = Math.max(0, parseFloat((document.getElementById('base-period') as HTMLInputElement).value) || 0);
+    const deps = Math.max(0, parseInt((document.getElementById('dependents') as HTMLInputElement).value) || 0);
+    const partTime = Math.max(0, parseFloat((document.getElementById('part-time') as HTMLInputElement).value) || 0);
+
+    const row = STATE_DATA[state];
+    if (!row) return;
+    const [name, maxWba, maxWeeks, , depAllow] = row;
+
+    const rawWba = calcWba(state, hq, bp);
+    const minWba = 15;
+    const wba = Math.min(Math.max(minWba, Math.round(rawWba)), maxWba);
+    const depBonus = depAllow !== null ? Math.min(deps * depAllow, 30) : 0;
+    const wbaWithDep = Math.min(wba + depBonus, maxWba);
+
+    const disregard = wbaWithDep * 0.25;
+    const reduction = Math.max(0, partTime - disregard);
+    const effective = Math.max(0, wbaWithDep - reduction);
+    const total = effective * maxWeeks;
+
+    metricsEl.innerHTML = [
+      metricCard('Weekly benefit amount', fmt(wba), true, `${name} — based on your wages`),
+      ...(depBonus > 0 ? [metricCard('With dependent allowance', fmt(wbaWithDep), false, `+${fmt(depBonus)}/wk for ${deps} dependent(s)`)] : []),
+      ...(partTime > 0 ? [metricCard('Effective weekly benefit (after part-time)', fmt(effective), false, `$${Math.round(disregard)} disregard → $${Math.round(reduction)} reduction`)] : []),
+      metricCard('Maximum weeks', `${maxWeeks} weeks`),
+      metricCard('Total potential benefits', fmt(total), false, `At effective weekly rate × max weeks`),
+    ].join('');
+  });
+</script>

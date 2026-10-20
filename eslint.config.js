@@ -8,6 +8,7 @@ export default tseslint.config(
       '**/dist/**',
       '**/.astro/**',
       '**/node_modules/**',
+      '**/.wrangler/**',
       'coverage/**',
       '**/*.d.ts',
     ],

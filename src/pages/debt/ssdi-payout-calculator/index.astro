@@ -1,0 +1,337 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import AdSlot from '../../../components/AdSlot.astro';
+import ExportBar from '../../../components/ExportBar.astro';
+import Icon from '../../../components/Icon.astro';
+import { estimateSsdiPia, BEND_POINTS } from '../../../lib/ssdiPia';
+
+const defaults = { aime: 3_200, benefitYear: 2025, dependents: 0 };
+const initial = estimateSsdiPia(defaults);
+const fmt = (n: number) =>
+  n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+const fmtDec = (n: number) =>
+  n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 });
+const availableYears = Object.keys(BEND_POINTS).map(Number).sort((a, b) => b - a);
+---
+
+<BaseLayout
+  title="SSDI Monthly Benefit Calculator — Estimate Your PIA"
+  description="Free SSDI monthly benefit calculator. Enter your Average Indexed Monthly Earnings (AIME) and benefit year to estimate your Primary Insurance Amount (PIA), family maximum and after-Medicare payment."
+  active="ssdi-payout"
+  disclaimerLead="Not legal or financial advice."
+>
+  <section class="hero">
+    <h1><Icon name="shield" size={26} /> SSDI Monthly Benefit Calculator</h1>
+    <p class="subtitle">
+      Estimate your monthly Social Security Disability benefit (Primary Insurance Amount)
+      from your Average Indexed Monthly Earnings. Free, instant, no data stored.
+    </p>
+  </section>
+
+  <p class="guide-link">
+    <a href="/settlement/ssdi-back-pay-calculator/">← SSDI back pay calculator</a>
+  </p>
+
+  <div class="grid-layout">
+    <form id="pia-form" class="card" aria-label="SSDI PIA inputs" novalidate>
+
+      <div class="field">
+        <label class="field-label" for="aime">
+          <Icon name="currency" size={16} /> Average Indexed Monthly Earnings (AIME) ($)
+        </label>
+        <input id="aime" type="number" min="0" step="50" value={defaults.aime} required />
+        <p class="field-hint">
+          Your AIME is on your <a href="https://www.ssa.gov/myaccount/" target="_blank" rel="noopener">SSA.gov My Social Security</a> statement,
+          or estimate it as your average annual covered earnings over your highest 35 years ÷ 12.
+        </p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="aime-helper">
+          <Icon name="briefcase" size={16} /> Don't know your AIME? Estimate from annual earnings ($)
+        </label>
+        <input id="aime-helper" type="number" min="0" step="1000" placeholder="e.g. 52000" />
+        <p class="field-hint">Average annual earnings over your best 35 working years. We'll divide by 12 and fill the AIME field.</p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="benefit-year">Benefit year</label>
+        <select id="benefit-year">
+          {availableYears.map((y) => (
+            <option value={y} selected={y === defaults.benefitYear}>{y}</option>
+          ))}
+        </select>
+        <p class="field-hint">The year your disability began (or the current year if you are estimating a future benefit). Determines the SSA bend points used.</p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="dependents">
+          <Icon name="document" size={16} /> Eligible dependents (spouse or children)
+        </label>
+        <input id="dependents" type="number" min="0" max="10" step="1" value={defaults.dependents} />
+        <p class="field-hint">Qualifying dependents may receive additional benefits up to the family maximum. Enter 0 if none.</p>
+      </div>
+
+      <button type="submit" class="btn-primary">Estimate monthly benefit</button>
+    </form>
+
+    <div class="card result-card" id="pia-result" role="status" aria-live="polite">
+      <h2>Benefit Estimate</h2>
+      <div class="metric-grid" id="pia-metrics">
+        <div class="metric-card metric-card--accent">
+          <span class="metric-label">Monthly PIA (est.)</span>
+          <span class="metric-value metric-value--lg">{fmtDec(initial.pia)}</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">After Medicare Part B premium</span>
+          <span class="metric-value">{fmtDec(initial.piaAfterMedicare)}</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Annual benefit</span>
+          <span class="metric-value">{fmt(initial.annualBenefit)}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ExportBar />
+
+  <AdSlot label="Advertisement" minHeight={250} />
+
+  <section class="card prose">
+    <h2>How SSA calculates your monthly SSDI benefit</h2>
+    <p>
+      Your monthly SSDI benefit equals your <strong>Primary Insurance Amount (PIA)</strong> —
+      the amount SSA computes from your Average Indexed Monthly Earnings (AIME) using a
+      progressive bracket formula called the <em>bend-point formula</em>.
+    </p>
+    <p class="formula-block">
+      PIA = 90% of the first $1,226 of AIME<br />
+      + 32% of AIME between $1,226 and $7,391<br />
+      + 15% of AIME above $7,391
+    </p>
+    <p>
+      (2025 bend points. Amounts change each year — see
+      <a href="https://www.ssa.gov/oact/cola/bendpoints.html" target="_blank" rel="noopener">SSA.gov/oact/cola/bendpoints</a>.)
+    </p>
+    <p>
+      The AIME is your average monthly earnings over your highest 35 years of covered work,
+      indexed to wage growth. SSA obtains your actual earnings record; this calculator uses
+      the AIME you enter directly as a simplified input. For an accurate AIME, log in to
+      your <a href="https://www.ssa.gov/myaccount/" target="_blank" rel="noopener">My Social Security</a> account.
+    </p>
+
+    <h2>Frequently asked questions</h2>
+
+    <details>
+      <summary>What is the AIME and how do I find it?</summary>
+      <p>
+        AIME stands for Average Indexed Monthly Earnings. SSA computes it from your actual
+        earnings record: it takes your covered earnings for each year, indexes them to wage
+        growth (so older earnings are adjusted upward), selects your highest 35 years, sums
+        them, and divides by 420 months (35 × 12). Your SSA statement (available at
+        <a href="https://www.ssa.gov/myaccount/" target="_blank" rel="noopener">ssa.gov/myaccount</a>)
+        shows your estimated PIA, from which you can back-calculate your AIME, or you can use
+        SSA's free <a href="https://www.ssa.gov/oact/anypia/anypia.html" target="_blank" rel="noopener">AnyPIA calculator</a> for a precise estimate.
+      </p>
+    </details>
+
+    <details>
+      <summary>How accurate is this estimate?</summary>
+      <p>
+        This calculator uses the standard SSA bend-point formula and produces the same result
+        as SSA's computation for the AIME and year you enter. The accuracy of your result
+        depends entirely on how close your entered AIME is to your actual SSA-computed AIME.
+        Only SSA's systems have your full indexed earnings record; estimates from average
+        salary inputs may differ significantly from your true AIME, especially if your
+        earnings were not steady or you have fewer than 35 covered years. For a binding
+        estimate, use SSA's AnyPIA tool or your My Social Security statement.
+      </p>
+    </details>
+
+    <details>
+      <summary>What is the Medicare Part B deduction?</summary>
+      <p>
+        Most SSDI recipients who receive Medicare have their Part B premium deducted directly
+        from their monthly benefit. The 2025 standard Part B premium is $185.00/month,
+        but higher-income beneficiaries pay an Income Related Monthly Adjustment Amount
+        (IRMAA) surcharge. This calculator uses the 2025 standard premium; if your income is
+        above $106,000 (individual) or $212,000 (joint), your premium is higher.
+      </p>
+    </details>
+
+    <details>
+      <summary>What is the family maximum?</summary>
+      <p>
+        When a disabled worker has qualifying dependents (spouse, minor children, or adult
+        disabled children), each dependent may receive up to 50% of the worker's PIA —
+        but the total family benefit is capped at the family maximum benefit (FMB). The FMB
+        is computed using a separate SSA formula and typically ranges from 150% to 188% of
+        the worker's PIA. Benefits are proportionally reduced if the total would exceed the
+        FMB. The worker always receives their full PIA; only dependents are reduced.
+      </p>
+    </details>
+
+    <details>
+      <summary>Does SSDI have a waiting period before payments start?</summary>
+      <p>
+        Yes. There is a 5-month waiting period beginning with the established onset date (EOD).
+        SSDI payments begin in the 6th month after the EOD (or the 6th month after the
+        application date if that is later). The waiting period is the reason you may be owed
+        back pay — see the <a href="/settlement/ssdi-back-pay-calculator/">SSDI back pay calculator</a>
+        for that calculation.
+      </p>
+    </details>
+
+    <details>
+      <summary>Will my benefit change after approval?</summary>
+      <p>
+        Yes. SSA applies an annual Cost-of-Living Adjustment (COLA) to all benefits each
+        January. The 2025 COLA was 2.5%. Your benefit also increases if you are on SSDI for
+        25 months and become eligible for Medicare. On reaching full retirement age (FRA),
+        SSDI automatically converts to a Social Security retirement benefit at the same amount.
+      </p>
+    </details>
+  </section>
+
+  <Fragment slot="disclaimer">
+    This calculator estimates your SSDI Primary Insurance Amount using the SSA bend-point formula and
+    the AIME you enter. It is not an official SSA determination. Your actual benefit depends on your
+    full earnings record as computed by SSA. Results may differ materially if your AIME estimate is
+    inaccurate or if you have fewer than 35 covered years. Consult SSA or a disability attorney for
+    a binding benefit estimate.
+  </Fragment>
+
+  <style>
+    .formula-block {
+      font-family: monospace;
+      background: var(--surface-alt);
+      border: 1px solid var(--border-soft);
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      font-size: 0.9rem;
+      margin: 0.5rem 0 1rem;
+      line-height: 1.7;
+    }
+    .prose details {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0 16px;
+      margin: 8px 0;
+    }
+    .prose details[open] { border-color: var(--accent); }
+    .prose summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 46px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.925rem;
+      list-style: none;
+      padding: 2px 0;
+    }
+    .prose summary::-webkit-details-marker { display: none; }
+    .prose summary::after { content: "+"; font-size: 1.1rem; color: var(--text-muted); flex-shrink: 0; margin-left: 12px; }
+    .prose details[open] summary::after { content: "−"; }
+    .prose details > p { margin-bottom: 14px; font-size: 0.9rem; line-height: 1.65; }
+  </style>
+</BaseLayout>
+
+<script>
+  const form = document.getElementById('pia-form') as HTMLFormElement;
+  const metricsEl = document.getElementById('pia-metrics') as HTMLDivElement;
+  const aimeInput = document.getElementById('aime') as HTMLInputElement;
+  const helperInput = document.getElementById('aime-helper') as HTMLInputElement;
+
+  const BEND_POINTS: Record<number, [number, number]> = {
+    2020: [960, 5785],
+    2021: [996, 6002],
+    2022: [1024, 6172],
+    2023: [1115, 6721],
+    2024: [1174, 7078],
+    2025: [1226, 7391],
+  };
+
+  const COLA: Record<number, number> = {
+    2021: 0.013, 2022: 0.059, 2023: 0.087, 2024: 0.032, 2025: 0.025,
+  };
+
+  const CURRENT_YEAR = 2025;
+  const MEDICARE_B = 185.0;
+
+  function fmt(n: number): string {
+    return n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 });
+  }
+  function fmtInt(n: number): string {
+    return n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+  }
+
+  function computePia(aime: number, year: number): number {
+    const [bp1, bp2] = BEND_POINTS[year] ?? BEND_POINTS[2025]!;
+    const t1 = Math.min(aime, bp1) * 0.9;
+    const t2 = Math.max(0, Math.min(aime, bp2) - bp1) * 0.32;
+    const t3 = Math.max(0, aime - bp2) * 0.15;
+    return Math.floor((t1 + t2 + t3) * 10) / 10;
+  }
+
+  function applyCola(pia: number, fromYear: number): number {
+    let v = pia;
+    for (let y = fromYear + 1; y <= CURRENT_YEAR; y++) {
+      v = v * (1 + (COLA[y] ?? 0.025));
+      v = Math.round(v * 10) / 10;
+    }
+    return v;
+  }
+
+  function familyMax(pia: number): number {
+    const t1 = Math.min(pia, 1308) * 1.5;
+    const t2 = Math.max(0, Math.min(pia, 1889) - 1308) * 2.72;
+    const t3 = Math.max(0, Math.min(pia, 2463) - 1889) * 1.34;
+    const t4 = Math.max(0, pia - 2463) * 1.75;
+    return Math.floor((t1 + t2 + t3 + t4) * 10) / 10;
+  }
+
+  function metricCard(label: string, value: string, accent = false, note = ''): string {
+    return `<div class="metric-card${accent ? ' metric-card--accent' : ''}">
+      <span class="metric-label">${label}</span>
+      <span class="metric-value${accent ? ' metric-value--lg' : ''}">${value}</span>
+      ${note ? `<span class="metric-label" style="font-size:0.75rem;margin-top:0.25rem;">${note}</span>` : ''}
+    </div>`;
+  }
+
+  helperInput.addEventListener('input', () => {
+    const annual = parseFloat(helperInput.value);
+    if (annual > 0) {
+      aimeInput.value = String(Math.round(annual / 12));
+    }
+  });
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const aime = Math.max(0, parseFloat(aimeInput.value) || 0);
+    const year = parseInt((document.getElementById('benefit-year') as HTMLSelectElement).value);
+    const deps = Math.max(0, parseInt((document.getElementById('dependents') as HTMLInputElement).value) || 0);
+
+    const basePia = computePia(aime, year);
+    const pia = year < CURRENT_YEAR ? applyCola(basePia, year) : basePia;
+    const afterMedicare = Math.max(0, pia - MEDICARE_B);
+    const annual = Math.round(pia * 12);
+
+    const cards = [
+      metricCard('Monthly PIA (estimated)', fmt(pia), true, `Based on ${year} bend points${year < CURRENT_YEAR ? ' + COLA through ' + CURRENT_YEAR : ''}`),
+      metricCard('After Medicare Part B premium', fmt(afterMedicare), false, `$${MEDICARE_B.toFixed(2)}/mo standard 2025 Part B premium deducted`),
+      metricCard('Annual benefit', fmtInt(annual)),
+    ];
+
+    if (deps > 0) {
+      const fMax = familyMax(pia);
+      const pool = Math.max(0, fMax - pia);
+      const perDep = Math.floor((pool / deps) * 10) / 10;
+      cards.push(metricCard('Family maximum', fmt(fMax), false, `Total cap for all family members`));
+      cards.push(metricCard(`Per-dependent monthly benefit (${deps} dep.)`, fmt(perDep), false, `Family max minus worker PIA, split equally`));
+    }
+
+    metricsEl.innerHTML = cards.join('');
+  });
+</script>

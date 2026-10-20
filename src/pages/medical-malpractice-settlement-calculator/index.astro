@@ -1,0 +1,369 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import AdSlot from "../../components/AdSlot.astro";
+import Icon from "../../components/Icon.astro";
+import SegmentedControl from "../../components/SegmentedControl.astro";
+import PresetButtons from "../../components/PresetButtons.astro";
+import ExportBar from "../../components/ExportBar.astro";
+import { estimateMedicalMalpracticeSettlement } from "../../lib/medicalMalpractice";
+import { US_STATES } from "../../lib/states";
+
+const defaults = {
+  medicalExpenses: 50_000,
+  futureMedicalExpenses: 30_000,
+  lostWages: 20_000,
+  futureLostWages: 0,
+  severity: "moderate" as const,
+  malpracticeType: "misdiagnosis" as const,
+  stateCode: "TX",
+};
+const initial = estimateMedicalMalpracticeSettlement(defaults);
+const fmt = (n: number) => n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+
+const faqItems = [
+  {
+    q: "How is a medical malpractice settlement calculated?",
+    a: "Attorneys and courts divide damages into two categories: economic (medical bills, future care costs, lost wages, future earning capacity) and non-economic (pain and suffering, loss of enjoyment of life, emotional distress). The multiplier method estimates non-economic damages by multiplying economic damages by a factor based on injury severity and case type. Many states cap non-economic damages by statute.",
+  },
+  {
+    q: "What states cap non-economic damages in malpractice cases?",
+    a: "As of 2026, states with statutory non-economic caps include Alabama ($400k), California ($500k under MICRA as amended by AB 35), Colorado ($300k), Idaho ($250k), Kansas ($350k), Maryland (~$905k, inflation-adjusted), Michigan ($480k for serious injuries), Montana ($250k), Nevada ($350k), North Carolina ($500k), Ohio ($350k), Oregon ($500k), South Dakota ($500k), Texas ($250k per provider), Utah (~$450k), Wisconsin ($750k), and West Virginia ($500k). Florida, Georgia, Missouri, and New Hampshire had caps that were struck down by courts. Consult an attorney to verify the current cap in your state.",
+  },
+  {
+    q: "Why are malpractice multipliers higher than standard personal injury?",
+    a: "Medical malpractice involves a breach of a professional duty of care. Juries tend to award higher non-economic damages in cases where a trained physician or hospital failed to meet the standard of care, particularly in catastrophic outcomes like birth injuries, surgical errors, and anesthesia accidents. Median malpractice verdicts are consistently higher than general auto accident verdicts at comparable economic damage levels.",
+  },
+  {
+    q: "What is the difference between economic and non-economic damages in malpractice?",
+    a: "Economic damages cover quantifiable financial losses: medical bills (past and future), rehabilitation costs, lost wages, and reduced future earning capacity. Non-economic damages compensate for pain, suffering, emotional distress, disfigurement, and loss of enjoyment of life. State caps, where they exist, apply only to the non-economic component — not to economic damages, which are always fully recoverable.",
+  },
+  {
+    q: "How long do medical malpractice cases take to settle?",
+    a: "Most malpractice cases that settle do so within 2–5 years of the incident. Cases involving catastrophic injuries or disputed causation often take longer. The statute of limitations for malpractice (typically 2–3 years from discovery of harm, with a discovery rule in most states) creates a hard deadline to file. An attorney can advise on your state's specific limitations period.",
+  },
+];
+
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faqItems.map(({ q, a }) => ({
+    "@type": "Question",
+    name: q,
+    acceptedAnswer: { "@type": "Answer", text: a },
+  })),
+};
+
+const toolSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: "Medical Malpractice Settlement Calculator",
+  url: "https://recoverynumbers.com/medical-malpractice-settlement-calculator/",
+  applicationCategory: "FinanceApplication",
+  offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+  description: "Estimate a medical malpractice settlement range using the multiplier method. Accounts for state non-economic damage caps, injury severity, and malpractice type. Free, instant, no login.",
+};
+---
+<BaseLayout
+  title="Medical Malpractice Settlement Calculator — Estimate by State"
+  description="Estimate your medical malpractice settlement range. Accounts for state non-economic damage caps, injury severity, and malpractice type. Free, instant, no login required."
+  active="medical-malpractice"
+>
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(faqSchema)} />
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(toolSchema)} />
+
+  <section class="hero">
+    <h1><Icon name="medical" size={26} /> Medical Malpractice Settlement Calculator</h1>
+    <p class="subtitle">Estimate a settlement range using the multiplier method, adjusted for your state's non-economic damage cap and malpractice type. Free, instant, no data stored.</p>
+  </section>
+
+  <div class="grid-layout">
+    <form id="calc-form" class="card" aria-label="Medical malpractice settlement inputs">
+
+      <div class="field">
+        <label for="stateCode"><Icon name="document" size={16} /> State where malpractice occurred</label>
+        <select id="stateCode">
+          {US_STATES.map((s) => (
+            <option value={s.code} selected={s.code === defaults.stateCode}>{s.name}</option>
+          ))}
+        </select>
+      </div>
+
+      <SegmentedControl
+        id="malpracticeType"
+        label="Type of Malpractice"
+        defaultValue={defaults.malpracticeType}
+        options={[
+          { value: "misdiagnosis",      label: "Misdiagnosis" },
+          { value: "delayed-diagnosis", label: "Delayed Dx" },
+          { value: "surgical-error",    label: "Surgical Error" },
+          { value: "medication-error",  label: "Medication Error" },
+          { value: "birth-injury",      label: "Birth Injury" },
+          { value: "anesthesia-error",  label: "Anesthesia Error" },
+          { value: "failure-to-treat",  label: "Failure to Treat" },
+        ]}
+      />
+
+      <SegmentedControl
+        id="severity"
+        label="Injury Severity"
+        defaultValue={defaults.severity}
+        options={[
+          { value: "minor",        label: "Minor" },
+          { value: "moderate",     label: "Moderate" },
+          { value: "severe",       label: "Severe" },
+          { value: "catastrophic", label: "Catastrophic" },
+        ]}
+      />
+
+      <div class="field">
+        <label for="medicalExpenses"><Icon name="medical" size={16} /> Medical expenses to date ($)</label>
+        <input type="number" id="medicalExpenses" min="0" step="1" value={defaults.medicalExpenses} required />
+        <PresetButtons targetId="medicalExpenses" presets={[
+          { label: "$25,000",  value: 25_000 },
+          { label: "$50,000",  value: 50_000 },
+          { label: "$100,000", value: 100_000 },
+          { label: "$250,000", value: 250_000 },
+        ]} />
+      </div>
+
+      <div class="field">
+        <label for="futureMedicalExpenses"><Icon name="medical" size={16} /> Estimated future medical / care costs ($)</label>
+        <input type="number" id="futureMedicalExpenses" min="0" step="1" value={defaults.futureMedicalExpenses} required />
+        <p class="field-hint">Include ongoing treatment, rehabilitation, home care, and long-term facility costs.</p>
+      </div>
+
+      <div class="field">
+        <label for="lostWages"><Icon name="briefcase" size={16} /> Lost wages to date ($)</label>
+        <input type="number" id="lostWages" min="0" step="1" value={defaults.lostWages} required />
+        <PresetButtons targetId="lostWages" presets={[
+          { label: "$10,000", value: 10_000 },
+          { label: "$25,000", value: 25_000 },
+          { label: "$50,000", value: 50_000 },
+        ]} />
+      </div>
+
+      <div class="field">
+        <label for="futureLostWages"><Icon name="briefcase" size={16} /> Future lost wages / reduced earning capacity ($)</label>
+        <input type="number" id="futureLostWages" min="0" step="1" value={defaults.futureLostWages} required />
+      </div>
+
+      <button type="submit" class="btn-primary">Estimate Settlement Range</button>
+    </form>
+
+    <div class="card result-card" id="result" aria-live="polite">
+      <h2>Estimated Settlement Range</h2>
+
+      <div id="cap-notice" class="notice notice--warn" hidden={!initial.capApplies}>
+        <Icon name="warning" size={16} />
+        <span id="cap-text">{initial.capApplies
+          ? `Your state caps non-economic damages at ${fmt(initial.nonEconomicCap ?? 0)}. The pain & suffering component is capped at that amount.`
+          : ""}</span>
+      </div>
+
+      <div class="metric-grid">
+        <div class="metric-card metric-card--accent">
+          <span class="metric-label"><Icon name="currency" size={14} /> Total Settlement Range</span>
+          <span class="metric-value metric-value--lg" id="range-output">
+            {fmt(initial.estimateLow)} – {fmt(initial.estimateHigh)}
+          </span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label"><Icon name="briefcase" size={14} /> Economic Damages</span>
+          <span class="metric-value" id="economic-output">{fmt(initial.economicDamages)}</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label"><Icon name="scale" size={14} /> Pain &amp; Suffering Range</span>
+          <span class="metric-value" id="noneconomic-output">{fmt(initial.nonEconomicLow)} – {fmt(initial.nonEconomicHigh)}</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label"><Icon name="document" size={14} /> Multiplier Used</span>
+          <span class="metric-value" id="multiplier-output">{initial.multiplierRange[0]}x – {initial.multiplierRange[1]}x</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label"><Icon name="shield" size={14} /> State Non-Economic Cap</span>
+          <span class="metric-value" id="cap-output">
+            {initial.nonEconomicCap !== null ? fmt(initial.nonEconomicCap) : "No cap"}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ExportBar />
+  <AdSlot slot_id="mid-content" height="250px" />
+
+  <section class="content-section">
+    <h2>How this calculator works</h2>
+    <p>Medical malpractice settlements are divided into two components:</p>
+    <ol>
+      <li><strong>Economic damages</strong> = past medical expenses + future care costs + lost wages + future earning capacity loss. These are fully recoverable in every state regardless of caps.</li>
+      <li><strong>Non-economic damages</strong> (pain and suffering) = economic damages × multiplier. The multiplier range reflects injury severity (2×–3.5× for minor injuries, 7×–12× for catastrophic) and is bumped upward for malpractice types that produce higher jury awards historically (birth injuries +1.0, anesthesia errors +0.75, surgical errors +0.5).</li>
+      <li>If your state has a <strong>non-economic damage cap</strong>, the pain and suffering component is capped at the statutory limit. Economic damages are never capped.</li>
+      <li><strong>Total estimate</strong> = economic + capped non-economic.</li>
+    </ol>
+
+    <h3>Worked example</h3>
+    <p>Misdiagnosis in Florida (no cap). $50,000 medical, $15,000 lost wages, 0 future damages, moderate severity:</p>
+    <ul>
+      <li>Economic damages: $65,000</li>
+      <li>Multiplier range (moderate, misdiagnosis): 3.0× – 5.0×</li>
+      <li>Pain &amp; suffering: $195,000 – $325,000</li>
+      <li>Total estimate: <strong>$260,000 – $390,000</strong></li>
+      <li>Florida has no non-economic cap; no reduction applies.</li>
+    </ul>
+    <p>Same case in Texas (cap $250k per provider): non-economic is capped at $250,000, so total = $65,000 + $250,000 = <strong>$315,000</strong>.</p>
+
+    <h3>What this estimate does not include</h3>
+    <ul>
+      <li>Punitive damages — available in egregious cases (fraud, reckless disregard) in some states but rare in malpractice.</li>
+      <li>Loss of consortium claims by a spouse (often separate and additive).</li>
+      <li>Attorney fees (typically 33–40% on contingency in malpractice cases).</li>
+      <li>Medicare/Medicaid subrogation liens, which reduce net recovery.</li>
+      <li>Defendant's liability coverage limits — if the physician's malpractice policy is $1M, that caps the insurance recovery.</li>
+    </ul>
+  </section>
+
+  <AdSlot slot_id="pre-faq" height="250px" />
+
+  <section class="content-section">
+    <h2>Frequently asked questions</h2>
+    <dl class="faq-list">
+      {faqItems.map(({ q, a }) => (
+        <div class="faq-item">
+          <dt>{q}</dt>
+          <dd>{a}</dd>
+        </div>
+      ))}
+    </dl>
+  </section>
+
+  <section class="content-section">
+    <h2>Related calculators</h2>
+    <ul class="related-links">
+      <li><a href="/">Personal Injury Settlement Estimator</a> — general multiplier method for any injury type</li>
+      <li><a href="/car-accident-settlement-calculator/">Car Accident Settlement Calculator</a> — comparative fault rules for all 50 states</li>
+      <li><a href="/workers-comp/">Workers' Comp Settlement Estimator</a> — scheduled-loss method for workplace injuries</li>
+      <li><a href="/settlement/structured-settlement/">Structured Settlement Calculator</a> — lump-sum vs annuity analysis</li>
+    </ul>
+  </section>
+
+  <Fragment slot="disclaimer">
+    This tool provides a rough estimate for informational purposes only, using the multiplier method commonly referenced in personal injury and malpractice practice. It is not a guarantee of any settlement amount or verdict. State caps, policy limits, causation evidence, and individual case facts significantly affect actual outcomes. State non-economic cap figures are approximate and subject to annual inflation adjustments and legislative change. Consult a licensed medical malpractice attorney in your state for an actual case evaluation.
+  </Fragment>
+</BaseLayout>
+
+<style>
+.field-hint {
+  font-size: 0.75rem;
+  color: var(--color-text-muted, #6b7280);
+  margin: 0.25rem 0 0;
+}
+.notice {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+.notice--warn {
+  background: color-mix(in srgb, var(--color-warning, #f59e0b) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-warning, #f59e0b) 30%, transparent);
+  color: var(--color-text, inherit);
+}
+.content-section {
+  margin-top: 2.5rem;
+}
+.content-section h2 {
+  margin-bottom: 0.75rem;
+}
+.content-section h3 {
+  margin: 1.5rem 0 0.5rem;
+}
+.content-section p,
+.content-section ul,
+.content-section ol {
+  color: var(--color-text-secondary, inherit);
+  line-height: 1.7;
+}
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin: 0;
+  padding: 0;
+}
+.faq-item dt {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+.faq-item dd {
+  margin: 0;
+  color: var(--color-text-secondary, inherit);
+  line-height: 1.7;
+}
+.related-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-left: 1.25rem;
+}
+</style>
+
+<script>
+  import {
+    estimateMedicalMalpracticeSettlement,
+    type InjurySeverity,
+    type MalpracticeType,
+  } from "../../lib/medicalMalpractice";
+
+  const fmt = (n: number) =>
+    n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+
+  function update() {
+    const input = {
+      medicalExpenses:       Number((document.getElementById("medicalExpenses")       as HTMLInputElement).value) || 0,
+      futureMedicalExpenses: Number((document.getElementById("futureMedicalExpenses") as HTMLInputElement).value) || 0,
+      lostWages:             Number((document.getElementById("lostWages")             as HTMLInputElement).value) || 0,
+      futureLostWages:       Number((document.getElementById("futureLostWages")       as HTMLInputElement).value) || 0,
+      severity:              (document.getElementById("severity")        as HTMLInputElement).value as InjurySeverity,
+      malpracticeType:       (document.getElementById("malpracticeType") as HTMLInputElement).value as MalpracticeType,
+      stateCode:             (document.getElementById("stateCode")       as HTMLSelectElement).value,
+    };
+
+    const result = estimateMedicalMalpracticeSettlement(input);
+
+    // Range
+    document.getElementById("range-output")!.textContent =
+      `${fmt(result.estimateLow)} – ${fmt(result.estimateHigh)}`;
+
+    // Metrics
+    document.getElementById("economic-output")!.textContent    = fmt(result.economicDamages);
+    document.getElementById("noneconomic-output")!.textContent = `${fmt(result.nonEconomicLow)} – ${fmt(result.nonEconomicHigh)}`;
+    document.getElementById("multiplier-output")!.textContent  = `${result.multiplierRange[0]}x – ${result.multiplierRange[1]}x`;
+    document.getElementById("cap-output")!.textContent =
+      result.nonEconomicCap !== null ? fmt(result.nonEconomicCap) : "No cap";
+
+    // Cap notice
+    const capNotice = document.getElementById("cap-notice") as HTMLElement;
+    const capText   = document.getElementById("cap-text")   as HTMLElement;
+    if (result.capApplies && result.nonEconomicCap !== null) {
+      capText.textContent = `Your state caps non-economic damages at ${fmt(result.nonEconomicCap)}. The pain & suffering component is capped at that amount.`;
+      capNotice.hidden = false;
+    } else {
+      capNotice.hidden = true;
+    }
+  }
+
+  document.getElementById("calc-form")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    update();
+  });
+
+  // Live update on state / type / severity changes
+  ["stateCode", "malpracticeType", "severity"].forEach((id) => {
+    document.getElementById(id)?.addEventListener("change", update);
+  });
+</script>

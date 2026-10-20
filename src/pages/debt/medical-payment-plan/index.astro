@@ -1,0 +1,254 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import AdSlot from '../../../components/AdSlot.astro';
+import ExportBar from '../../../components/ExportBar.astro';
+import Icon from '../../../components/Icon.astro';
+---
+
+<BaseLayout
+  title="Medical Bill Payment Plan Calculator — Monthly Payments & Interest Cost"
+  description="Free medical payment plan calculator. Enter your bill amount, interest rate and term to see your monthly payment and total interest cost — plus tips to get 0% financing from your hospital."
+  active="medical-payment"
+  disclaimerLead="Not legal or financial advice."
+>
+  <section class="hero">
+    <h1><Icon name="document" size={26} /> Medical Bill Payment Plan Calculator</h1>
+    <p class="subtitle">
+      See your monthly payment and total interest cost on a medical bill payment plan —
+      and learn how to negotiate a 0% plan directly with the hospital.
+      Free, instant, no data stored.
+    </p>
+  </section>
+
+  <p class="guide-link">
+    <a href="/debt/means-test/">← Chapter 7 means test calculator</a>
+  </p>
+
+  <div class="callout callout--info">
+    <strong>Most hospitals offer 0% payment plans if you ask.</strong>
+    Nonprofit hospitals must provide financial assistance under IRS rules.
+    Before you set up any financed plan, call the billing department and ask about
+    interest-free payment plans and financial assistance programs — you may not need to pay interest at all.
+  </div>
+
+  <div class="grid-layout">
+    <form id="med-form" class="card" aria-label="Medical payment plan inputs" novalidate>
+
+      <div class="field">
+        <label class="field-label" for="bill-amount">
+          <Icon name="currency" size={16} /> Medical bill balance ($)
+        </label>
+        <input id="bill-amount" type="number" min="1" step="100" value="5000" required />
+        <p class="field-hint">The remaining amount you owe after insurance payments and any charity care adjustment.</p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="interest-rate">
+          Interest rate (% APR)
+        </label>
+        <input id="interest-rate" type="number" min="0" max="36" step="0.5" value="0" />
+        <p class="field-hint">Enter 0 for a 0% plan. Many hospitals offer interest-free plans; if yours charges interest, it is typically 6–29.99% APR. CareCredit and similar cards often charge 26.99% if the promotional period lapses.</p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="term-months">
+          Repayment term (months)
+        </label>
+        <input id="term-months" type="number" min="1" max="120" step="1" value="12" />
+        <p class="field-hint">Hospital internal plans are typically 6–24 months. Medical credit cards can go to 24–60 months.</p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="extra-payment">
+          Extra monthly payment ($)
+        </label>
+        <input id="extra-payment" type="number" min="0" step="25" value="0" />
+        <p class="field-hint">Any amount above the minimum payment reduces total interest and pays off the bill faster.</p>
+      </div>
+
+      <button type="submit" class="btn-primary">Calculate payment plan</button>
+    </form>
+
+    <div class="card result-card" id="med-result" role="status" aria-live="polite">
+      <h2>Payment Plan</h2>
+      <div class="metric-grid" id="med-metrics">
+        <div class="metric-card metric-card--accent">
+          <span class="metric-label">Monthly payment</span>
+          <span class="metric-value metric-value--lg">—</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Total interest</span>
+          <span class="metric-value">—</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Total cost</span>
+          <span class="metric-value">—</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ExportBar />
+
+  <AdSlot label="Advertisement" minHeight={250} />
+
+  <section class="card prose">
+    <h2>How to get a 0% medical payment plan</h2>
+    <p>
+      Most people pay interest on medical debt without knowing they could have avoided it.
+      Hospitals — especially nonprofit hospitals — have strong incentives to offer 0% plans:
+      they want to collect something rather than write off the debt, and many are required
+      to offer financial assistance programs to maintain their nonprofit tax status.
+    </p>
+    <ol>
+      <li><strong>Call the billing department and ask specifically about interest-free payment plans.</strong> This is the single most effective step. Hospital billing staff are trained to set up payment plans; the terms vary and are often negotiable.</li>
+      <li><strong>Ask about financial assistance (charity care).</strong> Nonprofit hospitals must offer financial assistance under IRS rules for 501(c)(3) status. Eligibility is typically based on household income as a percentage of the Federal Poverty Level (FPL). Many hospitals assist households earning up to 200–400% FPL. The discount can be 50–100% of the bill.</li>
+      <li><strong>Request an itemized bill.</strong> Medical billing errors are common. An itemized bill lets you identify duplicate charges, miscoded procedures or services you did not receive. Disputing errors can reduce the balance before you set up a payment plan.</li>
+      <li><strong>Negotiate the balance directly.</strong> If you can pay in a lump sum, hospitals often accept 40–60 cents on the dollar for cash payment, especially on older debt. This eliminates the interest question entirely.</li>
+      <li><strong>Check state protections.</strong> Several states (CA, CO, NY, IL and others) have enacted laws capping medical interest rates or extending interest-free payment plan requirements. Your state attorney general's office or consumer protection office can confirm what applies in your state.</li>
+    </ol>
+
+    <h2>When you can't get a 0% plan</h2>
+    <p>
+      If your bill goes to a third-party collector or you use a medical credit card (CareCredit, Alphaeon, etc.),
+      interest applies. Deferred-interest promotions are particularly dangerous: if you do not pay the
+      full balance before the promotional period ends, retroactive interest from day one is charged at
+      the full rate (often 26.99%). Always calculate the payoff amount required to avoid retroactive
+      interest and set a calendar reminder two weeks before the deadline.
+    </p>
+
+    <h2>Medical debt and your credit</h2>
+    <p>
+      As of 2024–2025, major changes have reduced the impact of medical debt on credit scores:
+    </p>
+    <ul>
+      <li>Medical collections under $500 were removed from credit reports by the three major bureaus in 2023.</li>
+      <li>Collections paid by insurance are no longer reportable.</li>
+      <li>The CFPB finalized a rule in 2025 to remove medical debt from credit reports entirely; check for the current status of that rule.</li>
+      <li>Even if reported, the newest FICO and VantageScore models give less weight to medical collections than other debt types.</li>
+    </ul>
+
+    <h2>Frequently asked questions</h2>
+
+    <details>
+      <summary>Can I negotiate a lower balance before setting up a payment plan?</summary>
+      <p>Yes, and you should try before agreeing to any payment arrangement. Hospitals frequently accept reduced balances, especially for uninsured patients or if the account has been outstanding for several months. When calling, ask: "What is the lowest amount you will accept to settle this balance today?" — then work from that number. Get any agreed settlement or payment plan terms in writing before you pay.</p>
+    </details>
+
+    <details>
+      <summary>What if I can't afford any monthly payment?</summary>
+      <p>Apply for the hospital's charity care or financial assistance program. If you have already been billed and qualify, the hospital can retroactively reduce or eliminate the balance. If you do not qualify for charity care and truly cannot pay, medical debt (unlike student loans) is dischargeable in bankruptcy. The Chapter 7 means test calculator on this site can help you assess eligibility.</p>
+    </details>
+
+    <details>
+      <summary>Does a medical payment plan show up on my credit?</summary>
+      <p>Hospital-internal payment plans that you pay on time are generally not reported to credit bureaus as open accounts — they are just an arrangement to pay a bill. They are not the same as a credit card or loan. However, if you default on the plan, the hospital may sell the balance to a collections agency, which can then report the collection account. Paying as agreed or proactively communicating if you fall behind protects you from that outcome.</p>
+    </details>
+
+    <details>
+      <summary>What is the difference between a hospital payment plan and a medical credit card?</summary>
+      <p>A hospital payment plan is a direct arrangement with the provider — often 0% interest for 12–24 months, no hard credit pull in most cases, and more flexible if you need to renegotiate. A medical credit card (CareCredit, Alphaeon, Synchrony) is a revolving credit line subject to credit approval, carries a deferred-interest promotional period, and charges the full APR retroactively if not paid off in time. Hospital-direct plans are almost always the better option when available.</p>
+    </details>
+  </section>
+
+  <Fragment slot="disclaimer">
+    This calculator estimates monthly payments and interest based on the inputs you provide.
+    Actual payment plan terms are set by your healthcare provider or lender. Always get any
+    payment arrangement in writing. Contact your hospital's billing department or a nonprofit
+    credit counselor for assistance with medical debt negotiation.
+  </Fragment>
+
+  <style>
+    .callout {
+      border-left: 4px solid var(--accent);
+      background: var(--surface-alt);
+      border-radius: 0 8px 8px 0;
+      padding: 1rem 1.25rem;
+      margin: 0 0 1.5rem;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+    .prose details { border: 1px solid var(--border); border-radius: 8px; padding: 0 16px; margin: 8px 0; }
+    .prose details[open] { border-color: var(--accent); }
+    .prose summary { display: flex; align-items: center; justify-content: space-between; min-height: 46px; cursor: pointer; font-weight: 600; font-size: 0.925rem; list-style: none; padding: 2px 0; }
+    .prose summary::-webkit-details-marker { display: none; }
+    .prose summary::after { content: "+"; font-size: 1.1rem; color: var(--text-muted); flex-shrink: 0; margin-left: 12px; }
+    .prose details[open] summary::after { content: "−"; }
+    .prose details > p { margin-bottom: 14px; font-size: 0.9rem; line-height: 1.65; }
+  </style>
+</BaseLayout>
+
+<script>
+  const form = document.getElementById('med-form') as HTMLFormElement;
+  const metricsEl = document.getElementById('med-metrics') as HTMLDivElement;
+
+  function fmt(n: number): string {
+    return n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 });
+  }
+  function fmtInt(n: number): string {
+    return n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+  }
+
+  function metricCard(label: string, value: string, accent = false, note = ''): string {
+    return `<div class="metric-card${accent ? ' metric-card--accent' : ''}">
+      <span class="metric-label">${label}</span>
+      <span class="metric-value${accent ? ' metric-value--lg' : ''}">${value}</span>
+      ${note ? `<span class="metric-label" style="font-size:0.75rem;margin-top:0.25rem;">${note}</span>` : ''}
+    </div>`;
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const balance = Math.max(0, parseFloat((document.getElementById('bill-amount') as HTMLInputElement).value) || 0);
+    const apr = Math.max(0, parseFloat((document.getElementById('interest-rate') as HTMLInputElement).value) || 0);
+    const months = Math.max(1, parseInt((document.getElementById('term-months') as HTMLInputElement).value) || 12);
+    const extra = Math.max(0, parseFloat((document.getElementById('extra-payment') as HTMLInputElement).value) || 0);
+
+    const monthlyRate = apr / 100 / 12;
+
+    let basePayment: number;
+    if (monthlyRate === 0) {
+      basePayment = balance / months;
+    } else {
+      basePayment = balance * monthlyRate / (1 - Math.pow(1 + monthlyRate, -months));
+    }
+    const totalPayment = basePayment + extra;
+
+    // Simulate payoff with extra payment
+    let remaining = balance;
+    let totalInterestPaid = 0;
+    let actualMonths = 0;
+    while (remaining > 0.005 && actualMonths < 1200) {
+      const interest = remaining * monthlyRate;
+      totalInterestPaid += interest;
+      const principal = Math.min(remaining, totalPayment - interest);
+      remaining -= principal;
+      actualMonths++;
+      if (principal <= 0) break;
+    }
+
+    const totalCost = balance + totalInterestPaid;
+    const isZero = apr === 0;
+
+    const cards = [
+      metricCard('Monthly payment', fmt(basePayment), true,
+        extra > 0 ? `+${fmt(extra)} extra = ${fmt(totalPayment)}/mo total` : ''),
+      metricCard('Total interest', isZero ? '$0 — 0% plan' : fmt(totalInterestPaid), false,
+        isZero ? 'No interest — ask your hospital about this option' : `At ${apr}% APR over ${actualMonths} months`),
+      metricCard('Total cost', fmtInt(totalCost), false,
+        `Original bill: ${fmtInt(balance)}`),
+    ];
+
+    if (extra > 0 && actualMonths < months) {
+      cards.push(metricCard('Payoff accelerated to', `${actualMonths} months`, false,
+        `${months - actualMonths} months faster than minimum`));
+    }
+
+    if (!isZero) {
+      cards.push(metricCard('Tip', '0% plan may be available', false,
+        'Call billing and ask about interest-free plans and financial assistance'));
+    }
+
+    metricsEl.innerHTML = cards.join('');
+  });
+</script>
